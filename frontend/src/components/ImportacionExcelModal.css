@@ -1,0 +1,238 @@
+.modal-importacion-excel {
+    width: min(860px, 100%);
+    max-height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
+}
+
+.importacion-excel-cuerpo {
+    min-height: 0;
+    padding: 22px 24px;
+    overflow-y: auto;
+}
+
+.importacion-paso {
+    padding: 16px;
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 13px;
+    border: 1px solid #dbe4f0;
+    border-radius: 12px;
+    background: #f8fafc;
+}
+
+.importacion-paso+.importacion-paso {
+    margin-top: 12px;
+}
+
+.importacion-numero {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-weight: 800;
+}
+
+.importacion-paso strong {
+    display: block;
+    color: #1e293b;
+    font-size: 14px;
+}
+
+.importacion-paso p {
+    margin: 5px 0 12px;
+    color: #64748b;
+    font-size: 12px;
+}
+
+.boton-plantilla,
+.importacion-selector {
+    min-height: 40px;
+    padding: 0 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid #bfdbfe;
+    border-radius: 9px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.importacion-selector {
+    width: min(430px, 100%);
+    border-style: dashed;
+    background: white;
+}
+
+.importacion-selector:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
+.importacion-input-oculto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.importacion-aviso {
+    margin-top: 14px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border: 1px solid;
+    border-radius: 10px;
+    font-size: 13px;
+}
+
+.importacion-aviso svg {
+    flex: 0 0 auto;
+}
+
+.importacion-aviso div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.importacion-aviso span {
+    line-height: 1.4;
+}
+
+.importacion-aviso-error {
+    border-color: #fecaca;
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.importacion-aviso-exito {
+    border-color: #bbf7d0;
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.importacion-errores-scroll {
+    max-height: 260px;
+    margin-top: 12px;
+    overflow: auto;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+}
+
+.importacion-errores {
+    width: 100%;
+    min-width: 650px;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.importacion-errores th,
+.importacion-errores td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #fee2e2;
+    text-align: left;
+    vertical-align: top;
+}
+
+.importacion-errores th {
+    position: sticky;
+    top: 0;
+    background: #fff7f7;
+    color: #991b1b;
+}
+
+.importacion-errores td {
+    color: #7f1d1d;
+}
+
+.acciones-encabezado-pagina {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.boton-importar-excel {
+    min-height: 44px;
+    padding: 0 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid #93c5fd;
+    border-radius: 9px;
+    background: white;
+    color: #1d4ed8;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.boton-importar-excel:hover {
+    background: #eff6ff;
+}
+
+@media (max-width: 720px) {
+    .encabezado-pagina {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .acciones-encabezado-pagina,
+    .boton-importar-excel,
+    .acciones-encabezado-pagina .boton-primario {
+        width: 100%;
+    }
+}
+
+/* El modal debe medir según su contenido; el cuerpo no debe estirarse
+   para ocupar toda la altura disponible cuando no hace falta. */
+.modal-importacion-excel {
+    width: min(860px, 100%);
+    max-height: calc(100vh - 40px);
+    max-height: calc(100dvh - 40px);
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-importacion-excel .importacion-excel-cuerpo {
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+/* Sobrescribe el margen global de .modal-acciones, que empujaba
+   visualmente los botones fuera del área del modal. */
+.modal-importacion-excel .modal-acciones {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 12px 24px;
+    border-top: 1px solid #e5e7eb;
+}
+
+@media (max-height: 620px) {
+    .modal-importacion-excel {
+        max-height: calc(100vh - 24px);
+        max-height: calc(100dvh - 24px);
+    }
+
+    .modal-importacion-excel .importacion-excel-cuerpo {
+        padding-top: 14px;
+        padding-bottom: 14px;
+    }
+}

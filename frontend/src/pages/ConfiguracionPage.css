@@ -1,0 +1,1565 @@
+.configuracion-pagina {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.configuracion-pagina * {
+    box-sizing: border-box;
+}
+
+/* ENCABEZADO */
+
+.config-encabezado {
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.config-encabezado h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.5rem;
+}
+
+.config-encabezado p {
+    margin: 6px 0 0;
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.config-boton-actualizar,
+.config-boton-cerrar,
+.config-error button {
+    padding: 10px 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #334155;
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background-color 0.2s,
+        border-color 0.2s,
+        color 0.2s;
+}
+
+.config-boton-actualizar:hover:not(:disabled),
+.config-boton-cerrar:hover {
+    border-color: #2563eb;
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.config-boton-actualizar:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.config-icono-girando {
+    animation: config-girar 0.9s linear infinite;
+}
+
+@keyframes config-girar {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* CATÁLOGO ACTUAL */
+
+.config-catalogo-titulo {
+    width: fit-content;
+    margin-bottom: 20px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    border-bottom: 3px solid #2563eb;
+    border-radius: 8px 8px 0 0;
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.config-catalogo-titulo h3 {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* CONTADORES */
+
+.config-resumen {
+    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 15px;
+}
+
+.config-tarjeta {
+    --config-acento: #2563eb;
+
+    min-width: 0;
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid var(--config-acento);
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgb(15 23 42 / 5%);
+}
+
+.config-tarjeta-activo {
+    --config-acento: #16a34a;
+}
+
+.config-tarjeta-inactivo {
+    --config-acento: #64748b;
+}
+
+.config-tarjeta span {
+    display: block;
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.config-tarjeta strong {
+    display: block;
+    margin-top: 7px;
+    color: #0f172a;
+    font-size: 1.75rem;
+}
+
+.config-tarjeta>svg {
+    flex-shrink: 0;
+    color: var(--config-acento);
+}
+
+/* BUSCADOR */
+
+.config-filtros {
+    margin-bottom: 18px;
+    padding: 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #ffffff;
+}
+
+.config-buscador {
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.config-buscador:focus-within {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 12%);
+}
+
+.config-buscador>svg {
+    flex-shrink: 0;
+    color: #64748b;
+}
+
+.config-buscador input {
+    width: 100%;
+    min-width: 0;
+    padding: 11px 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: #1e293b;
+    font: inherit;
+    box-shadow: none;
+}
+
+/* TABLA */
+
+.config-tabla-contenedor {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #ffffff;
+}
+
+.config-tabla {
+    width: 100%;
+    min-width: 640px;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.config-tabla th {
+    padding: 14px 18px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #475569;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.config-tabla td {
+    padding: 15px 18px;
+    border-bottom: 1px solid #eef2f7;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.config-tabla tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.config-tabla tbody tr:hover {
+    background: #f8fafc;
+}
+
+.config-tabla td strong {
+    color: #1e293b;
+}
+
+.config-tabla td:nth-child(2) {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* ESTADOS */
+
+.config-estado {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.config-estado-activo {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.config-estado-inactivo {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.config-estado-neutro {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+/* BOTÓN DEL OJO */
+
+.config-accion-ver {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: inline-grid;
+    place-items: center;
+    border: 1px solid #bfdbfe;
+    border-radius: 9px;
+    background: #eff6ff;
+    color: #2563eb;
+    box-shadow: none;
+    cursor: pointer;
+    transition:
+        background-color 0.2s,
+        border-color 0.2s,
+        color 0.2s;
+}
+
+.config-accion-ver>svg {
+    display: block;
+    width: 18px;
+    height: 18px;
+}
+
+.config-accion-ver:hover {
+    border-color: #2563eb;
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.config-resultados {
+    margin: 12px 0 0;
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+/* CARGA, LISTADO VACÍO Y ERRORES */
+
+.config-mensaje {
+    padding: 36px 20px;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #64748b;
+    text-align: center;
+}
+
+.config-error {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border: 1px solid #fecaca;
+    border-radius: 9px;
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+.config-error button {
+    flex-shrink: 0;
+    border-color: #fecaca;
+    color: #991b1b;
+}
+
+/* DIÁLOGO DE DETALLE */
+
+.config-modal {
+    width: min(620px, calc(100vw - 32px));
+    max-width: none;
+    max-height: calc(100vh - 32px);
+    margin: auto;
+    padding: 0;
+    overflow-y: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #1e293b;
+    font: inherit;
+    box-shadow: 0 24px 70px rgb(15 23 42 / 25%);
+}
+
+.config-modal::backdrop {
+    background: rgb(15 23 42 / 60%);
+}
+
+.config-modal-encabezado {
+    padding: 20px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.config-modal-encabezado h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.125rem;
+}
+
+.config-modal-cerrar {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    border: 0;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #475569;
+    cursor: pointer;
+}
+
+.config-modal-cerrar:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.config-modal .config-error {
+    margin: 20px;
+}
+
+.config-detalle {
+    padding: 22px;
+}
+
+.config-detalle-principal {
+    margin-bottom: 18px;
+    padding: 17px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    background: #eff6ff;
+}
+
+.config-detalle-principal>svg {
+    flex-shrink: 0;
+    color: #2563eb;
+}
+
+.config-detalle-principal>div {
+    min-width: 0;
+}
+
+.config-detalle-principal span {
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.config-detalle-principal h4 {
+    margin: 4px 0 0;
+    overflow-wrap: anywhere;
+    color: #0f172a;
+    font-size: 1.125rem;
+}
+
+.config-detalle-grid {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.config-detalle-grid>div {
+    min-width: 0;
+    padding: 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+    background: #f8fafc;
+}
+
+.config-detalle-grid>div:last-child {
+    grid-column: 1 / -1;
+}
+
+.config-detalle-grid dt {
+    margin-bottom: 7px;
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.config-detalle-grid dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.config-modal-acciones {
+    padding: 16px 22px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* FOCO DEL TECLADO */
+
+.configuracion-pagina button:focus-visible {
+    outline: 3px solid #93c5fd;
+    outline-offset: 3px;
+}
+
+/* PANTALLAS PEQUEÑAS */
+
+@media (max-width: 700px) {
+    .config-encabezado {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .config-resumen {
+        grid-template-columns: 1fr;
+    }
+
+    .config-error {
+        align-items: stretch;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 500px) {
+    .config-detalle {
+        padding: 16px;
+    }
+
+    .config-detalle-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .config-detalle-grid>div:last-child {
+        grid-column: auto;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .config-icono-girando {
+        animation: none;
+    }
+}
+
+.config-acciones-encabezado {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.config-boton-primario {
+    padding: 10px 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid #2563eb;
+    border-radius: 8px;
+    background: #2563eb;
+    color: #ffffff;
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.config-boton-primario>svg {
+    position: static;
+    display: block;
+    flex-shrink: 0;
+}
+
+.config-boton-primario:hover:not(:disabled) {
+    border-color: #1d4ed8;
+    background: #1d4ed8;
+}
+
+.config-boton-primario:disabled,
+.config-modal button:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.config-exito {
+    margin-bottom: 18px;
+    padding: 14px 16px;
+    border: 1px solid #bbf7d0;
+    border-radius: 9px;
+    background: #f0fdf4;
+    color: #166534;
+}
+
+.config-formulario-campos {
+    padding: 22px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.config-campo {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.config-campo-completo {
+    grid-column: 1 / -1;
+}
+
+.config-campo label {
+    color: #334155;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.config-campo input,
+.config-campo select,
+.config-campo textarea {
+    width: 100%;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #1e293b;
+    font: inherit;
+}
+
+.config-campo input:focus,
+.config-campo select:focus,
+.config-campo textarea:focus {
+    border-color: #2563eb;
+    outline: none;
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 12%);
+}
+
+.config-campo input:disabled,
+.config-campo select:disabled,
+.config-campo textarea:disabled {
+    background: #f1f5f9;
+    cursor: not-allowed;
+}
+
+.config-campo small {
+    color: #64748b;
+    font-size: 0.8125rem;
+}
+
+@media (max-width: 700px) {
+    .config-acciones-encabezado>button {
+        flex: 1;
+    }
+}
+
+@media (max-width: 500px) {
+    .config-formulario-campos {
+        padding: 16px;
+        grid-template-columns: 1fr;
+    }
+
+    .config-campo-completo {
+        grid-column: auto;
+    }
+}
+
+.config-tabla th:last-child,
+.config-tabla td:last-child {
+    width: 120px;
+    min-width: 120px;
+    text-align: center;
+}
+
+.config-campo textarea {
+    min-height: 82px;
+    resize: vertical;
+}
+
+.config-contratas-panel .config-encabezado h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.125rem;
+}
+
+.config-resumen-contratas {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.config-tabla-contratas {
+    min-width: 1040px;
+}
+
+.config-tabla-contratas th:first-child,
+.config-tabla-contratas td:first-child {
+    width: 70px;
+    white-space: nowrap;
+}
+
+.config-tabla-contratas th:last-child,
+.config-tabla-contratas td:last-child {
+    width: 170px;
+    min-width: 170px;
+}
+
+.config-accion-inhabilitar {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: inline-grid;
+    place-items: center;
+    border: 1px solid #fecaca;
+    border-radius: 9px;
+    background: #fef2f2;
+    color: #dc2626;
+    cursor: pointer;
+}
+
+.config-accion-inhabilitar:hover {
+    border-color: #dc2626;
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.config-modal-contrata {
+    width: min(840px, calc(100vw - 32px));
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+}
+
+.config-modal-contrata form {
+    padding: 0;
+}
+
+.config-gamas-selector {
+    min-width: 0;
+    margin: 0;
+    padding: 14px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+}
+
+.config-gamas-selector legend {
+    padding: 0 6px;
+    color: #334155;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.config-gamas-selector label {
+    min-width: 0;
+    padding: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    border-radius: 7px;
+    background: #f8fafc;
+    color: #475569;
+    font-size: 0.8125rem;
+    cursor: pointer;
+}
+
+.config-gamas-selector input {
+    margin-top: 2px;
+}
+
+.config-gamas-selector small {
+    grid-column: 1 / -1;
+    color: #64748b;
+}
+
+.config-detalle-contrata {
+    padding: 22px;
+}
+
+.config-detalle-principal .config-estado {
+    margin-left: auto;
+}
+
+.config-detalle-grid-contrata {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.config-detalle-grid-contrata>div {
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+    background: #f8fafc;
+}
+
+.config-detalle-grid-contrata span,
+.config-detalle-grid-contrata strong {
+    display: block;
+}
+
+.config-detalle-grid-contrata span {
+    margin-bottom: 6px;
+    color: #64748b;
+    font-size: 0.8125rem;
+}
+
+.config-detalle-grid-contrata strong {
+    overflow-wrap: anywhere;
+    color: #1e293b;
+}
+
+.config-detalle-grid-contrata .config-detalle-ancho {
+    grid-column: 1 / -1;
+}
+
+.config-subtitulo-equipos {
+    margin: 22px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #0f172a;
+}
+
+.config-subtitulo-equipos h4 {
+    margin: 0;
+}
+
+.config-tabla-equipos-contrata {
+    min-width: 720px;
+}
+
+.config-mensaje-compacto {
+    padding: 20px;
+    background: #f8fafc;
+}
+
+.config-modal-confirmacion {
+    width: min(520px, calc(100vw - 32px));
+}
+
+.config-confirmacion-contenido {
+    padding: 22px;
+    color: #334155;
+}
+
+.config-boton-peligro {
+    min-height: 40px;
+    padding: 0 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 0;
+    border-radius: 8px;
+    background: #dc2626;
+    color: #ffffff;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.config-gamas-panel,
+.config-contratas-panel {
+    width: 100%;
+    min-width: 0;
+}
+
+.config-gamas-panel .config-encabezado h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.125rem;
+}
+
+.config-resumen-gamas {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.config-tabla-gamas {
+    min-width: 900px;
+}
+
+.config-tabla-gamas th:first-child,
+.config-tabla-gamas td:first-child {
+    width: 65px;
+}
+
+.config-tabla-gamas th:last-child,
+.config-tabla-gamas td:last-child {
+    width: 125px;
+    min-width: 125px;
+}
+
+.config-modal-gama {
+    width: min(620px, calc(100vw - 32px));
+}
+
+.config-modal-gama form {
+    padding: 18px 18px 0;
+}
+
+/* El formulario de gamas debe mantener las acciones pegadas al contenido.
+   EquiposPage.css define .modal-acciones de forma global, por eso se
+   sobreescribe aquí con mayor especificidad solo para este modal. */
+.config-modal-gama .modal-acciones {
+    margin: 18px -18px 0;
+    padding: 12px 18px;
+}
+
+.config-tarifas-editor {
+    display: grid;
+    gap: 14px;
+}
+
+.config-tarifa-card {
+    overflow: hidden;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    background: #ffffff;
+}
+
+.config-tarifa-titulo {
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.config-tarifa-titulo strong,
+.config-tarifa-titulo span {
+    display: block;
+}
+
+.config-tarifa-titulo strong {
+    color: #0f172a;
+}
+
+.config-tarifa-titulo span,
+.config-tarifa-titulo small {
+    color: #64748b;
+    font-size: 0.75rem;
+}
+
+.config-tarifa-campos {
+    padding: 14px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.config-tarifa-campo {
+    min-width: 0;
+}
+
+.config-tarifa-campo>span {
+    display: block;
+    margin-bottom: 6px;
+    color: #475569;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.config-tarifa-campo>div {
+    display: flex;
+    align-items: center;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.config-tarifa-campo>div:focus-within {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 12%);
+}
+
+.config-tarifa-campo input {
+    width: 100%;
+    min-width: 0;
+    padding: 9px 10px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #1e293b;
+    font: inherit;
+}
+
+.config-tarifa-campo small {
+    padding-right: 9px;
+    color: #64748b;
+    font-size: 0.6875rem;
+    white-space: nowrap;
+}
+
+.config-tabla-tarifas {
+    min-width: 940px;
+}
+
+.config-tabla-tarifas td:first-child small {
+    display: block;
+    margin-top: 3px;
+    color: #64748b;
+}
+
+.config-tabla-tarifas th:last-child,
+.config-tabla-tarifas td:last-child {
+    width: auto;
+    min-width: 125px;
+    text-align: left;
+}
+
+@media (max-width: 1150px) {
+    .config-resumen-contratas {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .config-resumen-gamas {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+
+    .config-resumen-contratas,
+    .config-detalle-grid-contrata,
+    .config-gamas-selector {
+        grid-template-columns: 1fr;
+    }
+
+    .config-detalle-grid-contrata .config-detalle-ancho,
+    .config-gamas-selector small {
+        grid-column: auto;
+    }
+
+    .config-tarifa-campos {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 500px) {
+
+    .config-resumen-gamas,
+    .config-tarifa-campos {
+        grid-template-columns: 1fr;
+    }
+}
+
+.config-acciones-fila {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.config-accion-editar {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: inline-grid;
+    place-items: center;
+    border: 1px solid #fde68a;
+    border-radius: 9px;
+    background: #fffbeb;
+    color: #b45309;
+    cursor: pointer;
+    box-shadow: none;
+}
+
+.config-accion-editar>svg {
+    position: static;
+    display: block;
+    width: 18px;
+    height: 18px;
+}
+
+.config-accion-editar:hover {
+    border-color: #b45309;
+    background: #b45309;
+    color: #ffffff;
+}
+
+.config-planes-panel {
+    width: 100%;
+    min-width: 0;
+}
+
+.config-planes-panel .config-encabezado h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.125rem;
+}
+
+.config-tabla-planes th:nth-child(2),
+.config-tabla-planes td:nth-child(2) {
+    width: 170px;
+    white-space: nowrap;
+}
+
+.config-tabla-planes th:last-child,
+.config-tabla-planes td:last-child {
+    width: 150px;
+    min-width: 150px;
+}
+
+.config-pestanas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    width: fit-content;
+    max-width: 100%;
+    margin-bottom: 24px;
+    padding: 6px;
+    border: 1px solid #dbe3ef;
+    border-radius: 12px;
+    background: #ffffff;
+}
+
+.config-pestana {
+    min-height: 42px;
+    padding: 10px 18px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #475569;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 150ms, color 150ms;
+}
+
+.config-pestana:hover {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.config-pestana-activa,
+.config-pestana-activa:hover {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.config-panel,
+.config-panel-operadores {
+    min-width: 0;
+}
+
+.config-panel[hidden] {
+    display: none;
+}
+
+.config-panel:focus-visible {
+    outline: 3px solid #93c5fd;
+    outline-offset: 4px;
+    border-radius: 8px;
+}
+
+.config-panel-operadores .config-encabezado h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.125rem;
+}
+
+@media (max-width: 500px) {
+    .config-pestanas {
+        width: 100%;
+    }
+
+    .config-pestana {
+        flex: 1;
+    }
+}
+
+/* Separación entre las pestañas y su contenido */
+.configuracion-pagina>.config-pestanas {
+    margin-bottom: 20px;
+}
+
+/* El contenedor exterior ya proporciona el espacio de la página */
+.configuracion-pagina>.config-panel {
+    margin: 0;
+    padding: 0;
+}
+
+.configuracion-pagina .config-panel-operadores {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+}
+
+/* Encabezado de Operadores */
+.configuracion-pagina .config-panel-operadores>.config-encabezado {
+    margin-top: 0;
+    margin-bottom: 18px;
+}
+
+.configuracion-pagina .config-panel-operadores>.config-encabezado h3 {
+    margin: 0;
+}
+
+.configuracion-pagina .config-panel-operadores>.config-encabezado p {
+    margin: 6px 0 0;
+}
+
+/* USUARIOS */
+
+.usuarios-panel {
+    width: 100%;
+    min-width: 0;
+}
+
+.usuarios-panel .config-encabezado h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.125rem;
+}
+
+.usuarios-resumen {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.usuario-tarjeta-admin {
+    --config-acento: #7c3aed;
+}
+
+.usuario-tarjeta-activo {
+    --config-acento: #16a34a;
+}
+
+.usuario-tarjeta-inactivo {
+    --config-acento: #64748b;
+}
+
+.usuarios-tabla {
+    min-width: 920px;
+}
+
+.usuarios-tabla th:last-child,
+.usuarios-tabla td:last-child {
+    width: 120px;
+    min-width: 120px;
+}
+
+.usuario-actual {
+    display: block;
+    margin-top: 4px;
+    color: #2563eb;
+    font-weight: 600;
+}
+
+.usuario-cuenta {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.usuario-rol {
+    display: inline-flex;
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.usuario-rol-administrador {
+    background: #ede9fe;
+    color: #6d28d9;
+}
+
+.usuario-rol-operador {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.usuario-rol-consulta {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.usuario-estado-bloqueado {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.usuario-accion-clave {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: inline-grid;
+    place-items: center;
+    border: 1px solid #c4b5fd;
+    border-radius: 9px;
+    background: #f5f3ff;
+    color: #6d28d9;
+    cursor: pointer;
+}
+
+.usuario-accion-clave:hover {
+    border-color: #6d28d9;
+    background: #6d28d9;
+    color: #ffffff;
+}
+
+.usuario-clave-aviso {
+    margin: 0;
+    padding: 12px 14px;
+    border: 1px solid #bfdbfe;
+    border-radius: 9px;
+    background: #eff6ff;
+    color: #1e40af;
+    font-size: 0.875rem;
+    line-height: 1.45;
+}
+
+@media (max-width: 1050px) {
+    .usuarios-resumen {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 500px) {
+    .usuarios-resumen {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* AUDITORÍA */
+
+.auditoria-panel {
+    width: 100%;
+    min-width: 0;
+}
+
+.auditoria-panel .config-encabezado h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.125rem;
+}
+
+.auditoria-resumen {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.auditoria-tarjeta-exito {
+    --config-acento: #16a34a;
+}
+
+.auditoria-tarjeta-rechazado {
+    --config-acento: #d97706;
+}
+
+.auditoria-tarjeta-error {
+    --config-acento: #dc2626;
+}
+
+.auditoria-filtros {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 220px;
+    gap: 12px;
+}
+
+.auditoria-filtro-resultado {
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    outline: none;
+    background: #ffffff;
+    color: #334155;
+    font: inherit;
+}
+
+.auditoria-filtro-resultado:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 12%);
+}
+
+.auditoria-tabla {
+    min-width: 1080px;
+}
+
+.auditoria-tabla th:last-child,
+.auditoria-tabla td:last-child {
+    width: auto;
+    min-width: 135px;
+    text-align: left;
+}
+
+.auditoria-fecha strong,
+.auditoria-fecha small,
+.auditoria-secundario {
+    display: block;
+}
+
+.auditoria-fecha {
+    min-width: 125px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.auditoria-fecha small,
+.auditoria-secundario {
+    margin-top: 4px;
+    color: #64748b;
+    font-size: 0.75rem;
+    font-weight: 400;
+}
+
+.auditoria-ruta {
+    max-width: 320px;
+    overflow: hidden;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.auditoria-resultado {
+    display: inline-flex;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.auditoria-resultado-exito {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.auditoria-resultado-rechazado {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.auditoria-resultado-error {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.auditoria-ip {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+@media (max-width: 1050px) {
+    .auditoria-resumen {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 650px) {
+    .auditoria-filtros {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 500px) {
+    .auditoria-resumen {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* CORRECCIÓN: modal de Gamas independiente de los estilos globales */
+.config-modal-gama {
+    width: min(600px, calc(100vw - 40px));
+    max-width: 600px;
+    max-height: calc(100vh - 40px);
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #1e293b;
+    box-shadow: 0 24px 60px rgb(15 23 42 / 25%);
+}
+
+.config-modal-gama:focus {
+    outline: 3px solid #93c5fd;
+    outline-offset: 3px;
+}
+
+.config-modal-gama .modal-encabezado {
+    padding: 18px 20px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.config-modal-gama .modal-encabezado h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.05rem;
+}
+
+.config-modal-gama .modal-encabezado p {
+    margin: 4px 0 0;
+    color: #64748b;
+    font-size: 0.8rem;
+}
+
+.config-modal-gama .modal-cerrar {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    border: 0;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #64748b;
+    cursor: pointer;
+}
+
+.config-modal-gama .modal-cerrar:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.config-modal-gama form {
+    padding: 18px 20px 0;
+}
+
+.config-modal-gama .config-formulario-campos {
+    gap: 16px;
+}
+
+.config-modal-gama .config-campo {
+    gap: 6px;
+}
+
+.config-modal-gama .config-campo input {
+    min-height: 42px;
+}
+
+.config-modal-gama .modal-acciones {
+    margin: 18px -20px 0;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.config-modal-gama .boton-cancelar,
+.config-modal-gama .boton-guardar {
+    min-height: 38px;
+    padding: 0 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.config-modal-gama .boton-cancelar {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #475569;
+}
+
+.config-modal-gama .boton-cancelar:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+}
+
+.config-modal-gama .boton-guardar {
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.config-modal-gama .boton-guardar:hover {
+    background: #1d4ed8;
+}
+
+.config-modal-gama .boton-cancelar:disabled,
+.config-modal-gama .boton-guardar:disabled,
+.config-modal-gama .modal-cerrar:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}

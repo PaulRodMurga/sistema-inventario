@@ -1,0 +1,455 @@
+.resumen-asignaciones {
+    width: fit-content;
+    min-width: 250px;
+    margin-bottom: 20px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border: 1px solid #dbeafe;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 3px 12px rgb(15 23 42 / 6%);
+}
+
+.resumen-asignacion-icono {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.resumen-asignaciones div:last-child {
+    display: flex;
+    flex-direction: column;
+}
+
+.resumen-asignaciones span {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.resumen-asignaciones strong {
+    margin-top: 3px;
+    color: #1e293b;
+    font-size: 24px;
+}
+
+.tabla-asignaciones {
+    min-width: 1300px;
+}
+
+.celda-principal {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.celda-principal strong {
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.celda-principal span {
+    margin-top: 3px;
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+.etiqueta-modalidad {
+    padding: 5px 9px;
+    display: inline-flex;
+    border-radius: 999px;
+    background: #f3e8ff;
+    color: #7e22ce;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.boton-ver-asignacion {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.modal-asignacion {
+    width: min(680px, 100%);
+}
+
+.campo-formulario textarea {
+    width: 100%;
+    padding: 11px 12px;
+    resize: vertical;
+    border: 1px solid #dbe1ea;
+    border-radius: 9px;
+    outline: 0;
+    color: #1f2937;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.campo-formulario textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 10%);
+}
+
+.modal-detalle-asignacion {
+    width: min(700px, 100%);
+}
+
+.detalle-asignacion {
+    max-height: 70vh;
+    padding: 24px;
+    overflow-y: auto;
+}
+
+.detalle-seccion+.detalle-seccion {
+    margin-top: 22px;
+}
+
+.detalle-seccion h4 {
+    margin: 0 0 12px;
+    color: #1e293b;
+    font-size: 14px;
+}
+
+.acciones-asignacion {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.boton-devolver {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 8px;
+    background: #fef3c7;
+    color: #b45309;
+    cursor: pointer;
+}
+
+.boton-devolver:hover {
+    background: #fde68a;
+}
+
+.modal-devolucion {
+    width: min(650px, 100%);
+}
+
+.resumen-devolucion {
+    margin-bottom: 20px;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    border: 1px solid #dbeafe;
+    border-radius: 10px;
+    background: #eff6ff;
+}
+
+.resumen-devolucion span,
+.resumen-devolucion strong {
+    display: block;
+}
+
+.resumen-devolucion span {
+    margin-bottom: 5px;
+    color: #64748b;
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+.resumen-devolucion strong {
+    overflow-wrap: anywhere;
+    color: #1e293b;
+    font-size: 13px;
+}
+
+.advertencia-devolucion {
+    margin-top: 18px;
+    padding: 12px 14px;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    background: #fffbeb;
+    color: #92400e;
+    font-size: 12px;
+}
+
+.boton-confirmar-devolucion {
+    min-height: 40px;
+    padding: 0 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 0;
+    border-radius: 8px;
+    background: #d97706;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.boton-confirmar-devolucion:hover {
+    background: #b45309;
+}
+
+.boton-confirmar-devolucion:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+@media (max-width: 600px) {
+    .resumen-devolucion {
+        grid-template-columns: 1fr;
+    }
+}
+
+.pestanas-asignaciones {
+    margin-bottom: 18px;
+    padding: 5px;
+    display: inline-flex;
+    gap: 5px;
+    border: 1px solid #e2e8f0;
+    border-radius: 11px;
+    background: #ffffff;
+}
+
+.pestana-asignacion {
+    min-height: 38px;
+    padding: 0 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.pestana-asignacion:hover {
+    background: #f1f5f9;
+    color: #334155;
+}
+
+.pestana-asignacion.activa {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.pestana-asignacion span {
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 999px;
+    background: #e2e8f0;
+    color: #475569;
+    font-size: 11px;
+}
+
+.pestana-asignacion.activa span {
+    background: rgb(255 255 255 / 20%);
+    color: #ffffff;
+}
+
+.estado-asignacion {
+    padding: 6px 10px;
+    display: inline-flex;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.estado-asignacion.estado-activa {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.estado-finalizada {
+    background: #e2e8f0;
+    color: #475569;
+}
+
+.estado-cancelada {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.detalle-asignacion .nota-asignacion {
+    margin: 6px 0 0;
+    color: #334155;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.detalle-asignacion .detalle-seccion>.detalle-campo+.detalle-campo,
+.detalle-asignacion .detalle-grid+.detalle-campo {
+    margin-top: 12px;
+}
+
+.asignacion-campos {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+@media (max-width: 600px) {
+    .pestanas-asignaciones {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .pestana-asignacion {
+        justify-content: space-between;
+    }
+}
+
+/* Selectores con búsqueda para el formulario de nueva asignación */
+.selector-busqueda {
+    position: relative;
+    width: 100%;
+}
+
+.selector-busqueda>input {
+    width: 100%;
+    min-height: 44px;
+    padding: 11px 38px 11px 12px;
+    border: 1px solid #dbe1ea;
+    border-radius: 9px;
+    outline: 0;
+    background: #fff;
+    color: #1f2937;
+    font: inherit;
+    font-size: 14px;
+}
+
+.selector-busqueda>input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 10%);
+}
+
+.selector-busqueda-resultados {
+    position: absolute;
+    z-index: 1200;
+    top: calc(100% + 5px);
+    left: 0;
+    right: 0;
+    max-height: 260px;
+    overflow-y: auto;
+    padding: 5px;
+    border: 1px solid #dbe1ea;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 12px 28px rgb(15 23 42 / 16%);
+}
+
+.selector-busqueda-opcion {
+    display: block;
+    width: 100%;
+    padding: 10px 11px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #1f2937;
+    text-align: left;
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.selector-busqueda-opcion:hover,
+.selector-busqueda-opcion[aria-selected="true"] {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.selector-busqueda-limpiar {
+    margin-bottom: 4px;
+    border-bottom: 1px solid #e5e7eb;
+    border-radius: 0;
+    color: #64748b;
+}
+
+.selector-busqueda-vacio {
+    padding: 12px 10px;
+    color: #64748b;
+    font-size: 12px;
+}
+
+/* Acta de entrega y generación del documento */
+.bloque-acta-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    padding: 15px;
+    border: 1px solid #dbeafe;
+    border-radius: 10px;
+    background: #f5f9ff;
+}
+
+.bloque-acta-icono {
+    flex: 0 0 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    color: #155e91;
+    background: #e0efff;
+    border-radius: 9px;
+}
+
+.bloque-acta-info strong {
+    color: #173b5b;
+    font-size: 14px;
+}
+
+.bloque-acta-info p {
+    margin: 4px 0 0;
+    color: #52677c;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.boton-generar-acta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 34px;
+    padding: 0 10px;
+    border: 1px solid #b8d9f3;
+    border-radius: 8px;
+    background: #edf7ff;
+    color: #155e91;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background .15s ease, border-color .15s ease;
+}
+
+.boton-generar-acta:hover {
+    background: #dceeff;
+    border-color: #7eb9e7;
+}

@@ -1,0 +1,208 @@
+.tarjetas-colaboradores {
+    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(150px, 1fr));
+    gap: 14px;
+}
+
+.resumen-colaborador {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 3px 12px rgb(15 23 42 / 5%);
+}
+
+.resumen-colaborador-icono {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    border-radius: 10px;
+}
+
+.resumen-colaborador-icono.total {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.resumen-colaborador-icono.activo {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.resumen-colaborador-icono.cesado {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.resumen-colaborador-icono.externo {
+    background: #f3e8ff;
+    color: #9333ea;
+}
+
+.resumen-colaborador div:last-child {
+    display: flex;
+    flex-direction: column;
+}
+
+.resumen-colaborador span {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.resumen-colaborador strong {
+    margin-top: 3px;
+    color: #1e293b;
+    font-size: 23px;
+}
+
+.filtros-colaboradores {
+    margin-bottom: 18px;
+}
+
+.pestanas-colaboradores {
+    margin-bottom: 12px;
+    padding: 5px;
+    display: inline-flex;
+    gap: 5px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: white;
+}
+
+.pestana-colaborador {
+    min-height: 36px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.pestana-colaborador:hover {
+    background: #f1f5f9;
+}
+
+.pestana-colaborador.activa {
+    background: #2563eb;
+    color: white;
+}
+
+.barra-colaboradores {
+    margin-bottom: 0;
+}
+
+.tabla-colaboradores {
+    min-width: 1250px;
+}
+
+.estado-colaborador {
+    padding: 6px 10px;
+    display: inline-flex;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.estado-activo {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.estado-cesado {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.estado-externo {
+    background: #f3e8ff;
+    color: #7e22ce;
+}
+
+@media (max-width: 1050px) {
+    .tarjetas-colaboradores {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .tarjetas-colaboradores {
+        grid-template-columns: 1fr;
+    }
+
+    .pestanas-colaboradores {
+        width: 100%;
+        overflow-x: auto;
+    }
+}
+
+.modal-colaborador {
+    width: min(720px, 100%);
+}
+
+.modal-detalle-colaborador {
+    width: min(680px, 100%);
+}
+
+.detalle-cargando {
+    min-height: 280px;
+    display: grid;
+    place-items: center;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.detalle-colaborador {
+    padding: 24px;
+}
+
+.perfil-colaborador {
+    margin-bottom: 22px;
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border: 1px solid #dbeafe;
+    border-radius: 12px;
+    background: #eff6ff;
+}
+
+.perfil-colaborador-avatar {
+    width: 56px;
+    height: 56px;
+    display: grid;
+    flex: 0 0 56px;
+    place-items: center;
+    border-radius: 50%;
+    background: #2563eb;
+    color: white;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.perfil-colaborador h4 {
+    margin: 0 0 8px;
+    color: #1e293b;
+    font-size: 18px;
+}
+
+.campo-formulario input:disabled {
+    background: #f1f5f9;
+    color: #64748b;
+    cursor: not-allowed;
+}
+
+.campo-ayuda {
+    margin-top: 5px;
+    display: block;
+    color: #94a3b8;
+    font-size: 11px;
+}

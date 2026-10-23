@@ -1,0 +1,158 @@
+.login-pagina {
+    min-height: 100vh;
+    padding: 24px;
+    display: grid;
+    place-items: center;
+    background:
+        radial-gradient(circle at 15% 20%, rgb(37 99 235 / 22%), transparent 36%),
+        linear-gradient(145deg, #0f172a, #111827 55%, #172554);
+}
+
+.login-tarjeta {
+    width: min(430px, 100%);
+    padding: 34px;
+    border: 1px solid rgb(255 255 255 / 12%);
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 28px 80px rgb(2 6 23 / 38%);
+}
+
+.login-marca {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.login-logo {
+    width: 52px;
+    height: 52px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.login-marca>div:last-child {
+    display: flex;
+    flex-direction: column;
+}
+
+.login-marca strong {
+    color: #0f172a;
+    font-size: 1.15rem;
+}
+
+.login-marca span {
+    margin-top: 3px;
+    color: #64748b;
+    font-size: 0.84rem;
+}
+
+.login-encabezado {
+    margin: 32px 0 24px;
+}
+
+.login-encabezado h1 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.65rem;
+}
+
+.login-encabezado p {
+    margin: 8px 0 0;
+    color: #64748b;
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
+
+.login-campo {
+    margin-top: 17px;
+    display: block;
+}
+
+.login-campo>span {
+    display: block;
+    margin-bottom: 7px;
+    color: #334155;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.login-campo>div {
+    min-height: 46px;
+    padding: 0 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    color: #64748b;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.login-campo>div:focus-within {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 14%);
+}
+
+.login-campo input {
+    width: 100%;
+    min-width: 0;
+    padding: 11px 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #0f172a;
+    font: inherit;
+}
+
+.login-error {
+    padding: 12px 14px;
+    border: 1px solid #fecaca;
+    border-radius: 9px;
+    background: #fef2f2;
+    color: #991b1b;
+    font-size: 0.88rem;
+}
+
+.login-boton {
+    width: 100%;
+    min-height: 46px;
+    margin-top: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    border: 0;
+    border-radius: 9px;
+    background: #2563eb;
+    color: #ffffff;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.login-boton:hover:not(:disabled) {
+    background: #1d4ed8;
+}
+
+.login-boton:disabled {
+    cursor: wait;
+    opacity: 0.7;
+}
+
+.login-boton:focus-visible {
+    outline: 3px solid #93c5fd;
+    outline-offset: 3px;
+}
+
+@media (max-width: 480px) {
+    .login-pagina {
+        padding: 14px;
+    }
+
+    .login-tarjeta {
+        padding: 26px 22px;
+    }
+}
