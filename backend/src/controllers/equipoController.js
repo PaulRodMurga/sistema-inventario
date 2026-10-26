@@ -107,8 +107,7 @@ const responderErrorRegistro = (res, error, lote = false) => {
         success: false,
         mensaje: lote
             ? 'Error al registrar el lote de equipos'
-            : 'Error al registrar el equipo',
-        error: error.message
+            : 'Error al registrar el equipo'
     });
 };
 
@@ -243,8 +242,7 @@ const listarEquipos = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al obtener los equipos',
-            error: error.message
+            mensaje: 'Error al obtener los equipos'
         });
     }
 };
@@ -330,8 +328,7 @@ const obtenerEquipoPorId = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al obtener el equipo',
-            error: error.message
+            mensaje: 'Error al obtener el equipo'
         });
     }
 };
@@ -366,8 +363,7 @@ const buscarPorImei = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al buscar el equipo',
-            error: error.message
+            mensaje: 'Error al buscar el equipo'
         });
     }
 };
@@ -403,8 +399,7 @@ const buscarPorSerie = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al buscar el equipo',
-            error: error.message
+            mensaje: 'Error al buscar el equipo'
         });
     }
 };
@@ -1036,8 +1031,7 @@ const editarEquipo = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al actualizar el equipo',
-            error: error.message
+            mensaje: 'Error al actualizar el equipo'
         });
     }
 };
