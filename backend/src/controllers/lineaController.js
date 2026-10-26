@@ -107,8 +107,7 @@ const listarLineas = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al obtener las líneas',
-            error: error.message
+            mensaje: 'Error al obtener las líneas'
         });
     }
 };
@@ -218,8 +217,7 @@ const actualizarLinea = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            mensaje: 'Error al actualizar la línea',
-            error: error.message
+            mensaje: 'Error al actualizar la línea'
         });
     }
 };
@@ -282,8 +280,7 @@ const buscarPorNumero = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al buscar la línea',
-            error: error.message
+            mensaje: 'Error al buscar la línea'
         });
     }
 };
@@ -391,8 +388,7 @@ const registrarLinea = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al registrar la línea',
-            error: error.message
+            mensaje: 'Error al registrar la línea'
         });
     }
 };
@@ -460,8 +456,7 @@ const obtenerLineaPorId = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            mensaje: 'Error al obtener la línea',
-            error: error.message
+            mensaje: 'Error al obtener la línea'
         });
     }
 };
