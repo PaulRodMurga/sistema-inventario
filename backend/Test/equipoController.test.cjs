@@ -58,7 +58,7 @@ function prepararControlador({ resultado, error } = {}) {
 
             if (error) throw error;
             if (resultado) return [resultado];
-            if (/^SELECT id FROM equipo WHERE id = \\?$/.test(sql.trim())) {
+            if (/^SELECT id FROM equipo WHERE id = \?$/.test(sql.trim())) {
                 return [String(valores[0]) === String(equipo.id) ? [{ id: equipo.id }] : []];
             }
 
