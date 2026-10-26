@@ -1,5 +1,4 @@
-const CAMPOS_INTERNOS = new Set([
-    'error',
+const CAMPOS_SQL_INTERNOS = new Set([
     'stack',
     'sql',
     'sqlMessage'
@@ -35,7 +34,6 @@ const ocultarDetallesInternos = (esProduccion) => (
     res.json = (cuerpo) => {
         if (
             !esProduccion ||
-            res.statusCode < 500 ||
             cuerpo === null ||
             typeof cuerpo !== 'object' ||
             Array.isArray(cuerpo)
@@ -44,9 +42,11 @@ const ocultarDetallesInternos = (esProduccion) => (
         }
 
         const cuerpoPublico = Object.fromEntries(
-            Object.entries(cuerpo).filter(
-                ([campo]) => !CAMPOS_INTERNOS.has(campo)
-            )
+            Object.entries(cuerpo).filter(([campo]) => {
+                if (CAMPOS_SQL_INTERNOS.has(campo)) return false;
+                if (res.statusCode >= 500 && campo === 'error') return false;
+                return true;
+            })
         );
 
         return enviarJson(cuerpoPublico);
