@@ -245,7 +245,9 @@ test('Ruta del catálogo precede /:id y mantiene POST y devolución', () => {
                 Router: () => Object.fromEntries(['get', 'post', 'put'].map((metodo) =>
                     [metodo, (ruta) => rutas.push([metodo, ruta])]))
             };
-            assert.equal(nombre, '../controllers/asignacionController'); return {};
+            if (nombre === '../controllers/correoActaController') return { enviarActaPorCorreo() {} };
+            if (nombre === '../controllers/asignacionController') return {};
+            throw new Error(`Módulo inesperado: ${nombre}`);
         }
     });
     assert.ok(rutas.findIndex(([m, p]) => m === 'get' && p === '/actas-disponibles') < rutas.findIndex(([m, p]) => m === 'get' && p === '/:id'));
