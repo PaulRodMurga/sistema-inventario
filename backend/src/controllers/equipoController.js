@@ -345,7 +345,14 @@ const obtenerEquipoPorId = async (req, res) => {
 // ==========================================
 const buscarPorImei = async (req, res) => {
     try {
-        const { imei } = req.params;
+        const imei = normalizarTexto(req.params.imei, 30, true);
+
+        if (!imei) {
+            return res.status(400).json({
+                success: false,
+                mensaje: 'El IMEI debe ser válido y no superar 30 caracteres'
+            });
+        }
 
         const [rows] = await pool.query(`
             SELECT *
@@ -381,7 +388,14 @@ const buscarPorImei = async (req, res) => {
 // ==========================================
 const buscarPorSerie = async (req, res) => {
     try {
-        const { serie } = req.params;
+        const serie = normalizarTexto(req.params.serie, 30, true);
+
+        if (!serie) {
+            return res.status(400).json({
+                success: false,
+                mensaje: 'La serie debe ser válida y no superar 30 caracteres'
+            });
+        }
 
         const [rows] = await pool.query(`
             SELECT *
