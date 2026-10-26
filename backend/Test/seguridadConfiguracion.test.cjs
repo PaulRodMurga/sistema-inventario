@@ -230,7 +230,7 @@ test('desarrollo conserva diagnósticos y producción oculta campos técnicos en
     });
 });
 
-test('producción oculta campos SQL en errores 409 y conserva el mensaje funcional', () => {
+test('producción oculta campos técnicos en errores 409 y conserva el detalle funcional', () => {
     const conflicto = respuesta();
     conflicto.statusCode = 409;
     ocultarDetallesInternos(true)({}, conflicto, () => { });
@@ -245,7 +245,7 @@ test('producción oculta campos SQL en errores 409 y conserva el mensaje funcion
     assert.deepEqual(conflicto.body, {
         success: false,
         mensaje: 'La serie ya está registrada',
-        detalle: 'Duplicate entry in table equipo'
+        detalle: 'Revisa los datos e inténtalo nuevamente'
     });
 });
 
