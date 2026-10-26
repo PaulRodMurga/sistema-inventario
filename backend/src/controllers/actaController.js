@@ -84,8 +84,7 @@ const listarActas = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al obtener las actas',
-            error: error.message
+            mensaje: 'Error al obtener las actas'
         });
     }
 };
@@ -123,8 +122,7 @@ const obtenerActaPorId = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al obtener el acta',
-            error: error.message
+            mensaje: 'Error al obtener el acta'
         });
     }
 };
@@ -266,8 +264,7 @@ const registrarActa = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al registrar el acta',
-            error: error.message
+            mensaje: 'Error al registrar el acta'
         });
 
     } finally {
@@ -353,8 +350,7 @@ const editarActa = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al actualizar el acta',
-            error: error.message
+            mensaje: 'Error al actualizar el acta'
         });
     }
 };
