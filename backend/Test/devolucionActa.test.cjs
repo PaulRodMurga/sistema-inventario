@@ -33,7 +33,7 @@ function entorno(opciones = {}) {
         async beginTransaction() { tx = true; eventos.push('begin'); },
         async query(sql, parametros = []) {
             assert.equal(tx, true, 'Las consultas de devolución deben usar una transacción');
-            const q = sql.replace(/\\s+/g, ' ').trim();
+            const q = sql.replace(/\s+/g, ' ').trim();
             const p = [...parametros];
             consultas.push({ sql: q, parametros: p });
 
@@ -118,7 +118,7 @@ test('La devolución finaliza la asignación y conserva el movimiento generado',
     assert.match(estado.movimientos.at(-1).descripcion, /Recepción con cable/);
     assert.equal(estado.movimientos.at(-1).autorizado_por, 3);
     assert.deepEqual(app.eventos, ['acquire', 'begin', 'commit', 'release']);
-    assert.ok(app.consultas.every(c => !/FROM acta\\b|FROM detalle_acta|UPDATE detalle_acta/.test(c.sql)),
+    assert.ok(app.consultas.every(c => !/FROM acta\b|FROM detalle_acta|UPDATE detalle_acta/.test(c.sql)),
         'La devolución no sincroniza automáticamente actas ni sus detalles');
 });
 
