@@ -43,8 +43,7 @@ const listarPlanes = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al obtener los planes',
-            error: error.message
+            mensaje: 'Error al obtener los planes'
         });
     }
 };
@@ -123,8 +122,7 @@ const registrarPlan = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al registrar el plan',
-            error: error.message
+            mensaje: 'Error al registrar el plan'
         });
     }
 };
@@ -227,8 +225,7 @@ const editarPlan = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al actualizar el plan',
-            error: error.message
+            mensaje: 'Error al actualizar el plan'
         });
     }
 };
