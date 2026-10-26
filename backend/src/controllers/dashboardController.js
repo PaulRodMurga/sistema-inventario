@@ -228,8 +228,7 @@ const obtenerDashboard = async (req, res) => {
         res.status(500).json({
             success: false,
             mensaje:
-                'Error al obtener información del dashboard',
-            error: error.message
+                'Error al obtener información del dashboard'
         });
 
     }
