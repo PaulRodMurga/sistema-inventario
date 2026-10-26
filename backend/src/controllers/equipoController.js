@@ -449,11 +449,30 @@ const registrarEquipo = async (req, res) => {
             perifericos
         } = req.body;
 
-        if (!tipo || !marca || !modelo || !contrato_gama_id) {
+        const marcaNormalizada = normalizarTexto(marca, 50, true);
+        const modeloNormalizado = normalizarTexto(modelo, 100, true);
+        const imeiNormalizado = normalizarTexto(imei, 30);
+        const serieNormalizada = normalizarTexto(serie, 30);
+        const fechaInicioNormalizada = normalizarFechaOpcional(fecha_inicio_alquiler);
+        const fechaFinNormalizada = normalizarFechaOpcional(fecha_fin_alquiler);
+
+        if (!tipo || !marcaNormalizada || !modeloNormalizado || !contrato_gama_id) {
             return res.status(400).json({
                 success: false,
                 mensaje:
-                    'Tipo, marca, modelo y contrato_gama_id son obligatorios'
+                    'Tipo, marca, modelo y contrato_gama_id son obligatorios y deben ser válidos'
+            });
+        }
+
+        if (
+            imeiNormalizado === null ||
+            serieNormalizada === null ||
+            fechaInicioNormalizada === undefined ||
+            fechaFinNormalizada === undefined
+        ) {
+            return res.status(400).json({
+                success: false,
+                mensaje: 'El IMEI y la serie no deben superar 30 caracteres y las fechas deben ser válidas'
             });
         }
 
@@ -533,14 +552,14 @@ const registrarEquipo = async (req, res) => {
 
         const resultado = await insertarEquipoPrincipal(baseDatos, {
             tipo,
-            marca,
-            modelo,
+            marca: marcaNormalizada,
+            modelo: modeloNormalizado,
             codigo_patrimonial: codigoPatrimonial || null,
-            imei: imei || null,
-            serie: serie || null,
+            imei: imeiNormalizado || null,
+            serie: serieNormalizada || null,
             contrato_gama_id: contratoGamaId,
-            fecha_inicio_alquiler: fecha_inicio_alquiler || null,
-            fecha_fin_alquiler: fecha_fin_alquiler || null,
+            fecha_inicio_alquiler: fechaInicioNormalizada,
+            fecha_fin_alquiler: fechaFinNormalizada,
             observaciones: observaciones || null,
             especificaciones: especificacionesNormalizadas.valor
         });
