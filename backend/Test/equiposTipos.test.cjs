@@ -21,7 +21,18 @@ function entorno(opciones = {}) {
     const modulo = { exports: {} };
     vm.runInNewContext(source, {
         module: modulo, exports: modulo.exports,
-        require(nombre) { assert.equal(nombre, '../config/database'); return pool; },
+        require(nombre) {
+            if (nombre === '../config/database') return pool;
+            if (nombre === '../config/tiposEquipo') {
+                return {
+                    TIPOS_EQUIPO: ['CELULAR', 'MODEM'],
+                    normalizarTipoEquipo(tipo) {
+                        return typeof tipo === 'string' ? tipo.trim().toUpperCase() : '';
+                    }
+                };
+            }
+            throw new Error(`Módulo inesperado: ${nombre}`);
+        },
         console: { error() { } }
     }, { filename: archivo });
     const respuesta = () => ({
