@@ -98,8 +98,7 @@ const listarAsignaciones = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al obtener asignaciones',
-            error: error.message
+            mensaje: 'Error al obtener asignaciones'
         });
     }
 };
@@ -214,8 +213,7 @@ const obtenerAsignacionPorId = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al buscar la asignación',
-            error: error.message
+            mensaje: 'Error al buscar la asignación'
         });
     }
 };
