@@ -60,8 +60,7 @@ const listarMovimientos = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al obtener movimientos',
-            error: error.message
+            mensaje: 'Error al obtener movimientos'
         });
 
     }
@@ -120,8 +119,7 @@ const movimientosPorEquipo = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al buscar movimientos del equipo',
-            error: error.message
+            mensaje: 'Error al buscar movimientos del equipo'
         });
 
     }
@@ -189,8 +187,7 @@ const movimientosPorImei = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al buscar historial',
-            error: error.message
+            mensaje: 'Error al buscar historial'
         });
 
     }
@@ -280,8 +277,7 @@ const obtenerMovimientoPorId = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            mensaje: 'Error al obtener el movimiento',
-            error: error.message
+            mensaje: 'Error al obtener el movimiento'
         });
     }
 };
@@ -363,8 +359,7 @@ const registrarMovimiento = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al registrar movimiento',
-            error: error.message
+            mensaje: 'Error al registrar movimiento'
         });
 
     }
