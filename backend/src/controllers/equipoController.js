@@ -990,11 +990,41 @@ const editarEquipo = async (req, res) => {
                 continue;
             }
 
-            campos.push(`${campo} = ?`);
-
-            // Vaciar requiere enviar el campo expresamente como '' o null.
             const valor = req.body[campo];
-            valores.push(valor === '' ? null : valor);
+            let valorNormalizado;
+
+            if (campo === 'imei' || campo === 'serie') {
+                valorNormalizado = normalizarTexto(valor, 30);
+                if (valorNormalizado === null) {
+                    return res.status(400).json({
+                        success: false,
+                        mensaje: `${campo === 'imei' ? 'El IMEI' : 'La serie'} no puede superar 30 caracteres y debe ser texto`
+                    });
+                }
+            } else if (
+                campo === 'fecha_inicio_alquiler' ||
+                campo === 'fecha_fin_alquiler'
+            ) {
+                valorNormalizado = normalizarFechaOpcional(valor);
+                if (valorNormalizado === undefined) {
+                    return res.status(400).json({
+                        success: false,
+                        mensaje: 'Las fechas de alquiler deben ser fechas válidas en formato AAAA-MM-DD'
+                    });
+                }
+            } else {
+                valorNormalizado = normalizarTexto(valor, 5000);
+                if (valorNormalizado === null) {
+                    return res.status(400).json({
+                        success: false,
+                        mensaje: 'Las observaciones no pueden superar 5000 caracteres y deben ser texto'
+                    });
+                }
+            }
+
+            campos.push(`${campo} = ?`);
+            // Vaciar requiere enviar el campo expresamente como '' o null.
+            valores.push(valorNormalizado || null);
         }
 
         if (
