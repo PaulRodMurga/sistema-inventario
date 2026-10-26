@@ -247,7 +247,7 @@ test('los textos se envian como parametros, no se interpolan en SQL', async () =
     assert.equal(caso.equipo.observaciones, texto);
     assert.equal(caso.consultas[0].sql.includes(texto), false);
     assert.ok(caso.consultas[0].valores.includes(texto));
-    assert.equal(caso.consultas[0].valores.at(-1), '101');
+    assert.equal(caso.consultas[0].valores.at(-2), '101');
 });
 
 test('undefined se trata como omitido, sin pasar undefined a SQL', async () => {
@@ -268,13 +268,13 @@ test('no toma campos opcionales heredados del prototipo', async () => {
     assert.equal(caso.equipo.observaciones, equipoInicial.observaciones);
 });
 
-test('un equipo inexistente mantiene la respuesta 404', async () => {
+test('un ID inexistente no permite modificar un equipo y mantiene el conflicto 409', async () => {
     const caso = prepararControlador();
     const res = await caso.editar(datosDelFormularioActual(), '999');
 
-    assert.equal(res.statusCode, 404);
+    assert.equal(res.statusCode, 409);
     assert.equal(res.body.success, false);
-    assert.equal(res.body.mensaje, 'Equipo no encontrado');
+    assert.match(res.body.mensaje, /tipo está protegido/);
     assert.deepEqual(caso.equipo, equipoInicial);
 });
 
