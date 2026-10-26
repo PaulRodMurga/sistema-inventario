@@ -47,10 +47,11 @@ const responderError = (res, error) => {
         });
     }
 
+    console.error('Error al administrar los periféricos:', error);
+
     return res.status(500).json({
         success: false,
-        mensaje: 'Error al administrar los periféricos',
-        error: error.message
+        mensaje: 'Error al administrar los periféricos'
     });
 };
 
