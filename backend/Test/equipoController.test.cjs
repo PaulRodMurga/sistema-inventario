@@ -58,6 +58,9 @@ function prepararControlador({ resultado, error } = {}) {
 
             if (error) throw error;
             if (resultado) return [resultado];
+            if (/^SELECT id FROM equipo WHERE id = \\?$/.test(sql.trim())) {
+                return [String(valores[0]) === String(equipo.id) ? [{ id: equipo.id }] : []];
+            }
 
             // Interpreta solo el UPDATE parametrizado de esta prueba.
             // Si cambia su estructura, falla en lugar de simular un exito.
@@ -268,13 +271,13 @@ test('no toma campos opcionales heredados del prototipo', async () => {
     assert.equal(caso.equipo.observaciones, equipoInicial.observaciones);
 });
 
-test('un ID inexistente no permite modificar un equipo y mantiene el conflicto 409', async () => {
+test('un equipo inexistente mantiene la respuesta 404', async () => {
     const caso = prepararControlador();
     const res = await caso.editar(datosDelFormularioActual(), '999');
 
-    assert.equal(res.statusCode, 409);
+    assert.equal(res.statusCode, 404);
     assert.equal(res.body.success, false);
-    assert.match(res.body.mensaje, /tipo está protegido/);
+    assert.equal(res.body.mensaje, 'Equipo no encontrado');
     assert.deepEqual(caso.equipo, equipoInicial);
 });
 
