@@ -43,8 +43,10 @@ const ocultarDetallesInternos = (esProduccion) => (
 
         const cuerpoPublico = Object.fromEntries(
             Object.entries(cuerpo).filter(([campo]) => {
+                // No exponer campos técnicos en ninguna respuesta de producción.
+                // Los mensajes funcionales para el usuario se mantienen.
                 if (CAMPOS_SQL_INTERNOS.has(campo)) return false;
-                if (res.statusCode >= 500 && campo === 'error') return false;
+                if (campo === 'error') return false;
                 return true;
             })
         );
