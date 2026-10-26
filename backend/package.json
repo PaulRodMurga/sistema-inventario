@@ -7,7 +7,7 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "crear-usuario": "node src/scripts/crearUsuario.js",
-    "test": "node --test test/*.test.cjs"
+    "test": "node --test Test/*.test.cjs"
   },
   "keywords": [],
   "type": "commonjs",
