@@ -403,7 +403,7 @@ const registrarAsignacion = async (req, res) => {
         if (error.sqlState === '45000') {
             return res.status(400).json({
                 success: false,
-                mensaje: error.sqlMessage || error.message
+                mensaje: 'No se pudo registrar la asignación porque no cumple una regla de integridad.'
             });
         }
 
