@@ -62,7 +62,7 @@ function prepararControlador({ resultado, error } = {}) {
             // Interpreta solo el UPDATE parametrizado de esta prueba.
             // Si cambia su estructura, falla en lugar de simular un exito.
             const coincidencia = sql.trim().match(
-                /^UPDATE\s+equipo\s+SET\s+([\s\S]+?)\s+WHERE\s+id\s*=\s*\?$/i
+                /^UPDATE\s+equipo\s+SET\s+([\s\S]+?)\s+WHERE\s+id\s*=\s*\?(?:\s+AND\s+tipo\s*=\s*\?)?$/i
             );
             assert.ok(coincidencia, 'Se esperaba un UPDATE parametrizado por ID');
 
@@ -72,7 +72,7 @@ function prepararControlador({ resultado, error } = {}) {
                 assert.ok(Object.hasOwn(equipoInicial, columna[1]));
                 return columna[1];
             });
-            const tieneTipoEnCondicion = /AND\\s+tipo\\s*=\\s*\\?$/i.test(sql.trim());
+            const tieneTipoEnCondicion = /AND\s+tipo\s*=\s*\?$/i.test(sql.trim());
             assert.equal(valores.length, columnas.length + (tieneTipoEnCondicion ? 2 : 1));
             assert.equal(new Set(columnas).size, columnas.length);
 
