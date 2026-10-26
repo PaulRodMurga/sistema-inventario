@@ -132,6 +132,41 @@ for (const cambios of [
     });
 }
 
+test('la configuración valida los parámetros actuales de autenticación', () => {
+    const configuracion = obtenerConfiguracion(entornoValido({
+        AUTH_SESSION_HOURS: '12',
+        AUTH_MAX_ATTEMPTS: '7',
+        AUTH_LOCK_MINUTES: '30'
+    }));
+
+    assert.equal(configuracion.autenticacion.duracionSesionHoras, 12);
+    assert.equal(configuracion.autenticacion.maxIntentos, 7);
+    assert.equal(configuracion.autenticacion.minutosBloqueo, 30);
+});
+
+test('la configuración aplica valores predeterminados para autenticación', () => {
+    const configuracion = obtenerConfiguracion(entornoValido());
+
+    assert.equal(configuracion.autenticacion.duracionSesionHoras, 8);
+    assert.equal(configuracion.autenticacion.maxIntentos, 5);
+    assert.equal(configuracion.autenticacion.minutosBloqueo, 15);
+});
+
+for (const cambios of [
+    { AUTH_SESSION_HOURS: '0' },
+    { AUTH_SESSION_HOURS: '169' },
+    { AUTH_MAX_ATTEMPTS: '2' },
+    { AUTH_MAX_ATTEMPTS: '21' },
+    { AUTH_LOCK_MINUTES: '0' },
+    { AUTH_LOCK_MINUTES: '1441' }
+]) {
+    test(`la configuración rechaza parámetros de autenticación inválidos ${JSON.stringify(cambios)}`, () => {
+        assert.throws(
+            () => obtenerConfiguracion(entornoValido(cambios))
+        );
+    });
+}
+
 test('los orígenes CORS repetidos se normalizan una sola vez', () => {
     const configuracion = obtenerConfiguracion(entornoValido({
         CORS_ORIGINS:
