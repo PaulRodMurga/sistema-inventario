@@ -312,8 +312,7 @@ const listarContratos = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            mensaje: 'Error al obtener contratos',
-            error: error.message
+            mensaje: 'Error al obtener contratos'
         });
     }
 };
@@ -405,8 +404,7 @@ const obtenerContrato = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            mensaje: 'Error al buscar contrato',
-            error: error.message
+            mensaje: 'Error al buscar contrato'
         });
     }
 };
@@ -637,8 +635,7 @@ const registrarContrato = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            mensaje: 'Error al registrar contrato',
-            error: error.message
+            mensaje: 'Error al registrar contrato'
         });
     }
 };
@@ -847,8 +844,7 @@ const editarContrato = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            mensaje: 'Error al actualizar contrato',
-            error: error.message
+            mensaje: 'Error al actualizar contrato'
         });
     }
 };
@@ -988,8 +984,7 @@ const actualizarGamasContrato = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            mensaje: 'Error al actualizar las gamas del contrato',
-            error: error.message
+            mensaje: 'Error al actualizar las gamas del contrato'
         });
     } finally {
         conexion?.release();
@@ -1040,8 +1035,7 @@ const inhabilitarContrato = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            mensaje: 'Error al inhabilitar el contrato',
-            error: error.message
+            mensaje: 'Error al inhabilitar el contrato'
         });
     }
 };
