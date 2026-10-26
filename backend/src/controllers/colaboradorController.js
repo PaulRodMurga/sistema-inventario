@@ -101,8 +101,7 @@ const listarColaboradores = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al obtener colaboradores',
-            error: error.message
+            mensaje: 'Error al obtener colaboradores'
         });
 
     }
@@ -177,8 +176,7 @@ const obtenerColaboradorPorId = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            mensaje: 'Error al obtener el colaborador',
-            error: error.message
+            mensaje: 'Error al obtener el colaborador'
         });
     }
 };
@@ -245,8 +243,7 @@ const buscarPorDni = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al buscar colaborador',
-            error: error.message
+            mensaje: 'Error al buscar colaborador'
         });
 
     }
@@ -407,8 +404,7 @@ const registrarColaborador = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al registrar colaborador',
-            error: error.message
+            mensaje: 'Error al registrar colaborador'
         });
 
     }
@@ -523,8 +519,7 @@ const actualizarColaborador = async (req, res) => {
         return res.status(500).json({
             success: false,
             mensaje:
-                'Error al actualizar el colaborador',
-            error: error.message
+                'Error al actualizar el colaborador'
         });
     }
 };
