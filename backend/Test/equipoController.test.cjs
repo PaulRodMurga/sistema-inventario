@@ -72,10 +72,14 @@ function prepararControlador({ resultado, error } = {}) {
                 assert.ok(Object.hasOwn(equipoInicial, columna[1]));
                 return columna[1];
             });
-            assert.equal(valores.length, columnas.length + 1);
+            const tieneTipoEnCondicion = /AND\\s+tipo\\s*=\\s*\\?$/i.test(sql.trim());
+            assert.equal(valores.length, columnas.length + (tieneTipoEnCondicion ? 2 : 1));
             assert.equal(new Set(columnas).size, columnas.length);
 
-            if (Number(valores.at(-1)) !== equipo.id) {
+            const idObjetivo = valores[columnas.length];
+            const tipoObjetivo = tieneTipoEnCondicion ? valores[columnas.length + 1] : null;
+            if (String(idObjetivo) !== String(equipo.id) ||
+                (tipoObjetivo !== null && tipoObjetivo !== equipo.tipo)) {
                 return [{ affectedRows: 0 }];
             }
 
@@ -298,7 +302,7 @@ test('IMEI o serie duplicados mantienen la respuesta 409', async () => {
 
     assert.equal(res.statusCode, 409);
     assert.equal(res.body.success, false);
-    assert.match(res.body.mensaje, /IMEI o la serie/);
+    assert.match(res.body.mensaje, /IMEI, la serie o el código patrimonial/);
     assert.deepEqual(caso.equipo, equipoInicial);
 });
 
