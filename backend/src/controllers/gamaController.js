@@ -49,8 +49,7 @@ const listarGamas = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            mensaje: 'Error al obtener gamas',
-            error: error.message
+            mensaje: 'Error al obtener gamas'
         });
     }
 };
@@ -141,8 +140,7 @@ const inhabilitarGama = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            mensaje: 'Error al inhabilitar la gama',
-            error: error.message
+            mensaje: 'Error al inhabilitar la gama'
         });
     } finally {
         conexion?.release();
@@ -219,8 +217,7 @@ const registrarGama = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            mensaje: 'Error al registrar gama',
-            error: error.message
+            mensaje: 'Error al registrar gama'
         });
     }
 };
@@ -330,8 +327,7 @@ const editarGama = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            mensaje: 'Error al actualizar gama',
-            error: error.message
+            mensaje: 'Error al actualizar gama'
         });
     }
 };
