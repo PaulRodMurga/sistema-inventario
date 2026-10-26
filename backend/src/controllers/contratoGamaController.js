@@ -86,8 +86,7 @@ const listarContratoGamas = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            mensaje: 'Error al obtener contrato-gama',
-            error: error.message
+            mensaje: 'Error al obtener contrato-gama'
         });
     }
 };
@@ -242,8 +241,7 @@ const registrarContratoGama = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            mensaje: 'Error al registrar contrato-gama',
-            error: error.message
+            mensaje: 'Error al registrar contrato-gama'
         });
     }
 };
@@ -437,8 +435,7 @@ const editarContratoGama = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            mensaje: 'Error al actualizar contrato-gama',
-            error: error.message
+            mensaje: 'Error al actualizar contrato-gama'
         });
     }
 };
