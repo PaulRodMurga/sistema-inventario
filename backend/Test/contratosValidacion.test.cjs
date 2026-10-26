@@ -569,7 +569,7 @@ test('editar gama mantiene 404 y conflicto 409', async () => {
     });
     const resAusente = await ejecutar(ausente.controlador.editarGama, {
         id: '99',
-        body: { estado: 'INACTIVO' }
+        body: { descripcion: 'Gama inexistente' }
     });
     assert.equal(resAusente.statusCode, 404);
 
