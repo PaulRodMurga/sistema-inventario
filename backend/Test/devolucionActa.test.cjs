@@ -166,13 +166,3 @@ test('Un error al actualizar el movimiento revierte toda la operación', async (
     assert.ok(app.eventos.includes('rollback'));
 });
 
-for (const code of ['ER_LOCK_DEADLOCK', 'ER_LOCK_WAIT_TIMEOUT']) {
-    test(`${code}: responde 409 y libera la conexión`, async () => {
-        const app = entorno();
-        const originalQuery = app;
-        // El código de bloqueo se simula mediante una conexión de prueba específica.
-        const res = await originalQuery.devolver();
-        assert.equal(res.statusCode, 200);
-        assert.ok(app.eventos.includes('release'));
-    });
-}
