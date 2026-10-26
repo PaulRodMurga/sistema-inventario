@@ -208,7 +208,7 @@ test('producción elimina detalles internos de respuestas 500', () => {
     });
 });
 
-test('desarrollo conserva diagnósticos y producción conserva errores 400 útiles', () => {
+test('desarrollo conserva diagnósticos y producción oculta campos técnicos en errores 400', () => {
     const desarrollo = respuesta();
     desarrollo.statusCode = 500;
     ocultarDetallesInternos(false)({}, desarrollo, () => { });
@@ -218,8 +218,35 @@ test('desarrollo conserva diagnósticos y producción conserva errores 400 útil
     const validacion = respuesta();
     validacion.statusCode = 400;
     ocultarDetallesInternos(true)({}, validacion, () => { });
-    validacion.json({ mensaje: 'Dato inválido', error: 'campo requerido' });
-    assert.equal(validacion.body.error, 'campo requerido');
+    validacion.json({
+        success: false,
+        mensaje: 'Dato inválido',
+        error: 'detalle técnico',
+        sqlMessage: 'Unknown column secret_column'
+    });
+    assert.deepEqual(validacion.body, {
+        success: false,
+        mensaje: 'Dato inválido'
+    });
+});
+
+test('producción oculta campos SQL en errores 409 y conserva el mensaje funcional', () => {
+    const conflicto = respuesta();
+    conflicto.statusCode = 409;
+    ocultarDetallesInternos(true)({}, conflicto, () => { });
+    conflicto.json({
+        success: false,
+        mensaje: 'La serie ya está registrada',
+        detalle: 'Duplicate entry in table equipo',
+        sqlMessage: 'Duplicate entry secret value',
+        stack: 'traza interna'
+    });
+
+    assert.deepEqual(conflicto.body, {
+        success: false,
+        mensaje: 'La serie ya está registrada',
+        detalle: 'Duplicate entry in table equipo'
+    });
 });
 
 test('el manejador devuelve JSON controlado para CORS, tamaño y JSON inválido', () => {
