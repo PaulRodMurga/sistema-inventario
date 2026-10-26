@@ -112,7 +112,7 @@ for (const tipo of ['TABLET', 'ROUTER', 'LAPTOP', 'PC', 'MONITOR', ' celular ', 
 }
 
 test('Los estados de negocio no forman parte del contrato de alta o edición general', () => {
-    const registrar = source.slice(source.indexOf('const registrarEquipo'), source.indexOf('// ==========================================\\n// EDITAR EQUIPO'));
+    const registrar = source.slice(source.indexOf('const registrarEquipo'), source.indexOf('// ==========================================\n// EDITAR EQUIPO'));
     const editar = source.slice(source.indexOf('const editarEquipo'), source.indexOf('module.exports'));
     assert.match(source, /VALUES \\(\\?, \\?, \\?, \\?, \\?, \\?, 'LIBRE', \\?/);
     assert.doesNotMatch(registrar.slice(0, registrar.indexOf('const [resultado]')), /\\bestado_actual\\b/);
