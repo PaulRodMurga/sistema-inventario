@@ -993,6 +993,18 @@ const editarEquipo = async (req, res) => {
         `, valores);
 
         if (resultado.affectedRows === 0) {
+            const [existentes] = await pool.query(
+                'SELECT id FROM equipo WHERE id = ?',
+                [id]
+            );
+
+            if (existentes.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    mensaje: 'Equipo no encontrado'
+                });
+            }
+
             return res.status(409).json({
                 success: false,
                 mensaje:
