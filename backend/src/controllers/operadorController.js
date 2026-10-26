@@ -41,8 +41,7 @@ const listarOperadores = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al obtener proveedores',
-            error: error.message
+            mensaje: 'Error al obtener proveedores'
         });
     }
 };
@@ -118,8 +117,7 @@ const registrarOperador = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al registrar proveedor',
-            error: error.message
+            mensaje: 'Error al registrar proveedor'
         });
     }
 };
@@ -218,8 +216,7 @@ const editarOperador = async (req, res) => {
 
         res.status(500).json({
             success: false,
-            mensaje: 'Error al editar proveedor',
-            error: error.message
+            mensaje: 'Error al editar proveedor'
         });
     }
 };
