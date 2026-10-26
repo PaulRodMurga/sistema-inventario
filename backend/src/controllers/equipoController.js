@@ -992,7 +992,8 @@ const editarEquipo = async (req, res) => {
             );
         }
 
-        valores.push(id, tipo);
+        // Mantiene el ID como texto validado para conservar el contrato de los parámetros SQL.
+        valores.push(String(id), tipo);
 
         const [resultado] = await pool.query(`
             UPDATE equipo
