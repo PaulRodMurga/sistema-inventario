@@ -109,7 +109,16 @@ const listarAsignaciones = async (req, res) => {
 // ==========================================
 const obtenerAsignacionPorId = async (req, res) => {
     try {
-        const { id } = req.params;
+        let id;
+
+        try {
+            id = idPositivo(req.params.id, 'Asignación');
+        } catch (errorValidacion) {
+            return res.status(400).json({
+                success: false,
+                mensaje: errorValidacion.message
+            });
+        }
 
         const [rows] = await pool.query(`
             SELECT
