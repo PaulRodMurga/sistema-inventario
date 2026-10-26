@@ -80,11 +80,11 @@ for (const tipo of ['CELULAR', 'MODEM']) {
         const app = entorno();
         const res = await app.registrar({ tipo, estado_actual: 'BAJA' });
         assert.equal(res.statusCode, 201);
-        assert.equal(app.consultas.length, 1);
-        assert.match(app.consultas[0].sql, /estado_actual/);
-        assert.match(app.consultas[0].sql, /VALUES \(\?, \?, \?, \?, \?, \?, 'LIBRE', \?/);
-        assert.equal(app.consultas[0].parametros[0], tipo);
-        assert.equal(app.consultas[0].parametros.includes('BAJA'), false);
+        assert.equal(app.consultas.length, 2);
+        assert.match(app.consultas[1].sql, /estado_actual/);
+        assert.match(app.consultas[1].sql, /VALUES \(\?, \?, \?, \?, \?, \?, 'LIBRE', \?/);
+        assert.equal(app.consultas[1].parametros[0], tipo);
+        assert.equal(app.consultas[1].parametros.includes('BAJA'), false);
     });
     test(`Edición admite ${tipo} sin escribir estado_actual`, async () => {
         const app = entorno();
@@ -116,7 +116,7 @@ test('Los estados de negocio no forman parte del contrato de alta o edición gen
     const registrar = source.slice(source.indexOf('const registrarEquipo'), source.indexOf('// ==========================================\n// EDITAR EQUIPO'));
     const editar = source.slice(source.indexOf('const editarEquipo'), source.indexOf('module.exports'));
     assert.match(source, /VALUES \(\?, \?, \?, \?, \?, \?, 'LIBRE', \?/);
-    assert.doesNotMatch(registrar.slice(0, registrar.indexOf('const [resultado]')), /\bestado_actual\b/);
+    assert.doesNotMatch(registrar.slice(0, registrar.indexOf('const resultado = await insertarEquipoPrincipal')), /\bestado_actual\b/);
     assert.doesNotMatch(editar.slice(0, editar.indexOf('/*')), /\bestado_actual\b/);
     assert.match(editar, /No modificamos estado_actual/);
 });
