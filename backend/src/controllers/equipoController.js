@@ -252,7 +252,14 @@ const listarEquipos = async (req, res) => {
 // ==========================================
 const obtenerEquipoPorId = async (req, res) => {
     try {
-        const { id } = req.params;
+        const id = normalizarId(req.params.id);
+
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                mensaje: 'El ID del equipo no es válido'
+            });
+        }
 
         const [rows] = await pool.query(`
       SELECT
@@ -856,20 +863,26 @@ const registrarEquiposLote = async (req, res) => {
 // ==========================================
 const editarEquipo = async (req, res) => {
     try {
-        const { id } = req.params;
-
+        const id = normalizarId(req.params.id);
         const {
             tipo,
-            marca,
-            modelo,
             contrato_gama_id
         } = req.body;
+        const marca = normalizarTexto(req.body.marca, 50, true);
+        const modelo = normalizarTexto(req.body.modelo, 100, true);
+        const contratoGamaId = normalizarId(contrato_gama_id);
 
-        if (!tipo || !marca || !modelo || !contrato_gama_id) {
+        if (!id) {
             return res.status(400).json({
                 success: false,
-                mensaje:
-                    'Tipo, marca, modelo y contrato_gama_id son obligatorios'
+                mensaje: 'El ID del equipo no es válido'
+            });
+        }
+
+        if (!tipo || !marca || !modelo || !contratoGamaId) {
+            return res.status(400).json({
+                success: false,
+                mensaje: 'Tipo, marca, modelo y contrato_gama_id son obligatorios y deben ser válidos'
             });
         }
 
@@ -900,7 +913,7 @@ const editarEquipo = async (req, res) => {
         const valores = [
             marca,
             modelo,
-            contrato_gama_id
+            contratoGamaId
         ];
 
         if (
