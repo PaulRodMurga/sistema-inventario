@@ -237,7 +237,7 @@ test('producción oculta campos SQL en errores 409 y conserva el mensaje funcion
     conflicto.json({
         success: false,
         mensaje: 'La serie ya está registrada',
-        detalle: 'Duplicate entry in table equipo',
+        detalle: 'Revisa los datos e inténtalo nuevamente',
         sqlMessage: 'Duplicate entry secret value',
         stack: 'traza interna'
     });
