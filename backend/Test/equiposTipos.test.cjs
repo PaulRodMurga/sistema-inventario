@@ -13,6 +13,7 @@ function entorno(opciones = {}) {
         async query(sql, parametros = []) {
             consultas.push({ sql: sql.replace(/\s+/g, ' ').trim(), parametros: [...parametros] });
             if (opciones.error) throw opciones.error;
+            if (/^SELECT\s+cg\.id,/.test(sql.trim())) return [[{ id: 3, contrato_id: 1, nro_contrato: 'CONTRATO-TEST' }]];
             if (/^INSERT INTO equipo/.test(sql.trim())) return [{ insertId: 140 }];
             if (/^UPDATE equipo/.test(sql.trim())) return [{ affectedRows: 1 }];
             throw new Error('SQL inesperado');
