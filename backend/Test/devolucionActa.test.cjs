@@ -28,9 +28,17 @@ function entorno(opciones = {}) {
     const consultas = [];
     const eventos = [];
     let tx = false;
+    let estadoTransaccion;
 
     const conexion = {
-        async beginTransaction() { tx = true; eventos.push('begin'); },
+        async beginTransaction() {
+            estadoTransaccion = {
+                asignacion: asignacion && { ...asignacion },
+                movimientos: movimientos.map(m => ({ ...m }))
+            };
+            tx = true;
+            eventos.push('begin');
+        },
         async query(sql, parametros = []) {
             assert.equal(tx, true, 'Las consultas de devolución deben usar una transacción');
             const q = sql.replace(/\s+/g, ' ').trim();
@@ -80,7 +88,14 @@ function entorno(opciones = {}) {
             eventos.push('commit');
             tx = false;
         },
-        async rollback() { eventos.push('rollback'); tx = false; },
+        async rollback() {
+            if (estadoTransaccion) {
+                asignacion = estadoTransaccion.asignacion && { ...estadoTransaccion.asignacion };
+                movimientos = estadoTransaccion.movimientos.map(m => ({ ...m }));
+            }
+            eventos.push('rollback');
+            tx = false;
+        },
         release() { eventos.push('release'); },
         destroy() { eventos.push('destroy'); tx = false; }
     };
