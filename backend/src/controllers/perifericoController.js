@@ -36,8 +36,7 @@ const responderError = (res, error) => {
 
         return res.status(409).json({
             success: false,
-            mensaje: 'Error de duplicidad en la base de datos',
-            detalle: error.sqlMessage || error.message
+            mensaje: 'La serie o el código patrimonial ya está registrado'
         });
     }
 
