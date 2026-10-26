@@ -91,8 +91,27 @@ function prepararControlador({ resultado, error } = {}) {
         module: modulo,
         exports: modulo.exports,
         require(nombre) {
-            assert.equal(nombre, '../config/database');
-            return poolSimulado;
+            if (nombre === '../config/database') return poolSimulado;
+            if (nombre === '../config/tiposEquipo') {
+                return {
+                    TIPOS: ['CELULAR', 'MODEM'],
+                    TIPOS_EQUIPO: new Set(['CELULAR', 'MODEM']),
+                    normalizarEspecificaciones() {
+                        return { ok: true, valor: {} };
+                    }
+                };
+            }
+            if (nombre === '../utils/perifericosEquipo') {
+                return {
+                    normalizarPerifericos() {
+                        return { ok: true, valor: [] };
+                    },
+                    async registrarPerifericos() {
+                        return [];
+                    }
+                };
+            }
+            throw new Error(`Módulo inesperado: ${nombre}`);
         },
         console: { error() {} }
     }, { filename: controllerPath });
