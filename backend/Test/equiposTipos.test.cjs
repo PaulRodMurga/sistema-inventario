@@ -11,7 +11,7 @@ function entorno(opciones = {}) {
     const consultas = [];
     const pool = {
         async query(sql, parametros = []) {
-            consultas.push({ sql: sql.replace(/\\s+/g, ' ').trim(), parametros: [...parametros] });
+            consultas.push({ sql: sql.replace(/\s+/g, ' ').trim(), parametros: [...parametros] });
             if (opciones.error) throw opciones.error;
             if (/^INSERT INTO equipo/.test(sql.trim())) return [{ insertId: 140 }];
             if (/^UPDATE equipo/.test(sql.trim())) return [{ affectedRows: 1 }];
@@ -81,7 +81,7 @@ for (const tipo of ['CELULAR', 'MODEM']) {
         assert.equal(res.statusCode, 201);
         assert.equal(app.consultas.length, 1);
         assert.match(app.consultas[0].sql, /estado_actual/);
-        assert.match(app.consultas[0].sql, /VALUES \\(\\?, \\?, \\?, \\?, \\?, \\?, 'LIBRE', \\?/);
+        assert.match(app.consultas[0].sql, /VALUES \(\?, \?, \?, \?, \?, \?, 'LIBRE', \?/);
         assert.equal(app.consultas[0].parametros[0], tipo);
         assert.equal(app.consultas[0].parametros.includes('BAJA'), false);
     });
@@ -114,8 +114,8 @@ for (const tipo of ['TABLET', 'ROUTER', 'LAPTOP', 'PC', 'MONITOR', ' celular ', 
 test('Los estados de negocio no forman parte del contrato de alta o edición general', () => {
     const registrar = source.slice(source.indexOf('const registrarEquipo'), source.indexOf('// ==========================================\n// EDITAR EQUIPO'));
     const editar = source.slice(source.indexOf('const editarEquipo'), source.indexOf('module.exports'));
-    assert.match(source, /VALUES \\(\\?, \\?, \\?, \\?, \\?, \\?, 'LIBRE', \\?/);
-    assert.doesNotMatch(registrar.slice(0, registrar.indexOf('const [resultado]')), /\\bestado_actual\\b/);
-    assert.doesNotMatch(editar.slice(0, editar.indexOf('/*')), /\\bestado_actual\\b/);
+    assert.match(source, /VALUES \(\?, \?, \?, \?, \?, \?, 'LIBRE', \?/);
+    assert.doesNotMatch(registrar.slice(0, registrar.indexOf('const [resultado]')), /\bestado_actual\b/);
+    assert.doesNotMatch(editar.slice(0, editar.indexOf('/*')), /\bestado_actual\b/);
     assert.match(editar, /No modificamos estado_actual/);
 });
