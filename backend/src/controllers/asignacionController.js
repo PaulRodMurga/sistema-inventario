@@ -501,7 +501,7 @@ const devolverAsignacion = async (req, res) => {
 
         // Serializa las devoluciones de la misma asignación.
         const [asignaciones] = await conexion.query(`
-            SELECT id, equipo_id, estado, colaborador_id,
+            SELECT id, equipo_id, estado, colaborador_id, acta_id,
                 DATE_FORMAT(fecha_asignacion, '%Y-%m-%d') AS fecha_asignacion
             FROM asignacion WHERE id = ? FOR UPDATE
         `, [id]);
@@ -535,6 +535,33 @@ const devolverAsignacion = async (req, res) => {
         `, [fechaFinal, id]);
         if (resultado.affectedRows !== 1) {
             throw new Error('No se pudo finalizar la asignación');
+        }
+
+        // Sincronizar el detalle del acta con la devolución confirmada.
+        if (asignacion.acta_id) {
+            const [detallesActa] = await conexion.query(`
+                SELECT id, estado, devolvio_equipo
+                FROM detalle_acta
+                WHERE acta_id = ? AND equipo_id = ?
+                FOR UPDATE
+            `, [asignacion.acta_id, asignacion.equipo_id]);
+
+            if (detallesActa.length !== 1) {
+                throw new Error('No se encontró un único detalle del acta para esta devolución');
+            }
+
+            if (!['PERDIDO', 'ROBADO'].includes(detallesActa[0].estado)) {
+                const [detalleActualizado] = await conexion.query(`
+                    UPDATE detalle_acta
+                    SET fecha_devolucion = ?, devolvio_equipo = 'SI',
+                        estado = 'DEVUELTO'
+                    WHERE id = ?
+                `, [fechaFinal, detallesActa[0].id]);
+
+                if (detalleActualizado.affectedRows !== 1) {
+                    throw new Error('No se pudo actualizar el detalle del acta');
+                }
+            }
         }
 
         const [movimientos] = await conexion.query(`
