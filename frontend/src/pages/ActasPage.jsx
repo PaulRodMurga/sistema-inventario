@@ -29,14 +29,15 @@ import BotonAccionTabla from '../components/BotonAccionTabla';
 
 import './ActasPage.css';
 
-function ActasPage() {
+function ActasPage({ filtroInicial = 'TODOS' } = {}) {
     const [actas, setActas] = useState([]);
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState('');
 
     const [busqueda, setBusqueda] = useState('');
     const [estadoSeleccionado, setEstadoSeleccionado] =
-        useState('TODOS');
+        useState(filtroInicial === 'PENDIENTES' ? 'PENDIENTE' : 'TODOS');
+    const [filtroDevolucion, setFiltroDevolucion] = useState(filtroInicial);
 
     const [detalleAbierto, setDetalleAbierto] =
         useState(false);
@@ -156,6 +157,17 @@ function ActasPage() {
                 estadoSeleccionado === 'TODOS' ||
                 acta.estado === estadoSeleccionado;
 
+            const equiposActa = Array.isArray(acta.equipos) ? acta.equipos : [];
+            const coincideFiltroInicial = filtroDevolucion === 'DEVOLUCIONES_PENDIENTES'
+                ? equiposActa.some((equipo) => String(equipo.devolvio_equipo || '').toUpperCase() === 'NO' && String(equipo.estado || '').toUpperCase() === 'ENTREGADO')
+                : filtroDevolucion === 'DEVOLUCIONES_REVISAR'
+                    ? equiposActa.some((equipo) => {
+                        const devolvio = String(equipo.devolvio_equipo || '').toUpperCase();
+                        const estadoEquipo = String(equipo.estado || '').toUpperCase();
+                        return (devolvio === 'SI' && estadoEquipo !== 'DEVUELTO') || (devolvio === 'NO' && estadoEquipo === 'DEVUELTO');
+                    })
+                    : true;
+
             const contenido = [
                 acta.id,
                 acta.nro_acta,
@@ -182,13 +194,16 @@ function ActasPage() {
 
             return (
                 coincideEstado &&
+                coincideFiltroInicial &&
                 coincideBusqueda
             );
         });
     }, [
         actas,
         busqueda,
-        estadoSeleccionado
+        estadoSeleccionado,
+        filtroInicial,
+        filtroDevolucion
     ]);
 
     const verActa = async (id) => {
