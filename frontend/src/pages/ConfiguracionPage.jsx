@@ -775,9 +775,9 @@ function normalizar(valor) {
         .toUpperCase();
 }
 
-function ConfiguracionPage({ usuarioActual, onSesionRevocada }) {
+function ConfiguracionPage({ usuarioActual, onSesionRevocada, pestanaInicial = 'proveedores', contratosSoloPorVencer = false }) {
     const [pestanaActiva, setPestanaActiva] =
-        useState('operadores');
+        useState(pestanaInicial);
 
     const botonesRef = useRef([]);
 
@@ -877,7 +877,7 @@ function ConfiguracionPage({ usuarioActual, onSesionRevocada }) {
                         pestana.id === 'proveedores'
                             ? <OperadoresPanel />
                             : pestana.id === 'contratas'
-                                ? <ContratasPanel />
+                                ? <ContratasPanel soloPorVencer={contratosSoloPorVencer} />
                                 : pestana.id === 'gamas'
                                     ? <GamasPanel />
                                     : pestana.id === 'planes'
