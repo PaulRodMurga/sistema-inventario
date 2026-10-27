@@ -355,8 +355,6 @@ function ActasPage() {
                                 <th>Fecha</th>
                                 <th>Colaborador</th>
                                 <th>Equipos</th>
-                                <th>Firma AMO</th>
-                                <th>Firma DMO</th>
                                 <th>Devolución</th>
                                 <th>PDF firmas AMO/DMO</th>
                                 <th>PDF devolución</th>
@@ -391,22 +389,6 @@ function ActasPage() {
                                     <td>{acta.cantidad_equipos}</td>
 
                                     <td>
-                                        <IndicadorSiNo
-                                            valor={
-                                                acta.firmo_amo
-                                            }
-                                        />
-                                    </td>
-
-                                    <td>
-                                        <IndicadorSiNo
-                                            valor={
-                                                acta.firmo_dmo
-                                            }
-                                        />
-                                    </td>
-
-                                    <td>
                                         <DevolucionActa acta={acta} />
                                     </td>
 
@@ -430,9 +412,7 @@ function ActasPage() {
 
                                     <td>
                                         <EstadoActa
-                                            estado={
-                                                acta.estado
-                                            }
+                                            estado={acta.estado_devolucion === 'TOTAL' ? 'DEVUELTO' : acta.estado}
                                         />
                                     </td>
 
@@ -606,28 +586,6 @@ function DetalleActa({ acta }) {
                     valor={obtenerColaborador(acta)}
                 />
 
-                <CampoDetalleActa
-                    etiqueta="Firma AMO"
-                    valor={
-                        normalizar(
-                            acta.firmo_amo
-                        ) === 'SI'
-                            ? 'Firmado'
-                            : 'Pendiente'
-                    }
-                />
-
-                <CampoDetalleActa
-                    etiqueta="Firma DMO"
-                    valor={
-                        normalizar(
-                            acta.firmo_dmo
-                        ) === 'SI'
-                            ? 'Firmado'
-                            : 'Pendiente'
-                    }
-                />
-
                 <CampoDetalleActa etiqueta="Observaciones del acta" valor={acta.observaciones} completo />
             </div>
 
@@ -682,7 +640,6 @@ function DetalleActa({ acta }) {
                                         )}
                                     </td>
                                     <td>
-                                        <small>IMEI</small><span className="acta-identificador">{equipo.imei || '-'}</span>
                                         <small>Serie</small><span className="acta-identificador">{equipo.serie || '-'}</span>
                                     </td>
                                     <td>
