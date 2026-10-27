@@ -645,6 +645,19 @@ function DetalleActa({ acta }) {
                                     <td>
                                         <strong>{obtenerEquipo(equipo)}</strong>
                                         <small>{equipo.tipo || '-'} · ID {equipo.equipo_id}</small>
+                                        {equipo.perifericos?.length > 0 ? (
+                                            <div className="acta-perifericos-lista">
+                                                {equipo.perifericos.map((periferico) => (
+                                                    <small key={periferico.periferico_id}>
+                                                        {periferico.tipo_periferico || 'Periférico'}: {[periferico.marca, periferico.modelo].filter(Boolean).join(' ') || 'Sin descripción'}
+                                                        {periferico.serie ? ` · Serie: ${periferico.serie}` : ''}
+                                                        {periferico.codigo_patrimonial ? ` · Código: ${periferico.codigo_patrimonial}` : ''}
+                                                    </small>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <small>Sin periféricos vinculados</small>
+                                        )}
                                     </td>
                                     <td>
                                         <small>IMEI</small><span className="acta-identificador">{equipo.imei || '-'}</span>
