@@ -160,6 +160,30 @@ const obtenerDashboard = async (req, res) => {
 
 
         // ==========================================
+        // ALERTAS ADMINISTRATIVAS
+        // ==========================================
+        const [actasPendientesRows] = await pool.query(`
+            SELECT COUNT(*) AS cantidad FROM acta WHERE estado = 'PENDIENTE'
+        `);
+
+        const [devolucionesPendientesRows] = await pool.query(`
+            SELECT COUNT(*) AS cantidad FROM detalle_acta
+            WHERE devolvio_equipo = 'NO' AND estado = 'ENTREGADO'
+        `);
+
+        const [devolucionesRevisarRows] = await pool.query(`
+            SELECT COUNT(*) AS cantidad FROM detalle_acta
+            WHERE (devolvio_equipo = 'SI' AND estado <> 'DEVUELTO')
+               OR (devolvio_equipo = 'NO' AND estado = 'DEVUELTO')
+        `);
+
+        const [contratosPorVencerRows] = await pool.query(`
+            SELECT COUNT(*) AS cantidad FROM contrato_movil
+            WHERE fecha_fin BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
+              AND estado <> 'CANCELADO'
+        `);
+
+        // ==========================================
         // ULTIMOS MOVIMIENTOS
         // ==========================================
         const [movimientoRows] = await pool.query(`
@@ -214,6 +238,12 @@ const obtenerDashboard = async (req, res) => {
                 por_marca: marcaRows,
                 por_operador: operadorRows,
                 por_area: areaRows,
+                alertas: {
+                    actas_pendientes: Number(actasPendientesRows[0].cantidad || 0),
+                    devoluciones_pendientes: Number(devolucionesPendientesRows[0].cantidad || 0),
+                    devoluciones_por_revisar: Number(devolucionesRevisarRows[0].cantidad || 0),
+                    contratos_por_vencer: Number(contratosPorVencerRows[0].cantidad || 0)
+                },
                 ultimos_movimientos: movimientoRows
             }
         });
