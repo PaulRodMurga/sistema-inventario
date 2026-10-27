@@ -6,6 +6,7 @@ const consultaActas = `
     SELECT
         a.id, a.nro_acta, a.fecha, a.firmo_amo, a.firmo_dmo,
         a.estado, a.observaciones,
+        a.archivo_firmas_pdf, a.archivo_devolucion_pdf,
         c.id AS colaborador_id, c.codigo AS codigo_colaborador, c.dni,
         CONCAT(c.apellidos, ', ', c.nombres) AS colaborador,
         da.id AS detalle_id, da.equipo_id, da.fecha_entrega,
@@ -68,6 +69,8 @@ const agruparActas = (filas) => {
                 id: fila.id, nro_acta: fila.nro_acta, fecha: fila.fecha,
                 firmo_amo: fila.firmo_amo, firmo_dmo: fila.firmo_dmo,
                 estado: fila.estado, observaciones: fila.observaciones,
+                archivo_firmas_pdf: fila.archivo_firmas_pdf,
+                archivo_devolucion_pdf: fila.archivo_devolucion_pdf,
                 colaborador_id: fila.colaborador_id,
                 codigo_colaborador: fila.codigo_colaborador,
                 dni: fila.dni, colaborador: fila.colaborador, equipos: []
