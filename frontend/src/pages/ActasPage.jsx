@@ -18,7 +18,9 @@ import {
 
 import {
     listarActas,
-    obtenerActaPorId
+    obtenerActaPorId,
+    subirDocumentoActa,
+    abrirDocumentoActa
 } from '../services/actaService';
 
 import DialogoAccesible from '../components/DialogoAccesible';
@@ -609,6 +611,19 @@ function DetalleActa({ acta }) {
                 <CampoDetalleActa etiqueta="Observaciones del acta" valor={acta.observaciones} completo />
             </div>
 
+            <div className="acta-documentos-pdf">
+                <SeccionDocumentoActa
+                    actaId={acta.id}
+                    tipo="firmas"
+                    titulo="PDF de firmas AMO y DMO"
+                />
+                <SeccionDocumentoActa
+                    actaId={acta.id}
+                    tipo="devolucion"
+                    titulo="PDF de devolución"
+                />
+            </div>
+
             <div className="equipos-acta-encabezado">
                 <h4>Equipos del acta ({acta.cantidad_equipos})</h4>
                 <DevolucionActa acta={acta} />
@@ -682,6 +697,85 @@ function DetalleActa({ acta }) {
                 </div>
             )}
         </div>
+    );
+}
+
+
+function SeccionDocumentoActa({ actaId, tipo, titulo }) {
+    const [archivo, setArchivo] = useState(null);
+    const [ocupado, setOcupado] = useState(false);
+    const [mensaje, setMensaje] = useState('');
+    const [error, setError] = useState('');
+
+    const cargar = async () => {
+        if (!archivo) {
+            setError('Selecciona un archivo PDF.');
+            setMensaje('');
+            return;
+        }
+        if (archivo.type !== 'application/pdf' || !archivo.name.toLowerCase().endsWith('.pdf')) {
+            setError('El archivo debe tener formato PDF.');
+            setMensaje('');
+            return;
+        }
+        if (archivo.size > 10 * 1024 * 1024) {
+            setError('El PDF no debe superar los 10 MB.');
+            setMensaje('');
+            return;
+        }
+        try {
+            setOcupado(true);
+            setError('');
+            setMensaje('');
+            await subirDocumentoActa(actaId, tipo, archivo);
+            setMensaje('PDF guardado correctamente.');
+            setArchivo(null);
+        } catch (e) {
+            setError(e.message || 'No se pudo cargar el PDF.');
+        } finally {
+            setOcupado(false);
+        }
+    };
+
+    const abrir = async () => {
+        try {
+            setOcupado(true);
+            setError('');
+            await abrirDocumentoActa(actaId, tipo);
+        } catch (e) {
+            setError(e.message || 'No se pudo abrir el PDF.');
+        } finally {
+            setOcupado(false);
+        }
+    };
+
+    return (
+        <section className="acta-documento-pdf">
+            <h4>{titulo}</h4>
+            <label>
+                Seleccionar PDF (máximo 10 MB)
+                <input
+                    type="file"
+                    accept="application/pdf,.pdf"
+                    disabled={ocupado}
+                    onChange={(evento) => {
+                        setArchivo(evento.target.files?.[0] || null);
+                        setMensaje('');
+                        setError('');
+                    }}
+                />
+            </label>
+            <div className="acta-documento-acciones">
+                <button type="button" onClick={cargar} disabled={ocupado || !archivo}>
+                    {ocupado ? 'Procesando...' : 'Guardar PDF'}
+                </button>
+                <button type="button" onClick={abrir} disabled={ocupado}>
+                    Consultar PDF guardado
+                </button>
+            </div>
+            {mensaje && <p role="status" className="acta-documento-exito">{mensaje}</p>}
+            {error && <p role="alert" className="acta-documento-error">{error}</p>}
+        </section>
     );
 }
 
