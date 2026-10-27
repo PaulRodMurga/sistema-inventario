@@ -446,8 +446,7 @@ function ActasPage() {
                             <h3 id="titulo-detalle-acta">Detalle del acta</h3>
 
                             <p id="descripcion-detalle-acta">
-                                Información de firmas,
-                                colaborador y equipos
+                                Información del colaborador, equipos y devolución
                             </p>
                         </div>
 
