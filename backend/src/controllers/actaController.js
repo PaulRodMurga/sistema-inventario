@@ -18,6 +18,48 @@ const consultaActas = `
     LEFT JOIN equipo e ON e.id = da.equipo_id
 `;
 
+const adjuntarPerifericosActa = async (actas) => {
+    const equiposIds = [...new Set(
+        actas.flatMap((acta) => acta.equipos.map((equipo) => equipo.equipo_id))
+            .filter((id) => id !== null && id !== undefined)
+    )];
+
+    for (const acta of actas) {
+        for (const equipo of acta.equipos) equipo.perifericos = [];
+    }
+    if (equiposIds.length === 0) return actas;
+
+    const placeholders = equiposIds.map(() => '?').join(', ');
+    const [filasPerifericos] = await pool.query(`
+        SELECT
+            ep.equipo_principal_id AS equipo_id,
+            ep.tipo_periferico,
+            p.id AS periferico_id,
+            p.marca,
+            p.modelo,
+            p.serie,
+            p.codigo_patrimonial,
+            p.estado_actual
+        FROM equipo_periferico ep
+        INNER JOIN equipo p ON p.id = ep.periferico_id
+        WHERE ep.equipo_principal_id IN (${placeholders})
+        ORDER BY ep.equipo_principal_id, ep.id
+    `, equiposIds);
+
+    const porEquipo = new Map();
+    for (const periferico of filasPerifericos) {
+        if (!porEquipo.has(periferico.equipo_id)) porEquipo.set(periferico.equipo_id, []);
+        porEquipo.get(periferico.equipo_id).push(periferico);
+    }
+
+    for (const acta of actas) {
+        for (const equipo of acta.equipos) {
+            equipo.perifericos = porEquipo.get(equipo.equipo_id) || [];
+        }
+    }
+    return actas;
+};
+
 const agruparActas = (filas) => {
     const actas = new Map();
     for (const fila of filas) {
@@ -71,7 +113,7 @@ const agruparActas = (filas) => {
 const listarActas = async (req, res) => {
     try {
         const [filas] = await pool.query(`${consultaActas} ORDER BY a.id DESC, da.id ASC`);
-        const rows = agruparActas(filas);
+        const rows = await adjuntarPerifericosActa(agruparActas(filas));
 
         res.json({
             success: true,
@@ -103,7 +145,7 @@ const obtenerActaPorId = async (req, res) => {
         const [filas] = await pool.query(
             `${consultaActas} WHERE a.id = ? ORDER BY da.id ASC`, [Number(id)]
         );
-        const actas = agruparActas(filas);
+        const actas = await adjuntarPerifericosActa(agruparActas(filas));
 
         if (actas.length === 0) {
             return res.status(404).json({
