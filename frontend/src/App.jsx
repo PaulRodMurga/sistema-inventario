@@ -10,7 +10,14 @@ import {
   FileText,
   Settings,
   Bell,
-  LogOut
+  LogOut,
+  PackageCheck,
+  Package,
+  UsersRound,
+  AlertTriangle,
+  FileWarning,
+  CalendarClock,
+  ArrowUpRight
 } from 'lucide-react';
 
 import {
@@ -184,6 +191,10 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
   const incidencias =
     Number(resumen.perdidos || 0) +
     Number(resumen.robados || 0);
+  const porcentajeAsignados = Number(resumen.total_equipos || 0) > 0 ? Math.round((Number(resumen.asignados || 0) / Number(resumen.total_equipos)) * 100) : 0;
+  const porcentajeLibres = Number(resumen.total_equipos || 0) > 0 ? Math.round((Number(resumen.libres || 0) / Number(resumen.total_equipos)) * 100) : 0;
+  const alertasDashboard = dashboard?.alertas || { actas_pendientes: 0, devoluciones_pendientes: 0, devoluciones_por_revisar: 0, contratos_por_vencer: 0 };
+  const formatearCantidad = (valor) => Number(valor || 0).toLocaleString('es-PE');
 
   const datosPorEstado = (dashboard?.por_estado || []).map((elemento) => ({
     estado: elemento.estado
@@ -356,46 +367,30 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
               </div>
             )}
 
-            <div className="encabezado-pagina">
+            <div className="dashboard-bienvenida">
               <div>
+                <span className="dashboard-eyebrow">CENTRO DE CONTROL · INVENTARIO TI</span>
                 <h3>Resumen del inventario</h3>
-                <p>Información actualizada de los equipos registrados</p>
+                <p>Vista general de equipos, asignaciones y tareas administrativas.</p>
               </div>
-
-              <button
-                type="button"
-                className="boton-primario"
-                onClick={cargarDashboard}
-                disabled={cargando}
-              >
+              <button type="button" className="boton-primario dashboard-actualizar" onClick={cargarDashboard} disabled={cargando}>
                 {cargando ? 'Actualizando...' : 'Actualizar datos'}
               </button>
             </div>
+            <div className="dashboard-accesos" aria-label="Accesos rápidos">
+              <button type="button" onClick={() => setSeccionActiva('Equipos')}><Package size={17} /> Equipos <ArrowUpRight size={15} /></button>
+              <button type="button" onClick={() => setSeccionActiva('Asignaciones')}><PackageCheck size={17} /> Asignaciones <ArrowUpRight size={15} /></button>
+              <button type="button" onClick={() => setSeccionActiva('Actas')}><FileText size={17} /> Actas <ArrowUpRight size={15} /></button>
+              <button type="button" onClick={() => setSeccionActiva('Movimientos')}><ArrowLeftRight size={17} /> Movimientos <ArrowUpRight size={15} /></button>
+            </div>
 
-            <div className="tarjetas">
-              <article className="tarjeta">
-                <span>Total de equipos</span>
-                <strong>{resumen.total_equipos}</strong>
-                <small>Equipos registrados</small>
-              </article>
-
-              <article className="tarjeta tarjeta-verde">
-                <span>Asignados</span>
-                <strong>{resumen.asignados}</strong>
-                <small>Equipos en uso</small>
-              </article>
-
-              <article className="tarjeta tarjeta-celeste">
-                <span>Libres</span>
-                <strong>{resumen.libres}</strong>
-                <small>Disponibles para asignar</small>
-              </article>
-
-              <article className="tarjeta tarjeta-roja">
-                <span>Incidencias</span>
-                <strong>{incidencias}</strong>
-                <small>Perdidos o robados</small>
-              </article>
+            <div className="tarjetas dashboard-kpis">
+              <article className="tarjeta dashboard-kpi dashboard-kpi-total"><div className="dashboard-kpi-icono"><Package size={19} /></div><span>Total de equipos</span><strong>{formatearCantidad(resumen.total_equipos)}</strong><small>Inventario registrado</small></article>
+              <article className="tarjeta tarjeta-verde dashboard-kpi"><div className="dashboard-kpi-icono"><PackageCheck size={19} /></div><span>Asignados</span><strong>{formatearCantidad(resumen.asignados)}</strong><small>{porcentajeAsignados}% del inventario</small><div className="dashboard-progreso"><span style={{ width: porcentajeAsignados + '%' }} /></div></article>
+              <article className="tarjeta tarjeta-celeste dashboard-kpi"><div className="dashboard-kpi-icono"><Package size={19} /></div><span>Libres</span><strong>{formatearCantidad(resumen.libres)}</strong><small>{porcentajeLibres}% disponibles</small><div className="dashboard-progreso dashboard-progreso-celeste"><span style={{ width: porcentajeLibres + '%' }} /></div></article>
+              <article className="tarjeta tarjeta-roja dashboard-kpi"><div className="dashboard-kpi-icono"><AlertTriangle size={19} /></div><span>Incidencias</span><strong>{formatearCantidad(incidencias)}</strong><small>{formatearCantidad(resumen.perdidos)} perdidos · {formatearCantidad(resumen.robados)} robados</small></article>
+              <article className="tarjeta dashboard-kpi dashboard-kpi-secundario"><div className="dashboard-kpi-icono"><UsersRound size={19} /></div><span>Colaboradores</span><strong>{formatearCantidad(resumen.total_colaboradores)}</strong><small>Registrados en el sistema</small></article>
+              <article className="tarjeta dashboard-kpi dashboard-kpi-secundario"><div className="dashboard-kpi-icono"><Smartphone size={19} /></div><span>Líneas móviles</span><strong>{formatearCantidad(resumen.total_lineas)}</strong><small>En el inventario móvil</small></article>
             </div>
 
             <div className="paneles">
@@ -504,6 +499,26 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
               </article>
             </div>
 
+            <section className="dashboard-seccion-graficos" aria-label="Análisis del inventario">
+              <div className="dashboard-seccion-titulo"><div><h3>Análisis del inventario</h3><p>Distribución por marca, operador móvil y área.</p></div></div>
+              <div className="dashboard-graficos-grid">
+                <PanelGraficoDashboard titulo="Equipos por marca" descripcion="Marcas con más equipos registrados" datos={dashboard?.por_marca || []} clave="marca" alSeleccionar={() => setSeccionActiva('Equipos')} />
+                <PanelGraficoDashboard titulo="Equipos por operador" descripcion="Distribución por operador móvil" datos={dashboard?.por_operador || []} clave="operador" alSeleccionar={() => setSeccionActiva('Equipos')} />
+                <PanelGraficoDashboard titulo="Asignaciones por área" descripcion="Asignaciones actualmente activas" datos={dashboard?.por_area || []} clave="area" alSeleccionar={() => setSeccionActiva('Asignaciones')} />
+              </div>
+            </section>
+
+            <section className="dashboard-seccion-alertas">
+              <div className="dashboard-seccion-titulo"><div><h3>Control administrativo</h3><p>Elementos que pueden necesitar seguimiento.</p></div><button type="button" className="dashboard-link-modulo" onClick={() => setSeccionActiva('Actas')}>Abrir actas <ArrowUpRight size={15} /></button></div>
+              <div className="dashboard-alertas-grid">
+                <button type="button" className="dashboard-alerta" onClick={() => setSeccionActiva('Actas')}><span className="dashboard-alerta-icono alerta-ambar"><FileWarning size={19} /></span><span className="dashboard-alerta-texto"><strong>Actas pendientes</strong><small>Actas en estado pendiente</small></span><b>{formatearCantidad(alertasDashboard.actas_pendientes)}</b><ArrowUpRight size={16} /></button>
+                <button type="button" className="dashboard-alerta" onClick={() => setSeccionActiva('Actas')}><span className="dashboard-alerta-icono alerta-azul"><CalendarClock size={19} /></span><span className="dashboard-alerta-texto"><strong>Devoluciones pendientes</strong><small>Equipos aún marcados como entregados</small></span><b>{formatearCantidad(alertasDashboard.devoluciones_pendientes)}</b><ArrowUpRight size={16} /></button>
+                <button type="button" className="dashboard-alerta" onClick={() => setSeccionActiva('Actas')}><span className="dashboard-alerta-icono alerta-rojo"><AlertTriangle size={19} /></span><span className="dashboard-alerta-texto"><strong>Devoluciones por revisar</strong><small>Estado y marca de devolución no coinciden</small></span><b>{formatearCantidad(alertasDashboard.devoluciones_por_revisar)}</b><ArrowUpRight size={16} /></button>
+                <button type="button" className="dashboard-alerta" onClick={() => setSeccionActiva('Configuración')}><span className="dashboard-alerta-icono alerta-verde"><CalendarClock size={19} /></span><span className="dashboard-alerta-texto"><strong>Contratos por vencer</strong><small>Finalizan dentro de los próximos 30 días</small></span><b>{formatearCantidad(alertasDashboard.contratos_por_vencer)}</b><ArrowUpRight size={16} /></button>
+              </div>
+              <p className="dashboard-nota-datos">Las alertas se calculan con los registros actuales de MySQL; no son notificaciones enviadas automáticamente.</p>
+            </section>
+
           </section>
         )}
 
@@ -541,6 +556,28 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
 
       </main>
     </div>
+  );
+}
+
+function PanelGraficoDashboard({ titulo, descripcion, datos, clave, alSeleccionar }) {
+  const datosGrafico = (datos || []).map((fila) => ({
+    etiqueta: fila[clave] || 'Sin dato',
+    cantidad: Number(fila.cantidad || 0)
+  })).sort((a, b) => b.cantidad - a.cantidad).slice(0, 7);
+
+  return (
+    <article className="panel dashboard-panel-grafico">
+      <div className="dashboard-panel-grafico-cabecera"><div><h3>{titulo}</h3><p>{descripcion}</p></div><button type="button" onClick={alSeleccionar} aria-label={'Abrir módulo relacionado: ' + titulo} title="Abrir módulo relacionado"><ArrowUpRight size={17} /></button></div>
+      <div className="dashboard-grafico-secundario">
+        {datosGrafico.length ? <ResponsiveContainer width="100%" height="100%"><BarChart data={datosGrafico} layout="vertical" margin={{ top: 2, right: 12, left: 4, bottom: 2 }}>
+          <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e8edf5" />
+          <XAxis type="number" allowDecimals={false} axisLine={false} tickLine={false} tick={{ fill: '#718096', fontSize: 11 }} />
+          <YAxis type="category" dataKey="etiqueta" width={104} axisLine={false} tickLine={false} tick={{ fill: '#526178', fontSize: 11 }} />
+          <Tooltip cursor={{ fill: '#f1f5f9' }} formatter={(valor) => [valor, 'Equipos']} contentStyle={{ border: '1px solid #e2e8f0', borderRadius: 10, boxShadow: '0 8px 24px rgb(15 23 42 / 8%)' }} />
+          <Bar dataKey="cantidad" fill="#6278e7" radius={[0, 6, 6, 0]} maxBarSize={22} />
+        </BarChart></ResponsiveContainer> : <div className="dashboard-grafico-sin-datos">No hay datos para mostrar</div>}
+      </div>
+    </article>
   );
 }
 
