@@ -379,12 +379,53 @@ const registrarAsignacion = async (req, res) => {
             notasEntrega
         ]);
 
+        let actaGeneradaId = acta;
+        if (acta === null) {
+            // Crear el acta y su detalle dentro de la misma transacción
+            // que la asignación para evitar registros incompletos.
+            const numeroActa = `ASG-${String(resultado.insertId).padStart(6, '0')}`;
+            const [resultadoActa] = await conexion.query(`
+                INSERT INTO acta (
+                    nro_acta, fecha, colaborador_id,
+                    firmo_amo, firmo_dmo, estado, observaciones
+                )
+                VALUES (?, ?, ?, 'NO', 'NO', 'PENDIENTE', ?)
+            `, [
+                numeroActa,
+                fecha_asignacion,
+                colaborador,
+                notasEntrega
+            ]);
+            actaGeneradaId = resultadoActa.insertId;
+
+            await conexion.query(`
+                INSERT INTO detalle_acta (
+                    acta_id, equipo_id, fecha_entrega, fecha_devolucion,
+                    devolvio_equipo, estado, observaciones
+                )
+                VALUES (?, ?, ?, NULL, 'NO', 'ENTREGADO', ?)
+            `, [
+                actaGeneradaId,
+                equipo,
+                fecha_asignacion,
+                notasEntrega
+            ]);
+
+            await conexion.query(
+                'UPDATE asignacion SET acta_id = ? WHERE id = ?',
+                [actaGeneradaId, resultado.insertId]
+            );
+        }
+
         await conexion.commit();
         transaccionActiva = false;
         res.status(201).json({
             success: true,
-            mensaje: 'Asignación registrada correctamente',
-            id: resultado.insertId
+            mensaje: acta === null
+                ? 'Asignación y acta registradas correctamente'
+                : 'Asignación registrada correctamente',
+            id: resultado.insertId,
+            acta_id: actaGeneradaId
         });
 
     } catch (error) {
