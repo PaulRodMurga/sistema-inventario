@@ -688,3 +688,75 @@
         flex-wrap: wrap;
     }
 }
+
+/* Documentos PDF asociados a cada acta */
+.actas-pagina .acta-documentos-pdf {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin: 22px 0;
+}
+
+.actas-pagina .acta-documento-pdf {
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #f8fafc;
+}
+
+.actas-pagina .acta-documento-pdf h4 {
+    margin: 0 0 12px;
+    color: #0f172a;
+}
+
+.actas-pagina .acta-documento-pdf label {
+    display: grid;
+    gap: 8px;
+    color: #475569;
+    font-size: 12px;
+}
+
+.actas-pagina .acta-documento-pdf input[type="file"] {
+    width: 100%;
+    min-width: 0;
+    font-size: 12px;
+}
+
+.actas-pagina .acta-documento-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.actas-pagina .acta-documento-acciones button {
+    padding: 9px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    background: #fff;
+    color: #1e293b;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.actas-pagina .acta-documento-acciones button:disabled {
+    cursor: not-allowed;
+    opacity: .55;
+}
+
+.actas-pagina .acta-documento-exito,
+.actas-pagina .acta-documento-error {
+    margin: 10px 0 0;
+    font-size: 12px;
+}
+
+.actas-pagina .acta-documento-exito { color: #166534; }
+.actas-pagina .acta-documento-error { color: #b91c1c; }
+
+@media (max-width: 700px) {
+    .actas-pagina .acta-documentos-pdf {
+        grid-template-columns: 1fr;
+    }
+}
