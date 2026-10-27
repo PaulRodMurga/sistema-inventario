@@ -397,6 +397,7 @@ function ActasPage() {
                                             actaId={acta.id}
                                             tipo="firmas"
                                             titulo="Firmas AMO y DMO"
+                                            tieneDocumento={Boolean(acta.archivo_firmas_pdf)}
                                             compacto
                                         />
                                     </td>
@@ -406,6 +407,7 @@ function ActasPage() {
                                             actaId={acta.id}
                                             tipo="devolucion"
                                             titulo="Devolución"
+                                            tieneDocumento={Boolean(acta.archivo_devolucion_pdf)}
                                             compacto
                                         />
                                     </td>
@@ -664,8 +666,9 @@ function DetalleActa({ acta }) {
 }
 
 
-function SeccionDocumentoActa({ actaId, tipo, titulo, compacto = false }) {
+function SeccionDocumentoActa({ actaId, tipo, titulo, tieneDocumento: documentoInicial = false, compacto = false }) {
     const [archivo, setArchivo] = useState(null);
+    const [tieneDocumento, setTieneDocumento] = useState(documentoInicial);
     const [ocupado, setOcupado] = useState(false);
     const [mensaje, setMensaje] = useState('');
     const [error, setError] = useState('');
@@ -692,6 +695,7 @@ function SeccionDocumentoActa({ actaId, tipo, titulo, compacto = false }) {
             setMensaje('');
             await subirDocumentoActa(actaId, tipo, archivo);
             setMensaje('PDF guardado correctamente.');
+            setTieneDocumento(true);
             setArchivo(null);
         } catch (e) {
             setError(e.message || 'No se pudo cargar el PDF.');
@@ -734,7 +738,7 @@ function SeccionDocumentoActa({ actaId, tipo, titulo, compacto = false }) {
                 <button type="button" onClick={cargar} disabled={ocupado || !archivo}>
                     {ocupado ? 'Procesando...' : (compacto ? 'Cargar' : 'Guardar PDF')}
                 </button>
-                <button type="button" onClick={abrir} disabled={ocupado}>
+                <button type="button" onClick={abrir} disabled={ocupado || !tieneDocumento} title={!tieneDocumento ? 'Primero carga un PDF para esta acta' : 'Ver PDF cargado'}>
                     {compacto ? 'Ver PDF' : 'Consultar PDF guardado'}
                 </button>
             </div>
