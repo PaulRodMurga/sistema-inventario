@@ -610,3 +610,41 @@
 .menu-opcion.configuracion.activo {
   border-radius: 12px;
 }
+
+/* Dashboard moderno: jerarquía visual, indicadores y alertas */
+.dashboard-bienvenida{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:18px;padding:25px 27px;border:1px solid #e4e9f5;border-radius:20px;background:radial-gradient(circle at 90% 10%,#e8edff 0,transparent 32%),linear-gradient(125deg,#fff 0%,#f7f9ff 100%);box-shadow:0 8px 26px rgb(35 55 100 / 5%)}
+.dashboard-bienvenida h3{margin:8px 0 6px;color:#18233d;font-size:25px;letter-spacing:-.6px}
+.dashboard-bienvenida p{margin:0;color:#68758c;font-size:13px}
+.dashboard-eyebrow{color:#6476ce;font-size:10px;font-weight:800;letter-spacing:1.3px}
+.dashboard-actualizar{box-shadow:0 5px 12px rgb(37 99 235 / 20%)}
+.dashboard-accesos{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}
+.dashboard-accesos button{display:flex;align-items:center;gap:8px;padding:10px 13px;border:1px solid #e2e8f0;border-radius:11px;background:#fff;color:#35435d;font-size:12px;font-weight:700;cursor:pointer;transition:transform .18s,border-color .18s,box-shadow .18s}
+.dashboard-accesos button:hover{transform:translateY(-2px);border-color:#aebcfb;box-shadow:0 5px 15px rgb(30 50 90 / 7%)}
+.dashboard-accesos button svg:first-child{color:#6476d9}
+.dashboard-kpis{grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.dashboard-kpi{position:relative;min-width:0;padding:20px 20px 17px;border:1px solid #e8edf5;border-left:0;border-radius:16px;background:#fff;box-shadow:0 5px 18px rgb(20 35 70 / 4%);overflow:hidden}
+.dashboard-kpi:before{position:absolute;top:0;left:0;right:0;height:3px;background:#6a7ee8;content:""}
+.dashboard-kpi.tarjeta-verde:before{background:#24a879}.dashboard-kpi.tarjeta-celeste:before{background:#269bd1}.dashboard-kpi.tarjeta-roja:before{background:#e45d70}
+.dashboard-kpi-icono{width:36px;height:36px;display:grid;place-items:center;margin-bottom:13px;border-radius:11px;background:#eef1ff;color:#596fdb}
+.dashboard-kpi.tarjeta-verde .dashboard-kpi-icono{background:#e6f8ef;color:#20986b}.dashboard-kpi.tarjeta-celeste .dashboard-kpi-icono{background:#e5f5fd;color:#1689bc}.dashboard-kpi.tarjeta-roja .dashboard-kpi-icono{background:#fff0f1;color:#d94d61}
+.dashboard-kpi span{font-size:12px;font-weight:650;color:#68758c}.dashboard-kpi strong{margin:5px 0 3px;font-size:29px;letter-spacing:-.8px}.dashboard-kpi small{font-size:11px;color:#8b96a9;line-height:1.5}
+.dashboard-progreso{height:5px;margin-top:12px;overflow:hidden;border-radius:99px;background:#e6f4ec}.dashboard-progreso span{display:block;height:100%;border-radius:inherit;background:#24a879;transition:width .3s}.dashboard-progreso-celeste{background:#e1f2fa}.dashboard-progreso-celeste span{background:#269bd1}
+.dashboard-kpi-secundario{background:linear-gradient(145deg,#fff,#fafbff)}
+.dashboard-seccion-graficos,.dashboard-seccion-alertas{margin-top:27px}
+.dashboard-seccion-titulo{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:14px}
+.dashboard-seccion-titulo h3{margin:0;color:#1b2740;font-size:18px;letter-spacing:-.25px}.dashboard-seccion-titulo p{margin:5px 0 0;color:#7b879b;font-size:12px}
+.dashboard-graficos-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.dashboard-panel-grafico{height:330px;padding:19px;border:1px solid #e8edf5;border-radius:16px;box-shadow:0 5px 18px rgb(20 35 70 / 4%)}
+.dashboard-panel-grafico-cabecera{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.dashboard-panel-grafico-cabecera h3{font-size:14px}.dashboard-panel-grafico-cabecera p{margin:5px 0 0;font-size:11px}.dashboard-panel-grafico-cabecera button{display:grid;place-items:center;width:30px;height:30px;flex:0 0 30px;border:1px solid #e3e8f2;border-radius:9px;background:#fff;color:#6476d9;cursor:pointer}.dashboard-panel-grafico-cabecera button:hover{background:#f1f3ff}
+.dashboard-grafico-secundario{height:245px;min-width:0;margin-top:8px}.dashboard-grafico-sin-datos{height:100%;display:grid;place-items:center;color:#8b96a9;font-size:12px}
+.dashboard-link-modulo{display:flex;align-items:center;gap:5px;border:0;background:transparent;color:#5268ce;font-size:12px;font-weight:700;cursor:pointer}
+.dashboard-alertas-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.dashboard-alerta{display:flex;align-items:center;gap:12px;min-width:0;padding:15px;border:1px solid #e7ebf3;border-radius:14px;background:#fff;text-align:left;cursor:pointer;transition:border-color .18s,transform .18s,box-shadow .18s}
+.dashboard-alerta:hover{transform:translateY(-1px);border-color:#c5cef4;box-shadow:0 6px 18px rgb(30 50 90 / 5%)}
+.dashboard-alerta-icono{width:38px;height:38px;display:grid;place-items:center;flex:0 0 38px;border-radius:12px}.alerta-ambar{background:#fff4dc;color:#b77912}.alerta-azul{background:#e7f3ff;color:#2874c8}.alerta-rojo{background:#ffeded;color:#cf4f5d}.alerta-verde{background:#e5f8ed;color:#218a5b}
+.dashboard-alerta-texto{display:flex;flex:1;flex-direction:column;gap:4px;min-width:0}.dashboard-alerta-texto strong{color:#29364f;font-size:12px}.dashboard-alerta-texto small{color:#8a95a8;font-size:10px;line-height:1.45}.dashboard-alerta>b{color:#202c44;font-size:20px}.dashboard-alerta>svg:last-child{flex:0 0 auto;color:#a1aabd}
+.dashboard-nota-datos{margin:12px 2px 0;color:#929bad;font-size:10px;line-height:1.5}
+.dashboard-kpi-icono svg{width:19px;height:19px}
+@media(max-width:1250px){.dashboard-graficos-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-panel-grafico:last-child{grid-column:1/-1}}
+@media(max-width:1000px){.dashboard-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-graficos-grid{grid-template-columns:1fr}.dashboard-panel-grafico:last-child{grid-column:auto}.dashboard-panel-grafico{height:315px}.dashboard-grafico-secundario{height:230px}}
+@media(max-width:760px){.dashboard-bienvenida{align-items:flex-start;flex-direction:column;padding:21px}.dashboard-bienvenida h3{font-size:22px}.dashboard-accesos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-accesos button{justify-content:flex-start;padding:10px 8px;font-size:11px}.dashboard-kpis{grid-template-columns:1fr}.dashboard-alertas-grid{grid-template-columns:1fr}.dashboard-alerta{padding:13px}.dashboard-seccion-titulo{align-items:flex-start}.dashboard-panel-grafico{padding:16px}}
