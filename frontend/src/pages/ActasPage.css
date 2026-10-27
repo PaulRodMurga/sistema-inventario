@@ -760,3 +760,35 @@
         grid-template-columns: 1fr;
     }
 }
+
+
+/* Carga y consulta de PDF directamente desde cada fila de la tabla */
+.actas-pagina .tabla-actas .acta-documento-pdf-compacto {
+    min-width: 170px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+.actas-pagina .tabla-actas .acta-documento-pdf-compacto label {
+    gap: 5px;
+    color: #64748b;
+    font-size: 10px;
+}
+
+.actas-pagina .tabla-actas .acta-documento-pdf-compacto input[type="file"] {
+    max-width: 210px;
+    font-size: 10px;
+}
+
+.actas-pagina .tabla-actas .acta-documento-pdf-compacto .acta-documento-acciones {
+    margin-top: 6px;
+    gap: 5px;
+}
+
+.actas-pagina .tabla-actas .acta-documento-pdf-compacto .acta-documento-acciones button {
+    padding: 6px 8px;
+    font-size: 10px;
+    white-space: nowrap;
+}
