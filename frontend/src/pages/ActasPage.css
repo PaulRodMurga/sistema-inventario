@@ -798,21 +798,21 @@
     min-width: 1450px;
 }
 
-.actas-pagina .tabla-actas th:nth-child(8),
-.actas-pagina .tabla-actas th:nth-child(9) {
+.actas-pagina .tabla-actas th:nth-child(6),
+.actas-pagina .tabla-actas th:nth-child(7) {
     min-width: 235px;
     background: #eef4ff;
     color: #1d4ed8;
 }
 
-.actas-pagina .tabla-actas td:nth-child(8),
-.actas-pagina .tabla-actas td:nth-child(9) {
+.actas-pagina .tabla-actas td:nth-child(6),
+.actas-pagina .tabla-actas td:nth-child(7) {
     min-width: 235px;
     background: #fbfdff;
 }
 
-.actas-pagina .tabla-actas tbody tr:hover td:nth-child(8),
-.actas-pagina .tabla-actas tbody tr:hover td:nth-child(9) {
+.actas-pagina .tabla-actas tbody tr:hover td:nth-child(6),
+.actas-pagina .tabla-actas tbody tr:hover td:nth-child(7) {
     background: #f1f6ff;
 }
 
