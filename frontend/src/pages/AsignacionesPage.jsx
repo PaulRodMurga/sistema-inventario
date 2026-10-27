@@ -589,7 +589,7 @@ function AsignacionesPage({ soloLectura = false } = {}) {
             setModalAbierto(false);
             limpiarFormulario();
 
-            setMensaje('Asignación registrada correctamente');
+            setMensaje('Asignación y acta registradas correctamente. Puedes consultar el acta en la sección Actas.');
 
             await Promise.all([
                 cargarAsignaciones(),
