@@ -51,3 +51,45 @@ export const obtenerActaPorId = async (id) => {
     if (acta.id !== Number(id)) throw new Error('El detalle recibido no corresponde al acta solicitada');
     return acta;
 };
+
+
+// Carga un PDF a un documento específico del acta.
+export const subirDocumentoActa = async (id, tipo, archivo) => {
+    if (!['firmas', 'devolucion'].includes(tipo)) {
+        throw new Error('Tipo de documento no válido');
+    }
+    const formulario = new FormData();
+    formulario.append('archivo', archivo);
+    const resultado = await solicitarApi(`${RUTA_API}/${id}/documentos/${tipo}`, {
+        method: 'POST',
+        body: formulario,
+        mensajeError: 'No se pudo cargar el PDF'
+    });
+    return resultado;
+};
+
+// Abre el PDF mediante una petición autenticada.
+export const abrirDocumentoActa = async (id, tipo) => {
+    if (!['firmas', 'devolucion'].includes(tipo)) {
+        throw new Error('Tipo de documento no válido');
+    }
+    const { obtenerApiUrl } = await import('./apiClient');
+    const respuesta = await fetch(obtenerApiUrl(`${RUTA_API}/${id}/documentos/${tipo}`));
+    if (!respuesta.ok) {
+        let mensaje = 'No se pudo abrir el PDF';
+        try {
+            const datos = await respuesta.json();
+            if (datos?.mensaje) mensaje = datos.mensaje;
+        } catch {}
+        throw new Error(mensaje);
+    }
+    const url = URL.createObjectURL(await respuesta.blob());
+    const ventana = window.open(url, '_blank', 'noopener,noreferrer');
+    if (!ventana) {
+        const enlace = document.createElement('a');
+        enlace.href = url;
+        enlace.download = `acta-${id}-${tipo}.pdf`;
+        enlace.click();
+    }
+    window.setTimeout(() => URL.revokeObjectURL(url), 60000);
+};
