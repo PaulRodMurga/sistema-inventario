@@ -98,7 +98,7 @@ function claseEstado(estado) {
     return estado === 'VIGENTE' ? 'activo' : 'inactivo';
 }
 
-function ContratasPanel() {
+function ContratasPanel({ soloPorVencer = false } = {}) {
     const [contratas, setContratas] = useState([]);
     const [operadores, setOperadores] = useState([]);
     const [gamas, setGamas] = useState([]);
@@ -157,14 +157,22 @@ function ContratasPanel() {
     const contratasFiltradas = useMemo(() => {
         const texto = busqueda.trim().toLowerCase();
 
-        return contratas.filter((contrata) => [
+        return contratas.filter((contrata) => {
+            const fechaFin = contrata.fecha_fin ? new Date(`${String(contrata.fecha_fin).slice(0, 10)}T00:00:00`) : null;
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            const limite = new Date(hoy);
+            limite.setDate(limite.getDate() + 30);
+            const dentroDePlazo = fechaFin && !Number.isNaN(fechaFin.getTime()) && fechaFin >= hoy && fechaFin <= limite && contrata.estado !== 'CANCELADO';
+            return (!soloPorVencer || dentroDePlazo) && [
             contrata.id,
             contrata.nro_contrato,
             contrata.operador,
             contrata.estado,
             textoEstado(contrata.estado)
-        ].join(' ').toLowerCase().includes(texto));
-    }, [busqueda, contratas]);
+        ].join(' ').toLowerCase().includes(texto);
+        });
+    }, [busqueda, contratas, soloPorVencer]);
 
     const mostrarMensaje = (texto) => {
         setMensaje(texto);
