@@ -792,3 +792,148 @@
     font-size: 10px;
     white-space: nowrap;
 }
+
+/* Acabado visual para la gestión de documentos desde la tabla */
+.actas-pagina .tabla-actas {
+    min-width: 1450px;
+}
+
+.actas-pagina .tabla-actas th:nth-child(8),
+.actas-pagina .tabla-actas th:nth-child(9) {
+    min-width: 235px;
+    background: #eef4ff;
+    color: #1d4ed8;
+}
+
+.actas-pagina .tabla-actas td:nth-child(8),
+.actas-pagina .tabla-actas td:nth-child(9) {
+    min-width: 235px;
+    background: #fbfdff;
+}
+
+.actas-pagina .tabla-actas tbody tr:hover td:nth-child(8),
+.actas-pagina .tabla-actas tbody tr:hover td:nth-child(9) {
+    background: #f1f6ff;
+}
+
+.actas-pagina .tabla-actas .acta-documento-pdf-compacto {
+    width: 100%;
+    min-width: 215px;
+    padding: 12px;
+    border: 1px solid #dbeafe;
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 2px 5px rgb(15 23 42 / 4%);
+    transition: border-color .18s ease, box-shadow .18s ease;
+}
+
+.actas-pagina .tabla-actas .acta-documento-pdf-compacto:focus-within {
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 3px rgb(59 130 246 / 10%);
+}
+
+.actas-pagina .tabla-actas .acta-documento-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #1e3a8a;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.actas-pagina .tabla-actas .acta-documento-label::before {
+    content: "PDF";
+    padding: 4px 5px;
+    border-radius: 5px;
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .3px;
+}
+
+.actas-pagina .tabla-actas .acta-documento-pdf-compacto input[type="file"] {
+    width: 100%;
+    max-width: none;
+    margin-top: 3px;
+    padding: 7px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 7px;
+    background: #f8fafc;
+    color: #475569;
+    font-size: 10px;
+}
+
+.actas-pagina .tabla-actas .acta-documento-pdf-compacto input[type="file"]::file-selector-button {
+    margin-right: 7px;
+    padding: 5px 7px;
+    border: 0;
+    border-radius: 5px;
+    background: #e2e8f0;
+    color: #334155;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.actas-pagina .tabla-actas .acta-documento-pdf-compacto .acta-documento-acciones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.actas-pagina .tabla-actas .acta-documento-pdf-compacto .acta-documento-acciones button {
+    min-width: 0;
+    padding: 7px 5px;
+    border: 1px solid #bfdbfe;
+    border-radius: 7px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 10px;
+    font-weight: 700;
+    transition: background .18s ease, color .18s ease, border-color .18s ease;
+}
+
+.actas-pagina .tabla-actas .acta-documento-pdf-compacto .acta-documento-acciones button:first-child:not(:disabled) {
+    border-color: #2563eb;
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.actas-pagina .tabla-actas .acta-documento-pdf-compacto .acta-documento-acciones button:hover:not(:disabled) {
+    border-color: #1d4ed8;
+    background: #1d4ed8;
+    color: #ffffff;
+}
+
+.actas-pagina .tabla-actas .acta-documento-pdf-compacto .acta-documento-acciones button:disabled {
+    background: #f1f5f9;
+    color: #94a3b8;
+    border-color: #e2e8f0;
+    opacity: 1;
+}
+
+.actas-pagina .tabla-actas .acta-documento-pdf-compacto .acta-documento-exito,
+.actas-pagina .tabla-actas .acta-documento-pdf-compacto .acta-documento-error {
+    padding: 7px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.actas-pagina .tabla-actas .acta-documento-pdf-compacto .acta-documento-exito {
+    background: #f0fdf4;
+}
+
+.actas-pagina .tabla-actas .acta-documento-pdf-compacto .acta-documento-error {
+    background: #fef2f2;
+}
+
+@media (max-width: 700px) {
+    .actas-pagina .tabla-actas {
+        min-width: 1450px;
+    }
+}
