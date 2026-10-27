@@ -760,7 +760,9 @@ function SeccionDocumentoActa({ actaId, tipo, titulo, compacto = false }) {
         <section className={`acta-documento-pdf ${compacto ? 'acta-documento-pdf-compacto' : ''}`}>
             {!compacto && <h4>{titulo}</h4>}
             <label>
-                {compacto ? 'Archivo PDF (máx. 10 MB)' : 'Seleccionar PDF (máximo 10 MB)' }
+                <span className="acta-documento-label">
+                    {compacto ? titulo : 'Seleccionar PDF (máximo 10 MB)'}
+                </span>
                 <input
                     type="file"
                     accept="application/pdf,.pdf"
