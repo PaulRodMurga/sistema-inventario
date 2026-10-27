@@ -126,6 +126,8 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
   const [dashboard, setDashboard] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
+  const [filtroActasDashboard, setFiltroActasDashboard] = useState('TODOS');
+  const [contratosSoloPorVencer, setContratosSoloPorVencer] = useState(false);
   const esAdministrador = usuario.rol === 'ADMINISTRADOR';
   const esConsulta = usuario.rol === 'CONSULTA';
 
@@ -176,6 +178,16 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
       activo = false;
     };
   }, [seccionActiva]);
+
+  const abrirActasConFiltro = (filtro) => {
+    setFiltroActasDashboard(filtro);
+    setSeccionActiva('Actas');
+  };
+
+  const abrirContratosPorVencer = () => {
+    setContratosSoloPorVencer(true);
+    setSeccionActiva('Configuración');
+  };
 
   const resumen = dashboard?.resumen || {
     total_equipos: 0,
@@ -511,10 +523,10 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
             <section className="dashboard-seccion-alertas">
               <div className="dashboard-seccion-titulo"><div><h3>Control administrativo</h3><p>Elementos que pueden necesitar seguimiento.</p></div><button type="button" className="dashboard-link-modulo" onClick={() => setSeccionActiva('Actas')}>Abrir actas <ArrowUpRight size={15} /></button></div>
               <div className="dashboard-alertas-grid">
-                <button type="button" className="dashboard-alerta" onClick={() => setSeccionActiva('Actas')}><span className="dashboard-alerta-icono alerta-ambar"><FileWarning size={19} /></span><span className="dashboard-alerta-texto"><strong>Actas pendientes</strong><small>Actas en estado pendiente</small></span><b>{formatearCantidad(alertasDashboard.actas_pendientes)}</b><ArrowUpRight size={16} /></button>
-                <button type="button" className="dashboard-alerta" onClick={() => setSeccionActiva('Actas')}><span className="dashboard-alerta-icono alerta-azul"><CalendarClock size={19} /></span><span className="dashboard-alerta-texto"><strong>Devoluciones pendientes</strong><small>Equipos aún marcados como entregados</small></span><b>{formatearCantidad(alertasDashboard.devoluciones_pendientes)}</b><ArrowUpRight size={16} /></button>
-                <button type="button" className="dashboard-alerta" onClick={() => setSeccionActiva('Actas')}><span className="dashboard-alerta-icono alerta-rojo"><AlertTriangle size={19} /></span><span className="dashboard-alerta-texto"><strong>Devoluciones por revisar</strong><small>Estado y marca de devolución no coinciden</small></span><b>{formatearCantidad(alertasDashboard.devoluciones_por_revisar)}</b><ArrowUpRight size={16} /></button>
-                <button type="button" className="dashboard-alerta" onClick={() => setSeccionActiva('Configuración')}><span className="dashboard-alerta-icono alerta-verde"><CalendarClock size={19} /></span><span className="dashboard-alerta-texto"><strong>Contratos por vencer</strong><small>Finalizan dentro de los próximos 30 días</small></span><b>{formatearCantidad(alertasDashboard.contratos_por_vencer)}</b><ArrowUpRight size={16} /></button>
+                <button type="button" className="dashboard-alerta" onClick={() => abrirActasConFiltro('PENDIENTES')}><span className="dashboard-alerta-icono alerta-ambar"><FileWarning size={19} /></span><span className="dashboard-alerta-texto"><strong>Actas pendientes</strong><small>Actas en estado pendiente</small></span><b>{formatearCantidad(alertasDashboard.actas_pendientes)}</b><ArrowUpRight size={16} /></button>
+                <button type="button" className="dashboard-alerta" onClick={() => abrirActasConFiltro('DEVOLUCIONES_PENDIENTES')}><span className="dashboard-alerta-icono alerta-azul"><CalendarClock size={19} /></span><span className="dashboard-alerta-texto"><strong>Devoluciones pendientes</strong><small>Equipos aún marcados como entregados</small></span><b>{formatearCantidad(alertasDashboard.devoluciones_pendientes)}</b><ArrowUpRight size={16} /></button>
+                <button type="button" className="dashboard-alerta" onClick={() => abrirActasConFiltro('DEVOLUCIONES_REVISAR')}><span className="dashboard-alerta-icono alerta-rojo"><AlertTriangle size={19} /></span><span className="dashboard-alerta-texto"><strong>Devoluciones por revisar</strong><small>Estado y marca de devolución no coinciden</small></span><b>{formatearCantidad(alertasDashboard.devoluciones_por_revisar)}</b><ArrowUpRight size={16} /></button>
+                <button type="button" className="dashboard-alerta" onClick={abrirContratosPorVencer}><span className="dashboard-alerta-icono alerta-verde"><CalendarClock size={19} /></span><span className="dashboard-alerta-texto"><strong>Contratos por vencer</strong><small>Finalizan dentro de los próximos 30 días</small></span><b>{formatearCantidad(alertasDashboard.contratos_por_vencer)}</b><ArrowUpRight size={16} /></button>
               </div>
               <p className="dashboard-nota-datos">Las alertas se calculan con los registros actuales de MySQL; no son notificaciones enviadas automáticamente.</p>
             </section>
@@ -543,13 +555,15 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
         )}
 
         {seccionActiva === 'Actas' && (
-          <ActasPage />
+          <ActasPage filtroInicial={filtroActasDashboard} />
         )}
 
         {seccionActiva === 'Configuración' && (
           <ConfiguracionPage
             usuarioActual={usuario}
             onSesionRevocada={onCerrarSesion}
+            pestanaInicial={contratosSoloPorVencer ? 'contratas' : 'proveedores'}
+            contratosSoloPorVencer={contratosSoloPorVencer}
           />
         )}
 
