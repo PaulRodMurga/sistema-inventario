@@ -302,6 +302,21 @@ function ActasPage({ filtroInicial = 'TODOS' } = {}) {
                 </p>
             )}
 
+            {filtroDevolucion !== 'TODOS' && (
+                <div className="actas-nota-resumen" role="status">
+                    <span>
+                        {filtroDevolucion === 'PENDIENTES'
+                            ? 'Filtro activo: actas pendientes.'
+                            : filtroDevolucion === 'DEVOLUCIONES_PENDIENTES'
+                                ? 'Filtro activo: equipos aún marcados como entregados.'
+                                : 'Filtro activo: datos de devolución inconsistentes.'}
+                    </span>
+                    <button type="button" onClick={() => { setFiltroDevolucion('TODOS'); setEstadoSeleccionado('TODOS'); setBusqueda(''); }}>
+                        Quitar filtro
+                    </button>
+                </div>
+            )}
+
             <div className="filtros-actas">
                 <CampoBusqueda
                     className="buscador-actas"
