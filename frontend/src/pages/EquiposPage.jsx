@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import {
     Camera,
     FileSpreadsheet,
+    Download,
     Headphones,
     Keyboard,
     ListPlus,
@@ -319,6 +320,7 @@ function EquiposPage({ soloLectura = false } = {}) {
     const [errorPerifericos, setErrorPerifericos] = useState('');
     const [guardandoPeriferico, setGuardandoPeriferico] = useState(false);
     const [importacionAbierta, setImportacionAbierta] = useState(false);
+    const [exportando, setExportando] = useState(false);
 
     const tipoSeleccionado = useMemo(
         () => tiposEquipo.find(({ codigo }) => codigo === formulario.tipo),
@@ -1066,6 +1068,91 @@ function EquiposPage({ soloLectura = false } = {}) {
         ].join(' ').toLowerCase().includes(busqueda.toLowerCase());
     });
 
+    const exportarEquiposFiltrados = async () => {
+        if (equiposFiltrados.length === 0 || exportando) return;
+
+        try {
+            setExportando(true);
+            setError('');
+            const equiposConPerifericos = await Promise.all(
+                equiposFiltrados.map(async (equipo) => {
+                    let perifericos = [];
+
+                    if (TIPOS_PRINCIPALES_PERIFERICOS.has(equipo.tipo)) {
+                        perifericos = await listarPerifericosEquipo(equipo.id);
+                    }
+
+                    return { ...equipo, perifericos };
+                })
+            );
+
+            const columnas = [
+                'ID equipo',
+                'Tipo',
+                'Marca',
+                'Modelo',
+                'Código patrimonial',
+                'IMEI',
+                'Serie',
+                'Usuario actual asignado',
+                'Contrato',
+                'Operador',
+                'Estado',
+                'Periféricos vinculados'
+            ];
+
+            const escaparCSV = (valor) => {
+                const texto = valor === null || valor === undefined ? '' : String(valor);
+                return '"' + texto.replaceAll('"', '""') + '"';
+            };
+
+            const filas = equiposConPerifericos.map((equipo) => {
+                const perifericos = equipo.perifericos.map((periferico) => [
+                    periferico.tipo_periferico || periferico.tipo || 'PERIFÉRICO',
+                    periferico.marca,
+                    periferico.modelo,
+                    periferico.serie ? `Serie: ${periferico.serie}` : '',
+                    periferico.codigo_patrimonial
+                        ? `Código patrimonial: ${periferico.codigo_patrimonial}`
+                        : '',
+                    periferico.estado_actual ? `Estado: ${periferico.estado_actual}` : ''
+                ].filter(Boolean).join(' - ')).join(' | ');
+
+                return [
+                    equipo.id,
+                    equipo.tipo,
+                    equipo.marca,
+                    equipo.modelo,
+                    equipo.codigo_patrimonial,
+                    equipo.imei,
+                    equipo.serie,
+                    equipo.colaborador_asignado || 'SIN ASIGNAR',
+                    equipo.nro_contrato,
+                    equipo.operador,
+                    equipo.estado_actual,
+                    perifericos || 'Sin periféricos vinculados'
+                ].map(escaparCSV).join(';');
+            });
+
+            const contenido = '\uFEFF' + [columnas.map(escaparCSV).join(';'), ...filas].join('\r\n');
+            const archivo = new Blob([contenido], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(archivo);
+            const enlace = document.createElement('a');
+            const fecha = new Date().toISOString().slice(0, 10);
+            enlace.href = url;
+            enlace.download = `equipos_filtrados_${fecha}.csv`;
+            document.body.appendChild(enlace);
+            enlace.click();
+            enlace.remove();
+            URL.revokeObjectURL(url);
+            setMensaje(`Se exportaron ${equiposConPerifericos.length} equipos con sus periféricos vinculados.`);
+        } catch (errorSolicitud) {
+            setError(errorSolicitud.message || 'No se pudieron exportar los equipos y sus periféricos.');
+        } finally {
+            setExportando(false);
+        }
+    };
+
     const formatearEstado = (estado) => estado
         ? estado.replaceAll('_', ' ')
         : 'SIN ESTADO';
@@ -1077,22 +1164,34 @@ function EquiposPage({ soloLectura = false } = {}) {
                     <h3>Equipos</h3>
                     <p>Consulta y administra los equipos registrados por contrato</p>
                 </div>
-                {!soloLectura && (
-                    <div className="acciones-encabezado-pagina">
-                        <button
-                            type="button"
-                            className="boton-importar-excel"
-                            onClick={() => setImportacionAbierta(true)}
-                        >
-                            <FileSpreadsheet size={18} aria-hidden="true" />
-                            <span>Importar Excel</span>
-                        </button>
-                        <button type="button" className="boton-primario" onClick={abrirRegistro}>
-                            <Plus size={18} aria-hidden="true" />
-                            <span>Registrar equipo</span>
-                        </button>
-                    </div>
-                )}
+                <div className="acciones-encabezado-pagina">
+                    <button
+                        type="button"
+                        className="boton-importar-excel"
+                        onClick={exportarEquiposFiltrados}
+                        disabled={exportando || equiposFiltrados.length === 0}
+                        title={equiposFiltrados.length === 0 ? 'No hay equipos para exportar' : 'Exportar los equipos que coinciden con los filtros actuales'}
+                    >
+                        <Download size={18} aria-hidden="true" />
+                        <span>{exportando ? 'Exportando...' : `Exportar equipos (${equiposFiltrados.length})`}</span>
+                    </button>
+                    {!soloLectura && (
+                        <>
+                            <button
+                                type="button"
+                                className="boton-importar-excel"
+                                onClick={() => setImportacionAbierta(true)}
+                            >
+                                <FileSpreadsheet size={18} aria-hidden="true" />
+                                <span>Importar Excel</span>
+                            </button>
+                            <button type="button" className="boton-primario" onClick={abrirRegistro}>
+                                <Plus size={18} aria-hidden="true" />
+                                <span>Registrar equipo</span>
+                            </button>
+                        </>
+                    )}
+                </div>
             </div>
 
             {mensaje && <div className="mensaje-exito" role="status">{mensaje}</div>}
@@ -1208,6 +1307,7 @@ function EquiposPage({ soloLectura = false } = {}) {
                                         <th key={campo.clave}>{campo.etiqueta}</th>
                                     ))}
                                     <th>Contrato</th>
+                                    <th>Usuario actual</th>
                                     <th>Estado</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -1252,6 +1352,7 @@ function EquiposPage({ soloLectura = false } = {}) {
                                                 <strong>{equipo.nro_contrato || '-'}</strong>
                                                 <small className="equipo-operador">{equipo.operador || ''}</small>
                                             </td>
+                                            <td>{equipo.colaborador_asignado || 'SIN ASIGNAR'}</td>
                                             <td>
                                                 <EtiquetaEstado className="estado-equipo" estado={equipo.estado_actual} texto={formatearEstado(equipo.estado_actual)} />
                                             </td>
