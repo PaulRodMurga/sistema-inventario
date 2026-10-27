@@ -358,6 +358,8 @@ function ActasPage() {
                                 <th>Firma AMO</th>
                                 <th>Firma DMO</th>
                                 <th>Devolución</th>
+                                <th>PDF firmas AMO/DMO</th>
+                                <th>PDF devolución</th>
                                 <th>Estado</th>
                                 <th>Acción</th>
                             </tr>
@@ -406,6 +408,24 @@ function ActasPage() {
 
                                     <td>
                                         <DevolucionActa acta={acta} />
+                                    </td>
+
+                                    <td>
+                                        <SeccionDocumentoActa
+                                            actaId={acta.id}
+                                            tipo="firmas"
+                                            titulo="Firmas AMO y DMO"
+                                            compacto
+                                        />
+                                    </td>
+
+                                    <td>
+                                        <SeccionDocumentoActa
+                                            actaId={acta.id}
+                                            tipo="devolucion"
+                                            titulo="Devolución"
+                                            compacto
+                                        />
                                     </td>
 
                                     <td>
@@ -611,19 +631,6 @@ function DetalleActa({ acta }) {
                 <CampoDetalleActa etiqueta="Observaciones del acta" valor={acta.observaciones} completo />
             </div>
 
-            <div className="acta-documentos-pdf">
-                <SeccionDocumentoActa
-                    actaId={acta.id}
-                    tipo="firmas"
-                    titulo="PDF de firmas AMO y DMO"
-                />
-                <SeccionDocumentoActa
-                    actaId={acta.id}
-                    tipo="devolucion"
-                    titulo="PDF de devolución"
-                />
-            </div>
-
             <div className="equipos-acta-encabezado">
                 <h4>Equipos del acta ({acta.cantidad_equipos})</h4>
                 <DevolucionActa acta={acta} />
@@ -701,7 +708,7 @@ function DetalleActa({ acta }) {
 }
 
 
-function SeccionDocumentoActa({ actaId, tipo, titulo }) {
+function SeccionDocumentoActa({ actaId, tipo, titulo, compacto = false }) {
     const [archivo, setArchivo] = useState(null);
     const [ocupado, setOcupado] = useState(false);
     const [mensaje, setMensaje] = useState('');
@@ -750,10 +757,10 @@ function SeccionDocumentoActa({ actaId, tipo, titulo }) {
     };
 
     return (
-        <section className="acta-documento-pdf">
-            <h4>{titulo}</h4>
+        <section className={`acta-documento-pdf ${compacto ? 'acta-documento-pdf-compacto' : ''}`}>
+            {!compacto && <h4>{titulo}</h4>}
             <label>
-                Seleccionar PDF (máximo 10 MB)
+                {compacto ? 'Archivo PDF (máx. 10 MB)' : 'Seleccionar PDF (máximo 10 MB)' }
                 <input
                     type="file"
                     accept="application/pdf,.pdf"
@@ -767,10 +774,10 @@ function SeccionDocumentoActa({ actaId, tipo, titulo }) {
             </label>
             <div className="acta-documento-acciones">
                 <button type="button" onClick={cargar} disabled={ocupado || !archivo}>
-                    {ocupado ? 'Procesando...' : 'Guardar PDF'}
+                    {ocupado ? 'Procesando...' : (compacto ? 'Cargar' : 'Guardar PDF')}
                 </button>
                 <button type="button" onClick={abrir} disabled={ocupado}>
-                    Consultar PDF guardado
+                    {compacto ? 'Ver PDF' : 'Consultar PDF guardado'}
                 </button>
             </div>
             {mensaje && <p role="status" className="acta-documento-exito">{mensaje}</p>}
