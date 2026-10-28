@@ -311,6 +311,8 @@ function EquiposPage({ soloLectura = false } = {}) {
     const [mostrarSugerenciasTipo, setMostrarSugerenciasTipo] = useState(false);
     const [filtroContrato, setFiltroContrato] = useState('');
     const [filtroEstado, setFiltroEstado] = useState('');
+    const [filtroUsuario, setFiltroUsuario] = useState('');
+    const [filtroAsignacion, setFiltroAsignacion] = useState('TODOS');
     const [contratoGamas, setContratoGamas] = useState([]);
     const [busqueda, setBusqueda] = useState('');
     const [cargando, setCargando] = useState(true);
@@ -1112,6 +1114,8 @@ function EquiposPage({ soloLectura = false } = {}) {
         setBusquedaTipo('');
         setFiltroContrato('');
         setFiltroEstado('');
+        setFiltroUsuario('');
+        setFiltroAsignacion('TODOS');
         setBusqueda('');
         setMostrarSugerenciasTipo(false);
     };
@@ -1120,6 +1124,10 @@ function EquiposPage({ soloLectura = false } = {}) {
         if (tipoEquipoActivo && equipo.tipo !== tipoEquipoActivo) return false;
         if (filtroContrato && String(equipo.nro_contrato || '').trim() !== filtroContrato) return false;
         if (filtroEstado && String(equipo.estado_actual || '').trim() !== filtroEstado) return false;
+        const usuarioAsignado = String(equipo.colaborador_asignado || '').trim();
+        if (filtroAsignacion === 'ASIGNADO' && !usuarioAsignado) return false;
+        if (filtroAsignacion === 'SIN_ASIGNAR' && usuarioAsignado) return false;
+        if (filtroUsuario && !usuarioAsignado.toLocaleLowerCase('es-PE').includes(filtroUsuario.toLocaleLowerCase('es-PE'))) return false;
 
         const especificaciones = leerEspecificaciones(equipo.especificaciones);
         return [
@@ -1132,6 +1140,7 @@ function EquiposPage({ soloLectura = false } = {}) {
             equipo.serie,
             equipo.nro_contrato,
             equipo.operador,
+            equipo.colaborador_asignado,
             equipo.estado_actual,
             ...Object.values(especificaciones)
         ].join(' ').toLowerCase().includes(busqueda.toLowerCase());
@@ -1335,11 +1344,30 @@ function EquiposPage({ soloLectura = false } = {}) {
                         </div>
                     )}
                 </div>
-                <div className="filtros-activos-equipos">
+                <div className="filtros-avanzados-equipos" aria-label="Filtros avanzados de equipos">
+                <label>
+                    <span>Colaborador asignado</span>
+                    <input
+                        type="search"
+                        value={filtroUsuario}
+                        onChange={(evento) => setFiltroUsuario(evento.target.value)}
+                        placeholder="Nombre del colaborador..."
+                    />
+                </label>
+                <label>
+                    <span>Asignación</span>
+                    <select value={filtroAsignacion} onChange={(evento) => setFiltroAsignacion(evento.target.value)}>
+                        <option value="TODOS">Todos</option>
+                        <option value="ASIGNADO">Con colaborador asignado</option>
+                        <option value="SIN_ASIGNAR">Sin colaborador asignado</option>
+                    </select>
+                </label>
+            </div>
+            <div className="filtros-activos-equipos">
                     {tipoEquipoActivo && <button type="button" onClick={() => setTipoEquipoActivo('')} title="Quitar tipo">Tipo: {tipoEquipoActivo} <X size={13} /></button>}
                     {filtroContrato && <button type="button" onClick={() => setFiltroContrato('')} title="Quitar contrato">Contrato: {filtroContrato} <X size={13} /></button>}
                     {filtroEstado && <button type="button" onClick={() => setFiltroEstado('')} title="Quitar estado">Estado: {filtroEstado.replaceAll('_', ' ')} <X size={13} /></button>}
-                    {(tipoEquipoActivo || filtroContrato || filtroEstado || busquedaTipo || busqueda) && <button type="button" className="limpiar-todos-filtros-equipos" onClick={limpiarFiltrosEquipos}>Limpiar</button>}
+                    {(tipoEquipoActivo || filtroContrato || filtroEstado || filtroUsuario || filtroAsignacion !== 'TODOS' || busquedaTipo || busqueda) && <button type="button" className="limpiar-todos-filtros-equipos" onClick={limpiarFiltrosEquipos}>Limpiar</button>}
                 </div>
             </div>
 
