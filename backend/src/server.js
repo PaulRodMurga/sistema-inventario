@@ -38,6 +38,8 @@ const catalogoRoutes = require('./routes/catalogoRoutes');
 const authRoutes = require('./routes/authRoutes');
 const usuarioRoutes = require('./routes/usuarioRoutes');
 const auditoriaRoutes = require('./routes/auditoriaRoutes');
+const qrRoutes = require('./routes/qrRoutes');
+const { obtenerActivoQR } = require('./controllers/qrController');
 
 const configuracion = obtenerConfiguracion();
 const app = express();
@@ -131,7 +133,10 @@ const accesoConfiguracion = permitirMutaciones(
     'ADMINISTRADOR'
 );
 
-// Login es la única entrada pública de la API.
+// La consulta de un activo escaneado es pública y de solo lectura.
+app.get('/api/qr/activo/:codigo', obtenerActivoQR);
+
+// Login es la única entrada pública de la API, junto con la consulta QR de activos.
 app.use('/api/auth', authRoutes);
 app.use(
     '/api/usuarios',
@@ -214,6 +219,7 @@ app.use(
     contratoGamaRoutes
 );
 app.use('/api/dashboard', requiereAutenticacion, dashboardRoutes);
+app.use('/api/qr', requiereAutenticacion, accesoOperativo, qrRoutes);
 app.use('/api/catalogos', requiereAutenticacion, catalogoRoutes);
 app.use('/api', requiereAutenticacion, catalogoRoutes);
 
