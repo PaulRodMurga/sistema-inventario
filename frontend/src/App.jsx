@@ -292,7 +292,10 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
             type="button"
             className={`menu-opcion configuracion ${seccionActiva === 'Configuración' ? 'activo' : ''
               }`}
-            onClick={() => setSeccionActiva('Configuración')}
+            onClick={() => {
+              setContratosSoloPorVencer(false);
+              setSeccionActiva('Configuración');
+            }}
             aria-label="Abrir Configuración"
             aria-current={seccionActiva === 'Configuración' ? 'page' : undefined}
           >
