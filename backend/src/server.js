@@ -22,6 +22,7 @@ const {
 
 const pool = require('./config/database');
 const inventarioRoutes = require('./routes/inventarioRoutes');
+const inventarioFisicoRoutes = require('./routes/inventarioFisicoRoutes');
 const colaboradorRoutes = require('./routes/colaboradorRoutes');
 const equipoRoutes = require('./routes/equipoRoutes');
 const asignacionRoutes = require('./routes/asignacionRoutes');
@@ -152,6 +153,12 @@ app.use(
 );
 
 app.use('/api/inventario', requiereAutenticacion, inventarioRoutes);
+app.use(
+    '/api/inventario-fisico',
+    requiereAutenticacion,
+    accesoOperativo,
+    inventarioFisicoRoutes
+);
 app.use(
     '/api/colaboradores',
     requiereAutenticacion,
