@@ -1831,3 +1831,9 @@
         padding: 16px;
     }
 }
+
+
+/* El historial del periférico debe quedar por encima del detalle del equipo. */
+.modal-fondo:has(.modal-historial-periferico) {
+    z-index: 1010;
+}
