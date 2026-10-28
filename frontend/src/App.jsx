@@ -43,6 +43,7 @@ import MovimientosPage from './pages/MovimientosPage';
 import ActasPage from './pages/ActasPage';
 import LineasPage from './pages/LineasPage';
 import ConfiguracionPage from './pages/ConfiguracionPage';
+import InventarioFisicoPage from './pages/InventarioFisicoPage';
 import LoginPage from './pages/LoginPage';
 import CampoBusqueda from './components/CampoBusqueda';
 import {
@@ -236,6 +237,10 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
     {
       nombre: 'Etiquetas QR',
       icono: PackageCheck
+    },
+    {
+      nombre: 'Inventario físico',
+      icono: ClipboardList
     },
     {
       nombre: 'Colaboradores',
@@ -554,6 +559,10 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
 
         {seccionActiva === 'Etiquetas QR' && (
           <EtiquetasQRPage />
+        )}
+
+        {seccionActiva === 'Inventario físico' && (
+          <InventarioFisicoPage soloLectura={esConsulta} />
         )}
 
         {seccionActiva === 'Asignaciones' && (
