@@ -35,6 +35,8 @@ import './App.css';
 import './pages/EquiposPage.css';
 import { obtenerDashboard } from './services/dashboardService';
 import EquiposPage from './pages/EquiposPage';
+import EtiquetasQRPage from './pages/EtiquetasQRPage';
+import ActivoQRPage from './pages/ActivoQRPage';
 import AsignacionesPage from './pages/AsignacionesPage';
 import ColaboradoresPage from './pages/ColaboradoresPage';
 import MovimientosPage from './pages/MovimientosPage';
@@ -106,6 +108,11 @@ function App() {
         Verificando sesión...
       </main>
     );
+  }
+
+  if (window.location.pathname.startsWith('/activo/')) {
+    const codigoQR = decodeURIComponent(window.location.pathname.split('/').filter(Boolean)[1] || '');
+    return <ActivoQRPage codigo={codigoQR} />;
   }
 
   if (!usuarioAutenticado) {
@@ -225,6 +232,10 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
     {
       nombre: 'Equipos',
       icono: MonitorSmartphone
+    },
+    {
+      nombre: 'Etiquetas QR',
+      icono: PackageCheck
     },
     {
       nombre: 'Colaboradores',
@@ -539,6 +550,10 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
 
         {seccionActiva === 'Equipos' && (
           <EquiposPage soloLectura={esConsulta} />
+        )}
+
+        {seccionActiva === 'Etiquetas QR' && (
+          <EtiquetasQRPage />
         )}
 
         {seccionActiva === 'Asignaciones' && (
