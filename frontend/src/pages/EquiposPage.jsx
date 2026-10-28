@@ -325,6 +325,7 @@ function EquiposPage({ soloLectura = false } = {}) {
     const [equipoSeleccionado, setEquipoSeleccionado] = useState(null);
     const [cargandoDetalle, setCargandoDetalle] = useState(false);
     const [historialEquipo, setHistorialEquipo] = useState([]);
+    const [historialPerifericos, setHistorialPerifericos] = useState({});
     const [cargandoHistorial, setCargandoHistorial] = useState(false);
     const [errorHistorial, setErrorHistorial] = useState('');
     const [equipoEditandoId, setEquipoEditandoId] = useState(null);
@@ -513,6 +514,7 @@ function EquiposPage({ soloLectura = false } = {}) {
             setDetalleAbierto(true);
 
             setHistorialEquipo([]);
+            setHistorialPerifericos({});
             setErrorHistorial('');
             setCargandoHistorial(true);
 
@@ -536,8 +538,21 @@ function EquiposPage({ soloLectura = false } = {}) {
             });
 
             try {
-                const historial = await listarMovimientosPorEquipo(id);
+                const [historial, ...historialesPerifericos] = await Promise.all([
+                    listarMovimientosPorEquipo(id),
+                    ...perifericos.map((periferico) =>
+                        listarMovimientosPorEquipo(periferico.id)
+                            .then((movimientos) => ({ id: periferico.id, movimientos }))
+                            .catch(() => ({ id: periferico.id, movimientos: [] }))
+                    )
+                ]);
                 setHistorialEquipo(historial);
+                setHistorialPerifericos(Object.fromEntries(
+                    historialesPerifericos.map(({ id: perifericoId, movimientos }) => [
+                        perifericoId,
+                        movimientos
+                    ])
+                ));
             } catch (errorSolicitudHistorial) {
                 console.error('Error al cargar historial del equipo:', errorSolicitudHistorial);
                 setErrorHistorial(errorSolicitudHistorial.message || 'No se pudo cargar el historial.');
@@ -2030,6 +2045,21 @@ function EquiposPage({ soloLectura = false } = {}) {
                                                             <small>
                                                                 {periferico.serie || `ID ${periferico.id}`}
                                                             </small>
+                                                            <details className="historial-periferico">
+                                                                <summary>Historial ({(historialPerifericos[periferico.id] || []).length})</summary>
+                                                                {(historialPerifericos[periferico.id] || []).length ? (
+                                                                    <ol>
+                                                                        {(historialPerifericos[periferico.id] || []).map((movimiento) => (
+                                                                            <li key={movimiento.id}>
+                                                                                <strong>{formatearTipoMovimiento(movimiento.tipo_movimiento)}</strong>
+                                                                                <time dateTime={fechaIsoHistorial(movimiento.fecha)}>{formatearFechaHistorial(movimiento.fecha)}</time>
+                                                                                <p>{movimiento.descripcion || 'Sin descripción adicional.'}</p>
+                                                                                <small>Colaborador: {movimiento.colaborador || 'No indicado'}</small>
+                                                                            </li>
+                                                                        ))}
+                                                                    </ol>
+                                                                ) : <p>No hay movimientos registrados para este periférico.</p>}
+                                                            </details>
                                                         </article>
                                                     )
                                                 )}
