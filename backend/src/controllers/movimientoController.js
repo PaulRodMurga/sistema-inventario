@@ -81,6 +81,10 @@ const movimientosPorEquipo = async (req, res) => {
                 m.fecha,
                 m.tipo_movimiento,
                 m.descripcion,
+                m.equipo_id,
+                m.colaborador_id,
+                m.asignacion_id,
+                m.autorizado_por AS autorizado_por_id,
 
                 e.marca,
                 e.modelo,
