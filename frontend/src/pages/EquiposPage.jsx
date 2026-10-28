@@ -17,6 +17,7 @@ import {
     Search,
     Trash2,
     Volume2,
+    History,
     X
 } from 'lucide-react';
 
@@ -35,6 +36,7 @@ import {
     validarImportacionEquipos
 } from '../services/equipoService';
 import { listarContratoGamas } from '../services/contratoGamaService';
+import { listarMovimientosPorEquipo } from '../services/movimientoService';
 import DialogoAccesible from '../components/DialogoAccesible';
 import BotonAccionTabla from '../components/BotonAccionTabla';
 import EtiquetaEstado from '../components/EtiquetaEstado';
@@ -278,6 +280,22 @@ function estaDisponible(relacion) {
         (!fin || fin >= hoy);
 }
 
+function fechaIsoHistorial(valor) {
+    if (!valor) return undefined;
+    const fecha = new Date(valor);
+    return Number.isNaN(fecha.getTime()) ? undefined : fecha.toISOString();
+}
+
+function formatearFechaHistorial(valor) {
+    if (!valor) return 'Fecha no disponible';
+    const fecha = new Date(valor);
+    if (Number.isNaN(fecha.getTime())) return String(valor);
+    return fecha.toLocaleString('es-PE', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+    });
+}
+
 function EquiposPage({ soloLectura = false } = {}) {
     const [equipos, setEquipos] = useState([]);
     const [tiposEquipo, setTiposEquipo] = useState([]);
@@ -299,6 +317,9 @@ function EquiposPage({ soloLectura = false } = {}) {
     const [detalleAbierto, setDetalleAbierto] = useState(false);
     const [equipoSeleccionado, setEquipoSeleccionado] = useState(null);
     const [cargandoDetalle, setCargandoDetalle] = useState(false);
+    const [historialEquipo, setHistorialEquipo] = useState([]);
+    const [cargandoHistorial, setCargandoHistorial] = useState(false);
+    const [errorHistorial, setErrorHistorial] = useState('');
     const [equipoEditandoId, setEquipoEditandoId] = useState(null);
     const [formulario, setFormulario] = useState(FORMULARIO_INICIAL);
     const [perifericosFormulario, setPerifericosFormulario] = useState(
@@ -484,11 +505,13 @@ function EquiposPage({ soloLectura = false } = {}) {
             setEquipoSeleccionado(null);
             setDetalleAbierto(true);
 
+            setHistorialEquipo([]);
+            setErrorHistorial('');
+            setCargandoHistorial(true);
+
             const equipo = await obtenerEquipoPorId(id);
 
-
             let perifericos = [];
-
             if (TIPOS_PRINCIPALES_PERIFERICOS.has(equipo.tipo)) {
                 try {
                     perifericos = await listarPerifericosEquipo(id);
@@ -497,8 +520,6 @@ function EquiposPage({ soloLectura = false } = {}) {
                         'Error al cargar periféricos vinculados:',
                         errorPerifericos
                     );
-
-                    perifericos = [];
                 }
             }
 
@@ -506,6 +527,16 @@ function EquiposPage({ soloLectura = false } = {}) {
                 ...equipo,
                 perifericos
             });
+
+            try {
+                const historial = await listarMovimientosPorEquipo(id);
+                setHistorialEquipo(historial);
+            } catch (errorSolicitudHistorial) {
+                console.error('Error al cargar historial del equipo:', errorSolicitudHistorial);
+                setErrorHistorial(errorSolicitudHistorial.message || 'No se pudo cargar el historial.');
+            } finally {
+                setCargandoHistorial(false);
+            }
         } catch (errorSolicitud) {
             setError(errorSolicitud.message);
             setDetalleAbierto(false);
@@ -2001,6 +2032,45 @@ function EquiposPage({ soloLectura = false } = {}) {
                                         )}
                                     </section>
                                 )}
+
+                            <section className="historial-equipo" aria-labelledby="historial-equipo-titulo">
+                                <div className="historial-equipo-encabezado">
+                                    <div>
+                                        <h5 id="historial-equipo-titulo">Historial del equipo</h5>
+                                        <p>Registro cronológico de movimientos y responsables.</p>
+                                    </div>
+                                    <span className="historial-equipo-contador">{historialEquipo.length}</span>
+                                </div>
+
+                                {cargandoHistorial ? (
+                                    <p className="historial-equipo-estado" role="status">Cargando historial...</p>
+                                ) : errorHistorial ? (
+                                    <p className="historial-equipo-error" role="alert">{errorHistorial}</p>
+                                ) : historialEquipo.length === 0 ? (
+                                    <p className="historial-equipo-estado">No hay movimientos registrados para este equipo.</p>
+                                ) : (
+                                    <ol className="historial-equipo-lista">
+                                        {historialEquipo.map((movimiento) => (
+                                            <li key={movimiento.id} className="historial-equipo-item">
+                                                <span className="historial-equipo-icono"><History size={16} aria-hidden="true" /></span>
+                                                <div className="historial-equipo-contenido">
+                                                    <div className="historial-equipo-linea">
+                                                        <strong>{formatearTipo(movimiento.tipo_movimiento)}</strong>
+                                                        <time dateTime={fechaIsoHistorial(movimiento.fecha)}>
+                                                            {formatearFechaHistorial(movimiento.fecha)}
+                                                        </time>
+                                                    </div>
+                                                    <p>{movimiento.descripcion || 'Sin descripción adicional.'}</p>
+                                                    <div className="historial-equipo-meta">
+                                                        <span>Colaborador: {movimiento.colaborador || 'No indicado'}</span>
+                                                        <span>Autorizado por: {movimiento.autorizado_por || 'No indicado'}</span>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ol>
+                                )}
+                            </section>
                         </div>
                     ) : null}
                 </DialogoAccesible>
