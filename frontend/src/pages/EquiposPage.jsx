@@ -1091,12 +1091,18 @@ function EquiposPage({ soloLectura = false } = {}) {
     const estadosDisponibles = [...new Set(equipos
         .map(({ estado_actual }) => String(estado_actual || '').trim())
         .filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
+    const colaboradoresDisponibles = [...new Set(equipos
+        .map(({ colaborador_asignado }) => String(colaborador_asignado || '').trim())
+        .filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
     const sugerenciasFiltro = [
         ...tiposEquipo.map(({ codigo }) => ({ tipo: 'tipo', valor: codigo, etiqueta: codigo })),
         ...contratosDisponibles.map((valor) => ({ tipo: 'contrato', valor, etiqueta: valor })),
-        ...estadosDisponibles.map((valor) => ({ tipo: 'estado', valor, etiqueta: valor.replaceAll('_', ' ') }))
+        ...estadosDisponibles.map((valor) => ({ tipo: 'estado', valor, etiqueta: valor.replaceAll('_', ' ') })),
+        ...colaboradoresDisponibles.map((valor) => ({ tipo: 'usuario', valor, etiqueta: valor })),
+        { tipo: 'asignacion', valor: 'ASIGNADO', etiqueta: 'Con colaborador asignado' },
+        { tipo: 'asignacion', valor: 'SIN_ASIGNAR', etiqueta: 'Sin colaborador asignado' }
     ].filter((opcion) => !consultaFiltro ||
-        opcion.etiqueta.toLowerCase().includes(consultaFiltro) ||
+        opcion.etiqueta.toLocaleLowerCase('es-PE').includes(consultaFiltro) ||
         opcion.tipo.includes(consultaFiltro))
         .slice(0, 12);
 
@@ -1104,6 +1110,8 @@ function EquiposPage({ soloLectura = false } = {}) {
         if (opcion.tipo === 'tipo') setTipoEquipoActivo(opcion.valor);
         if (opcion.tipo === 'contrato') setFiltroContrato(opcion.valor);
         if (opcion.tipo === 'estado') setFiltroEstado(opcion.valor);
+        if (opcion.tipo === 'usuario') setFiltroUsuario(opcion.valor);
+        if (opcion.tipo === 'asignacion') setFiltroAsignacion(opcion.valor);
         setBusquedaTipo('');
         setBusqueda('');
         setMostrarSugerenciasTipo(false);
@@ -1298,7 +1306,7 @@ function EquiposPage({ soloLectura = false } = {}) {
                         id="buscar-equipos-unificado"
                         type="text"
                         autoComplete="off"
-                        placeholder="Buscar equipos o filtrar por tipo, contrato o estado..."
+                        placeholder="Buscar por serie, IMEI, código, marca, modelo, colaborador, contrato, tipo o estado..."
                         value={busquedaTipo}
                         onFocus={() => setMostrarSugerenciasTipo(true)}
                         onChange={(evento) => {
@@ -1344,29 +1352,12 @@ function EquiposPage({ soloLectura = false } = {}) {
                         </div>
                     )}
                 </div>
-                <div className="filtros-avanzados-equipos" aria-label="Filtros avanzados de equipos">
-                <label>
-                    <span>Colaborador asignado</span>
-                    <input
-                        type="search"
-                        value={filtroUsuario}
-                        onChange={(evento) => setFiltroUsuario(evento.target.value)}
-                        placeholder="Nombre del colaborador..."
-                    />
-                </label>
-                <label>
-                    <span>Asignación</span>
-                    <select value={filtroAsignacion} onChange={(evento) => setFiltroAsignacion(evento.target.value)}>
-                        <option value="TODOS">Todos</option>
-                        <option value="ASIGNADO">Con colaborador asignado</option>
-                        <option value="SIN_ASIGNAR">Sin colaborador asignado</option>
-                    </select>
-                </label>
-            </div>
             <div className="filtros-activos-equipos">
                     {tipoEquipoActivo && <button type="button" onClick={() => setTipoEquipoActivo('')} title="Quitar tipo">Tipo: {tipoEquipoActivo} <X size={13} /></button>}
                     {filtroContrato && <button type="button" onClick={() => setFiltroContrato('')} title="Quitar contrato">Contrato: {filtroContrato} <X size={13} /></button>}
                     {filtroEstado && <button type="button" onClick={() => setFiltroEstado('')} title="Quitar estado">Estado: {filtroEstado.replaceAll('_', ' ')} <X size={13} /></button>}
+                    {filtroUsuario && <button type="button" onClick={() => setFiltroUsuario('')} title="Quitar colaborador">Colaborador: {filtroUsuario} <X size={13} /></button>}
+                    {filtroAsignacion !== 'TODOS' && <button type="button" onClick={() => setFiltroAsignacion('TODOS')} title="Quitar filtro de asignación">{filtroAsignacion === 'ASIGNADO' ? 'Con asignación' : 'Sin asignación'} <X size={13} /></button>}
                     {(tipoEquipoActivo || filtroContrato || filtroEstado || filtroUsuario || filtroAsignacion !== 'TODOS' || busquedaTipo || busqueda) && <button type="button" className="limpiar-todos-filtros-equipos" onClick={limpiarFiltrosEquipos}>Limpiar</button>}
                 </div>
             </div>
