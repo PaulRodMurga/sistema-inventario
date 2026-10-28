@@ -28,3 +28,17 @@ export const obtenerMovimientoPorId = async (id) => {
     );
 };
 
+
+export const listarMovimientosPorEquipo = async (equipoId) => {
+    const resultado = await solicitarApi(
+        `${RUTA_API}/equipo/${encodeURIComponent(equipoId)}`,
+        {
+            mensajeError: 'No se pudo cargar el historial del equipo'
+        }
+    );
+
+    return extraerListaApi(
+        resultado,
+        'La API no devolvió un historial válido para el equipo'
+    );
+};
