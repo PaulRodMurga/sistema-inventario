@@ -1767,3 +1767,67 @@
         text-align: left;
     }
 }
+
+
+/* Historial individual de periféricos en un modal independiente */
+.modal-historial-periferico {
+    width: min(680px, 100%);
+}
+
+.contenido-historial-periferico {
+    padding: 20px 24px 24px;
+    max-height: min(65vh, 620px);
+    overflow-y: auto;
+}
+
+.historial-periferico-identificacion {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 18px;
+    padding: 12px 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #f8fafc;
+}
+
+.historial-periferico-identificacion span {
+    color: #64748b;
+    font-size: 11px;
+}
+
+.historial-periferico-identificacion strong {
+    color: #1e293b;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.boton-historial-periferico {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 32px;
+    margin-top: 5px;
+    padding: 0 10px;
+    border: 1px solid #c7d2fe;
+    border-radius: 8px;
+    background: #fff;
+    color: #4338ca;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .15s ease, border-color .15s ease;
+}
+
+.boton-historial-periferico:hover {
+    border-color: #a5b4fc;
+    background: #eef2ff;
+}
+
+@media (max-width: 560px) {
+    .contenido-historial-periferico {
+        padding: 16px;
+    }
+}
