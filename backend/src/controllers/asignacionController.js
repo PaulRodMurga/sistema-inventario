@@ -417,6 +417,31 @@ const registrarAsignacion = async (req, res) => {
             );
         }
 
+        // Registrar también la asignación de cada periférico vinculado.
+        const [perifericosAsignados] = await conexion.query(`
+            SELECT p.id, ep.tipo_periferico, p.marca, p.modelo, p.serie
+            FROM equipo_periferico ep
+            INNER JOIN equipo p ON p.id = ep.periferico_id
+            WHERE ep.equipo_principal_id = ?
+            ORDER BY ep.id
+            FOR UPDATE
+        `, [equipo]);
+
+        for (const periferico of perifericosAsignados) {
+            await conexion.query(`
+                INSERT INTO movimiento_equipo (
+                    equipo_id, colaborador_id, asignacion_id, fecha,
+                    tipo_movimiento, descripcion
+                )
+                VALUES (?, ?, ?, NOW(), 'ASIGNACION', ?)
+            `, [
+                periferico.id,
+                colaborador,
+                resultado.insertId,
+                `Periférico ${periferico.tipo_periferico} (${periferico.marca} ${periferico.modelo}, serie: ${periferico.serie || 'sin serie'}) asignado junto con el equipo principal ID ${equipo}.`
+            ]);
+        }
+
         await conexion.commit();
         transaccionActiva = false;
         res.status(201).json({
@@ -590,6 +615,34 @@ const devolverAsignacion = async (req, res) => {
         }
 
 
+
+        // La devolución del equipo principal también libera la custodia
+        // registrada para cada periférico que estaba vinculado a él.
+        const [perifericosDevueltos] = await conexion.query(`
+            SELECT p.id, ep.tipo_periferico, p.marca, p.modelo, p.serie
+            FROM equipo_periferico ep
+            INNER JOIN equipo p ON p.id = ep.periferico_id
+            WHERE ep.equipo_principal_id = ?
+            ORDER BY ep.id
+            FOR UPDATE
+        `, [asignacion.equipo_id]);
+
+        for (const periferico of perifericosDevueltos) {
+            await conexion.query(`
+                INSERT INTO movimiento_equipo (
+                    equipo_id, colaborador_id, asignacion_id, autorizado_por,
+                    fecha, tipo_movimiento, descripcion
+                )
+                VALUES (?, ?, ?, ?, ?, 'DEVOLUCION', ?)
+            `, [
+                periferico.id,
+                asignacion.colaborador_id,
+                id,
+                autorizador,
+                `${fechaFinal} 23:59:59`,
+                `Devolución de periférico ${periferico.tipo_periferico} (${periferico.marca} ${periferico.modelo}, serie: ${periferico.serie || 'sin serie'}) junto con el equipo principal ID ${asignacion.equipo_id}.`
+            ]);
+        }
 
         await conexion.commit();
         transaccionActiva = false;
