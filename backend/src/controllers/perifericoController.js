@@ -324,6 +324,24 @@ if (vinculoId) {
         WHERE id = ?
     `, [nuevoId]);
 }
+        // Dejar evidencia del cambio de vinculación para ambos periféricos.
+        if (anteriorId) {
+            await conexion.query(`
+                INSERT INTO movimiento_equipo (equipo_id, fecha, tipo_movimiento, descripcion)
+                VALUES (?, NOW(), 'CAMBIO', ?)
+            `, [
+                anteriorId,
+                `Periférico desvinculado al reemplazar el tipo ${tipo} del equipo principal ID ${id}. Nuevo periférico ID ${nuevoId}.`
+            ]);
+        }
+        await conexion.query(`
+            INSERT INTO movimiento_equipo (equipo_id, fecha, tipo_movimiento, descripcion)
+            VALUES (?, NOW(), 'CAMBIO', ?)
+        `, [
+            nuevoId,
+            `Periférico vinculado como ${tipo} al equipo principal ID ${id}${anteriorId ? ` en reemplazo del periférico ID ${anteriorId}` : ''}.`
+        ]);
+
         await conexion.commit();
 
         return res.status(vinculoId ? 200 : 201).json({
@@ -383,6 +401,14 @@ const desvincularPerifericoEquipo = async (req, res) => {
                 mensaje: `${tipo} no está vinculado a este equipo`
             });
         }
+
+        await conexion.query(`
+            INSERT INTO movimiento_equipo (equipo_id, fecha, tipo_movimiento, descripcion)
+            VALUES (?, NOW(), 'CAMBIO', ?)
+        `, [
+            vinculos[0].periferico_id,
+            `Periférico desvinculado del equipo principal ID ${id} (tipo ${tipo}).`
+        ]);
 
         await conexion.query(
             'DELETE FROM equipo_periferico WHERE id = ?',
