@@ -286,6 +286,13 @@ function fechaIsoHistorial(valor) {
     return Number.isNaN(fecha.getTime()) ? undefined : fecha.toISOString();
 }
 
+function formatearTipoMovimiento(valor) {
+    return String(valor || 'MOVIMIENTO')
+        .replaceAll('_', ' ')
+        .toLocaleLowerCase('es-PE')
+        .replace(/\\b\\p{L}/gu, (letra) => letra.toLocaleUpperCase('es-PE'));
+}
+
 function formatearFechaHistorial(valor) {
     if (!valor) return 'Fecha no disponible';
     const fecha = new Date(valor);
@@ -2055,7 +2062,7 @@ function EquiposPage({ soloLectura = false } = {}) {
                                                 <span className="historial-equipo-icono"><History size={16} aria-hidden="true" /></span>
                                                 <div className="historial-equipo-contenido">
                                                     <div className="historial-equipo-linea">
-                                                        <strong>{formatearTipo(movimiento.tipo_movimiento)}</strong>
+                                                        <strong>{formatearTipoMovimiento(movimiento.tipo_movimiento)}</strong>
                                                         <time dateTime={fechaIsoHistorial(movimiento.fecha)}>
                                                             {formatearFechaHistorial(movimiento.fecha)}
                                                         </time>
