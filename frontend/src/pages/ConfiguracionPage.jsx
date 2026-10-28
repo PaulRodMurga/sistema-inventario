@@ -779,6 +779,10 @@ function ConfiguracionPage({ usuarioActual, onSesionRevocada, pestanaInicial = '
     const [pestanaActiva, setPestanaActiva] =
         useState(pestanaInicial);
 
+    useEffect(() => {
+        setPestanaActiva(pestanaInicial);
+    }, [pestanaInicial]);
+
     const botonesRef = useRef([]);
 
     const pestanas = [
