@@ -433,11 +433,12 @@ const registrarAsignacion = async (req, res) => {
                     equipo_id, colaborador_id, asignacion_id, fecha,
                     tipo_movimiento, descripcion
                 )
-                VALUES (?, ?, ?, NOW(), 'ASIGNACION', ?)
+                VALUES (?, ?, ?, ?, 'ASIGNACION', ?)
             `, [
                 periferico.id,
                 colaborador,
                 resultado.insertId,
+                `${fecha_asignacion} 00:00:00`,
                 `Periférico ${periferico.tipo_periferico} (${periferico.marca} ${periferico.modelo}, serie: ${periferico.serie || 'sin serie'}) asignado junto con el equipo principal ID ${equipo}.`
             ]);
         }
