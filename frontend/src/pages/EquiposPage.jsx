@@ -327,6 +327,7 @@ function EquiposPage({ soloLectura = false } = {}) {
     const [historialEquipo, setHistorialEquipo] = useState([]);
     const [historialPerifericos, setHistorialPerifericos] = useState({});
     const [erroresHistorialPerifericos, setErroresHistorialPerifericos] = useState({});
+    const [perifericoHistorialActivo, setPerifericoHistorialActivo] = useState(null);
     const [cargandoHistorial, setCargandoHistorial] = useState(false);
     const [errorHistorial, setErrorHistorial] = useState('');
     const [equipoEditandoId, setEquipoEditandoId] = useState(null);
@@ -1992,6 +1993,65 @@ function EquiposPage({ soloLectura = false } = {}) {
                 </DialogoAccesible>
             )}
 
+            {perifericoHistorialActivo && (
+                <DialogoAccesible
+                    className="modal-detalle modal-historial-periferico"
+                    tituloId="historial-periferico-titulo"
+                    descripcionId="historial-periferico-descripcion"
+                    onCerrar={() => setPerifericoHistorialActivo(null)}
+                >
+                    <div className="modal-encabezado">
+                        <div>
+                            <h3 id="historial-periferico-titulo">Historial del periférico</h3>
+                            <p id="historial-periferico-descripcion">
+                                {perifericoHistorialActivo.tipo}: {perifericoHistorialActivo.marca} {perifericoHistorialActivo.modelo}
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            className="modal-cerrar"
+                            onClick={() => setPerifericoHistorialActivo(null)}
+                            aria-label="Cerrar historial del periférico"
+                        >
+                            <X size={18} aria-hidden="true" />
+                        </button>
+                    </div>
+                    <div className="contenido-historial-periferico">
+                        <div className="historial-periferico-identificacion">
+                            <span>Serie</span>
+                            <strong>{perifericoHistorialActivo.serie || 'Sin serie registrada'}</strong>
+                        </div>
+                        {erroresHistorialPerifericos[perifericoHistorialActivo.id] ? (
+                            <p className="historial-equipo-error" role="alert">
+                                {erroresHistorialPerifericos[perifericoHistorialActivo.id]}
+                            </p>
+                        ) : (historialPerifericos[perifericoHistorialActivo.id] || []).length ? (
+                            <ol className="historial-equipo-lista">
+                                {(historialPerifericos[perifericoHistorialActivo.id] || []).map((movimiento) => (
+                                    <li key={movimiento.id} className="historial-equipo-item">
+                                        <span className="historial-equipo-icono"><History size={16} aria-hidden="true" /></span>
+                                        <div className="historial-equipo-contenido">
+                                            <div className="historial-equipo-linea">
+                                                <strong>{formatearTipoMovimiento(movimiento.tipo_movimiento)}</strong>
+                                                <time dateTime={fechaIsoHistorial(movimiento.fecha)}>
+                                                    {formatearFechaHistorial(movimiento.fecha)}
+                                                </time>
+                                            </div>
+                                            <p>{movimiento.descripcion || 'Sin descripción adicional.'}</p>
+                                            <div className="historial-equipo-meta">
+                                                <span>Colaborador: {movimiento.colaborador || 'No indicado'}</span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ol>
+                        ) : (
+                            <p className="historial-equipo-estado">No hay movimientos registrados para este periférico.</p>
+                        )}
+                    </div>
+                </DialogoAccesible>
+            )}
+
             {detalleAbierto && (
                 <DialogoAccesible className="modal-detalle" tituloId="equipo-detalle-titulo" descripcionId="equipo-detalle-descripcion" onCerrar={() => setDetalleAbierto(false)}>
                     <div className="modal-encabezado">
@@ -2054,23 +2114,14 @@ function EquiposPage({ soloLectura = false } = {}) {
                                                             <small>
                                                                 {periferico.serie || `ID ${periferico.id}`}
                                                             </small>
-                                                            <details className="historial-periferico">
-                                                                <summary>Historial ({(historialPerifericos[periferico.id] || []).length})</summary>
-                                                                {erroresHistorialPerifericos[periferico.id] ? (
-                                                                    <p role="alert">{erroresHistorialPerifericos[periferico.id]}</p>
-                                                                ) : (historialPerifericos[periferico.id] || []).length ? (
-                                                                    <ol>
-                                                                        {(historialPerifericos[periferico.id] || []).map((movimiento) => (
-                                                                            <li key={movimiento.id}>
-                                                                                <strong>{formatearTipoMovimiento(movimiento.tipo_movimiento)}</strong>
-                                                                                <time dateTime={fechaIsoHistorial(movimiento.fecha)}>{formatearFechaHistorial(movimiento.fecha)}</time>
-                                                                                <p>{movimiento.descripcion || 'Sin descripción adicional.'}</p>
-                                                                                <small>Colaborador: {movimiento.colaborador || 'No indicado'}</small>
-                                                                            </li>
-                                                                        ))}
-                                                                    </ol>
-                                                                ) : <p>No hay movimientos registrados para este periférico.</p>}
-                                                            </details>
+                                                            <button
+                                                                type="button"
+                                                                className="boton-historial-periferico"
+                                                                onClick={() => setPerifericoHistorialActivo(periferico)}
+                                                            >
+                                                                <History size={14} aria-hidden="true" />
+                                                                Ver historial ({(historialPerifericos[periferico.id] || []).length})
+                                                            </button>
                                                         </article>
                                                     )
                                                 )}
