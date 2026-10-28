@@ -219,7 +219,7 @@ app.use(
     contratoGamaRoutes
 );
 app.use('/api/dashboard', requiereAutenticacion, dashboardRoutes);
-app.use('/api/qr', requiereAutenticacion, accesoOperativo, qrRoutes);
+app.use('/api/qr', requiereAutenticacion, qrRoutes);
 app.use('/api/catalogos', requiereAutenticacion, catalogoRoutes);
 app.use('/api', requiereAutenticacion, catalogoRoutes);
 
