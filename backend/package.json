@@ -21,6 +21,7 @@
     "mysql2": "^3.23.3",
     "multer": "^2.0.2",
     "nodemailer": "^6.10.1",
-    "puppeteer": "^24.10.2"
+    "puppeteer": "^24.10.2",
+    "qrcode": "^1.5.4"
   }
 }
