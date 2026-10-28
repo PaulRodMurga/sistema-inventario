@@ -23,7 +23,7 @@ const listarActivosQR = async (req, res) => {
                 e.serie,
                 e.codigo_patrimonial,
                 e.estado_actual,
-                CASE WHEN ep.periferico_id IS NULL THEN 'EQ' ELSE 'PF' END AS prefijo
+                CASE WHEN e.tipo IN ('MONITOR', 'TECLADO', 'MOUSE', 'PARLANTES', 'CAMARA WEB', 'AUDIFONOS') THEN 'PF' ELSE 'EQ' END AS prefijo
             FROM equipo e
             LEFT JOIN equipo_periferico ep ON ep.periferico_id = e.id
             ORDER BY e.id
