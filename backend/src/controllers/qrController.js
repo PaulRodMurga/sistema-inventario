@@ -90,8 +90,10 @@ const obtenerActivoQR = async (req, res) => {
         `, [id]);
 
         const activo = filas[0];
-        if (!activo || (prefijo === 'PF' && !activo.equipo_principal_id) ||
-            (prefijo === 'EQ' && activo.equipo_principal_id)) {
+        const tiposPeriferico = new Set(['MONITOR', 'TECLADO', 'MOUSE', 'PARLANTES', 'CAMARA WEB', 'AUDIFONOS']);
+        const esPeriferico = activo ? tiposPeriferico.has(String(activo.tipo).toUpperCase()) : false;
+        if (!activo || (prefijo === 'PF' && !esPeriferico) ||
+            (prefijo === 'EQ' && esPeriferico)) {
             return res.status(404).json({ success: false, mensaje: 'No se encontró el activo asociado a este QR' });
         }
 
