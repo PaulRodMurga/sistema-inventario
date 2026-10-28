@@ -1084,6 +1084,27 @@ const editarEquipo = async (req, res) => {
             });
         }
 
+        if (resultado.affectedRows > 0) {
+            try {
+                await pool.query(`
+                    INSERT INTO movimiento_equipo (
+                        equipo_id,
+                        fecha,
+                        tipo_movimiento,
+                        descripcion
+                    )
+                    VALUES (?, NOW(), 'CAMBIO', ?)
+                `, [
+                    id,
+                    'Se actualizaron los datos del equipo desde el módulo de inventario.'
+                ]);
+            } catch (errorHistorial) {
+                // Un fallo al guardar la trazabilidad no debe revertir
+                // ni ocultar una actualización ya realizada.
+                console.error('No se pudo registrar el cambio en el historial del equipo:', errorHistorial);
+            }
+        }
+
         res.json({
             success: true,
             mensaje: 'Equipo actualizado correctamente'
