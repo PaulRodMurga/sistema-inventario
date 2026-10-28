@@ -1623,3 +1623,147 @@
     color: #7c3aed;
     font-size: 10px;
 }
+
+/* Historial cronológico dentro del detalle del equipo */
+.historial-equipo {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.historial-equipo-encabezado {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.historial-equipo-encabezado h5 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 15px;
+}
+
+.historial-equipo-encabezado p {
+    margin: 5px 0 0;
+    color: #64748b;
+    font-size: 12px;
+}
+
+.historial-equipo-contador {
+    min-width: 28px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.historial-equipo-lista {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.historial-equipo-item {
+    position: relative;
+    display: flex;
+    gap: 12px;
+    padding: 0 0 18px;
+}
+
+.historial-equipo-item:not(:last-child)::before {
+    position: absolute;
+    top: 30px;
+    bottom: 0;
+    left: 15px;
+    width: 1px;
+    background: #dbeafe;
+    content: '';
+}
+
+.historial-equipo-icono {
+    z-index: 1;
+    width: 32px;
+    height: 32px;
+    display: grid;
+    flex: 0 0 32px;
+    place-items: center;
+    border: 1px solid #bfdbfe;
+    border-radius: 50%;
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.historial-equipo-contenido {
+    min-width: 0;
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.historial-equipo-linea {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.historial-equipo-linea strong {
+    color: #1e293b;
+    font-size: 13px;
+}
+
+.historial-equipo-linea time {
+    color: #64748b;
+    font-size: 11px;
+    text-align: right;
+}
+
+.historial-equipo-contenido p {
+    margin: 7px 0;
+    color: #475569;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.historial-equipo-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    color: #64748b;
+    font-size: 11px;
+}
+
+.historial-equipo-estado,
+.historial-equipo-error {
+    margin: 0;
+    padding: 14px;
+    border-radius: 9px;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 12px;
+}
+
+.historial-equipo-error {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+@media (max-width: 560px) {
+    .historial-equipo-linea {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .historial-equipo-linea time {
+        text-align: left;
+    }
+}
