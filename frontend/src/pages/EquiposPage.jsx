@@ -290,7 +290,7 @@ function formatearTipoMovimiento(valor) {
     return String(valor || 'MOVIMIENTO')
         .replaceAll('_', ' ')
         .toLocaleLowerCase('es-PE')
-        .replace(/\\b\\p{L}/gu, (letra) => letra.toLocaleUpperCase('es-PE'));
+        .replace(/\b\p{L}/gu, (letra) => letra.toLocaleUpperCase('es-PE'));
 }
 
 function formatearFechaHistorial(valor) {
