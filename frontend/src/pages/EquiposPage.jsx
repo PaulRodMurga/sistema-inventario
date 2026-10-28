@@ -326,6 +326,7 @@ function EquiposPage({ soloLectura = false } = {}) {
     const [cargandoDetalle, setCargandoDetalle] = useState(false);
     const [historialEquipo, setHistorialEquipo] = useState([]);
     const [historialPerifericos, setHistorialPerifericos] = useState({});
+    const [erroresHistorialPerifericos, setErroresHistorialPerifericos] = useState({});
     const [cargandoHistorial, setCargandoHistorial] = useState(false);
     const [errorHistorial, setErrorHistorial] = useState('');
     const [equipoEditandoId, setEquipoEditandoId] = useState(null);
@@ -515,6 +516,7 @@ function EquiposPage({ soloLectura = false } = {}) {
 
             setHistorialEquipo([]);
             setHistorialPerifericos({});
+            setErroresHistorialPerifericos({});
             setErrorHistorial('');
             setCargandoHistorial(true);
 
@@ -540,17 +542,30 @@ function EquiposPage({ soloLectura = false } = {}) {
             try {
                 const [historial, ...historialesPerifericos] = await Promise.all([
                     listarMovimientosPorEquipo(id),
-                    ...perifericos.map((periferico) =>
-                        listarMovimientosPorEquipo(periferico.id)
-                            .then((movimientos) => ({ id: periferico.id, movimientos }))
-                            .catch(() => ({ id: periferico.id, movimientos: [] }))
-                    )
+                    ...perifericos.map(async (periferico) => {
+                        try {
+                            const movimientos = await listarMovimientosPorEquipo(periferico.id);
+                            return { id: periferico.id, movimientos, error: '' };
+                        } catch (errorSolicitud) {
+                            return {
+                                id: periferico.id,
+                                movimientos: [],
+                                error: errorSolicitud.message || 'No se pudo cargar el historial.'
+                            };
+                        }
+                    })
                 ]);
                 setHistorialEquipo(historial);
                 setHistorialPerifericos(Object.fromEntries(
                     historialesPerifericos.map(({ id: perifericoId, movimientos }) => [
                         perifericoId,
                         movimientos
+                    ])
+                ));
+                setErroresHistorialPerifericos(Object.fromEntries(
+                    historialesPerifericos.filter(({ error }) => error).map(({ id: perifericoId, error }) => [
+                        perifericoId,
+                        error
                     ])
                 ));
             } catch (errorSolicitudHistorial) {
@@ -2037,17 +2052,13 @@ function EquiposPage({ soloLectura = false } = {}) {
                                                                 {periferico.marca} {periferico.modelo}
                                                             </span>
                                                             <small>
-                                                                {periferico.codigo_patrimonial ||
-                                                                    periferico.serie ||
-                                                                    `ID ${periferico.id}`}
-                                                            </small>
-
-                                                            <small>
                                                                 {periferico.serie || `ID ${periferico.id}`}
                                                             </small>
                                                             <details className="historial-periferico">
                                                                 <summary>Historial ({(historialPerifericos[periferico.id] || []).length})</summary>
-                                                                {(historialPerifericos[periferico.id] || []).length ? (
+                                                                {erroresHistorialPerifericos[periferico.id] ? (
+                                                                    <p role="alert">{erroresHistorialPerifericos[periferico.id]}</p>
+                                                                ) : (historialPerifericos[periferico.id] || []).length ? (
                                                                     <ol>
                                                                         {(historialPerifericos[periferico.id] || []).map((movimiento) => (
                                                                             <li key={movimiento.id}>
