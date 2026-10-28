@@ -79,7 +79,16 @@ const obtenerActivoQR = async (req, res) => {
                     WHERE a.estado = 'ACTIVA'
                       AND (a.equipo_id = e.id OR a.equipo_id = principal.id)
                     ORDER BY a.id DESC LIMIT 1
-                ) AS colaborador_asignado
+                ) AS colaborador_asignado,
+                (
+                    SELECT ar.nombre
+                    FROM asignacion a
+                    INNER JOIN colaborador c ON c.id = a.colaborador_id
+                    LEFT JOIN area ar ON ar.id = c.area_id
+                    WHERE a.estado = 'ACTIVA'
+                      AND (a.equipo_id = e.id OR a.equipo_id = principal.id)
+                    ORDER BY a.id DESC LIMIT 1
+                ) AS ubicacion_colaborador
             FROM equipo e
             LEFT JOIN equipo_periferico ep ON ep.periferico_id = e.id
             LEFT JOIN equipo principal ON principal.id = ep.equipo_principal_id
@@ -111,7 +120,7 @@ const obtenerActivoQR = async (req, res) => {
             data: {
                 ...activo,
                 codigo_qr: codigo,
-                ubicacion: null,
+                ubicacion: activo.ubicacion_colaborador || null,
                 perifericos: prefijo === 'EQ' ? perifericos : []
             }
         });
