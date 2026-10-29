@@ -21,7 +21,40 @@ const listarOpcionesJornada = async (req, res) => {
             WHERE e.estado_actual <> 'BAJA'
             ORDER BY cm.nro_contrato
         `);
-        const [unidades] = await pool.query('SELECT id, nombre FROM unidad_empresarial ORDER BY nombre');
+
+        const contratoId = req.query.contrato_id ? idValido(req.query.contrato_id) : null;
+        let unidades;
+        if (req.query.contrato_id && !contratoId) {
+            return res.status(400).json({ success: false, mensaje: 'Identificador de contrato inválido' });
+        }
+        if (contratoId) {
+            // Solo unidades con equipos del contrato seleccionado y colaborador asignado actualmente.
+            [unidades] = await pool.query(`
+                SELECT DISTINCT ue.id, ue.nombre
+                FROM unidad_empresarial ue
+                INNER JOIN colaborador c ON c.unidad_empresarial_id = ue.id
+                INNER JOIN asignacion a ON a.colaborador_id = c.id AND a.estado = 'ACTIVA'
+                INNER JOIN equipo principal ON principal.id = a.equipo_id
+                LEFT JOIN equipo_periferico ep ON ep.equipo_principal_id = principal.id
+                LEFT JOIN equipo e ON e.id = ep.periferico_id
+                LEFT JOIN contrato_gama cg_periferico ON cg_periferico.id = e.contrato_gama_id
+                WHERE principal.estado_actual <> 'BAJA'
+                  AND principal.contrato_gama_id IN (
+                    SELECT cg.id FROM contrato_gama cg WHERE cg.contrato_id = ?
+                  )
+                UNION
+                SELECT DISTINCT ue.id, ue.nombre
+                FROM unidad_empresarial ue
+                INNER JOIN colaborador c ON c.unidad_empresarial_id = ue.id
+                INNER JOIN asignacion a ON a.colaborador_id = c.id AND a.estado = 'ACTIVA'
+                INNER JOIN equipo e ON e.id = a.equipo_id
+                INNER JOIN contrato_gama cg ON cg.id = e.contrato_gama_id
+                WHERE e.estado_actual <> 'BAJA' AND cg.contrato_id = ?
+                ORDER BY nombre
+            `, [contratoId, contratoId]);
+        } else {
+            [unidades] = await pool.query('SELECT id, nombre FROM unidad_empresarial ORDER BY nombre');
+        }
         return res.json({ success: true, data: { contratos, unidades } });
     } catch (e) {
         console.error('Error al listar opciones de jornada:', e);
