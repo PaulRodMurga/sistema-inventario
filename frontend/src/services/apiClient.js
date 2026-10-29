@@ -168,8 +168,22 @@ export const solicitarApi = async (
     }
 };
 
-export const obtenerTokenSesion = () =>
-    sessionStorage.getItem(CLAVE_TOKEN);
+// localStorage permite que la sesión se comparta entre pestañas del mismo navegador.
+// Se migra el token anterior de sessionStorage para no obligar a iniciar sesión otra vez.
+export const obtenerTokenSesion = () => {
+    const tokenCompartido = localStorage.getItem(CLAVE_TOKEN);
+    if (tokenCompartido) return tokenCompartido;
+
+    const tokenAnterior = sessionStorage.getItem(CLAVE_TOKEN);
+    if (tokenAnterior) {
+        localStorage.setItem(CLAVE_TOKEN, tokenAnterior);
+        localStorage.removeItem(CLAVE_TOKEN);
+    sessionStorage.removeItem(CLAVE_TOKEN);
+        return tokenAnterior;
+    }
+
+    return null;
+};
 
 export const guardarTokenSesion = (token) => {
     if (
@@ -179,7 +193,8 @@ export const guardarTokenSesion = (token) => {
         throw new Error('La API no devolvió una sesión válida');
     }
 
-    sessionStorage.setItem(CLAVE_TOKEN, token);
+    localStorage.setItem(CLAVE_TOKEN, token);
+    sessionStorage.removeItem(CLAVE_TOKEN);
 };
 
 export const eliminarTokenSesion = () => {
