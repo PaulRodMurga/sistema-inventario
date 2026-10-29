@@ -7,7 +7,7 @@ const texto = (v, max, required = false) => {
     return (required && !s) || s.length > max ? null : s;
 };
 const idValido = (v) => {
-    const n = typeof v === 'string' && /^\\d+$/.test(v) ? Number(v) : v;
+    const n = typeof v === 'string' && /^\d+$/.test(v) ? Number(v) : v;
     return Number.isSafeInteger(n) && n > 0 ? n : null;
 };
 
