@@ -121,7 +121,7 @@ function InventarioFisicoPage({ soloLectura = false }) {
   const activosFiltrados = useMemo(() => {
     const q = busqueda.trim().toLocaleLowerCase();
     return (sesion?.activos || []).filter(a =>
-      !q || [a.tipo, a.marca, a.modelo, a.serie, a.codigo_patrimonial, a.colaborador, a.estado_revision]
+      !q || [a.tipo, a.marca, a.modelo, a.serie, a.codigo_patrimonial, a.colaborador, a.area_colaborador, a.estado_revision]
         .some(v => String(v || '').toLocaleLowerCase().includes(q))
     );
   }, [sesion, busqueda]);
@@ -245,7 +245,7 @@ function InventarioFisicoPage({ soloLectura = false }) {
           <h4>{activoSeleccionado.tipo} · {activoSeleccionado.marca} {activoSeleccionado.modelo}</h4>
           <p>Serie: {activoSeleccionado.serie || 'Sin serie'} · Código patrimonial: {activoSeleccionado.codigo_patrimonial || 'Sin código'}</p>
           <p>Ubicación esperada: <strong>{activoSeleccionado.ubicacion_esperada || 'No registrada'}</strong></p>
-          {activoSeleccionado.colaborador && <p>Colaborador asignado: {activoSeleccionado.colaborador}</p>}
+          {activoSeleccionado.colaborador && <p>Colaborador asignado: {activoSeleccionado.colaborador}</p>}{activoSeleccionado.area_colaborador && <p>Área del colaborador: {activoSeleccionado.area_colaborador}</p>}
           <label>Ubicación observada<input value={ubicacion} onChange={e => setUbicacion(e.target.value)} maxLength={150} placeholder="Ej. Oficina de logística"/></label>
           <label>Observaciones<textarea value={observaciones} onChange={e => setObservaciones(e.target.value)} rows={3} maxLength={5000} placeholder="Estado físico, diferencias o detalles (opcional)"/></label>
           <button className="boton-primario" disabled={guardando}>{guardando ? 'Guardando...' : <><CheckCircle2 size={17}/> Guardar verificación</>}</button>
@@ -254,7 +254,7 @@ function InventarioFisicoPage({ soloLectura = false }) {
 
       <div className="if-activos-cabecera"><div><h3>Activos de la jornada</h3><p>Los pendientes no se consideran perdidos automáticamente.</p></div><div className="if-busqueda"><Search size={16}/><input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar equipo..." aria-label="Buscar activo"/></div></div>
       <div className="if-tabla-contenedor"><table className="if-tabla"><thead><tr><th>Activo</th><th>Serie / código</th><th>Ubicación esperada</th><th>Estado de revisión</th></tr></thead><tbody>
-        {activosFiltrados.map(a => <tr key={a.detalle_id} onClick={() => { setActivoSeleccionado(a); setCodigo((a.tipo && ['MONITOR','TECLADO','MOUSE','PARLANTES','CAMARA WEB','AUDIFONOS'].includes(String(a.tipo).toUpperCase()) ? 'PF-' : 'EQ-') + a.equipo_id); setUbicacion(a.ubicacion_observada || a.ubicacion_esperada || ''); setObservaciones(a.observaciones_revision || ''); }}><td><strong>{a.tipo} · {a.marca} {a.modelo}</strong><small>{a.colaborador || 'Sin colaborador asignado'}</small></td><td>{a.serie || '—'}<small>{a.codigo_patrimonial || '—'}</small></td><td>{a.ubicacion_esperada || 'No registrada'}</td><td><span className={'if-estado-revision if-' + a.estado_revision.toLowerCase()}>{estadoTexto[a.estado_revision] || a.estado_revision}</span></td></tr>)}
+        {activosFiltrados.map(a => <tr key={a.detalle_id} onClick={() => { setActivoSeleccionado(a); setCodigo((a.tipo && ['MONITOR','TECLADO','MOUSE','PARLANTES','CAMARA WEB','AUDIFONOS'].includes(String(a.tipo).toUpperCase()) ? 'PF-' : 'EQ-') + a.equipo_id); setUbicacion(a.ubicacion_observada || a.ubicacion_esperada || ''); setObservaciones(a.observaciones_revision || ''); }}><td><strong>{a.tipo} · {a.marca} {a.modelo}</strong><small>{a.colaborador || 'Sin colaborador asignado'}{a.area_colaborador ? ` · Área: ${a.area_colaborador}` : ''}</small></td><td>{a.serie || '—'}<small>{a.codigo_patrimonial || '—'}</small></td><td>{a.ubicacion_esperada || 'No registrada'}</td><td><span className={'if-estado-revision if-' + a.estado_revision.toLowerCase()}>{estadoTexto[a.estado_revision] || a.estado_revision}</span></td></tr>)}
         {activosFiltrados.length === 0 && <tr><td colSpan="4">No se encontraron activos.</td></tr>}
       </tbody></table></div>
       {activoSeleccionado && sesion.estado === 'ABIERTA' && !soloLectura && <div className="if-seleccion-movil"><button type="button" onClick={() => { document.querySelector('.if-escaner')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>Ir al formulario de verificación del activo seleccionado</button></div>}
