@@ -23,9 +23,14 @@ const listarActivosQR = async (req, res) => {
                 e.serie,
                 e.codigo_patrimonial,
                 e.estado_actual,
+                e.contrato_gama_id,
+                cm.id AS contrato_id,
+                cm.nro_contrato,
                 CASE WHEN e.tipo IN ('MONITOR', 'TECLADO', 'MOUSE', 'PARLANTES', 'CAMARA WEB', 'AUDIFONOS') THEN 'PF' ELSE 'EQ' END AS prefijo
             FROM equipo e
             LEFT JOIN equipo_periferico ep ON ep.periferico_id = e.id
+            LEFT JOIN contrato_gama cg ON cg.id = e.contrato_gama_id
+            LEFT JOIN contrato_movil cm ON cm.id = cg.contrato_id
             ORDER BY e.id
         `);
 
