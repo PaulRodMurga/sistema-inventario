@@ -119,7 +119,7 @@ const crearSesion = async (req, res) => {
                 OR (? = 'CONTRATO' AND cg.contrato_id = ? AND (? IS NULL OR c.unidad_empresarial_id = ?))
                 OR (? = 'UNIDAD_EMPRESARIAL' AND c.unidad_empresarial_id = ?))
             GROUP BY e.id, a.ubicacion
-        `, [r.insertId, filtroTipo, filtroTipo, filtroId, filtroTipo, filtroId, filtroUnidadId, filtroUnidadId, filtroTipo, filtroId]);
+        `, [r.insertId, filtroTipo, filtroTipo, filtroId, filtroUnidadId, filtroUnidadId, filtroTipo, filtroId]);
         await conexion.commit();
         return res.status(201).json({ success: true, mensaje: 'Jornada creada', data: { id: Number(r.insertId), nombre, estado: 'ABIERTA' } });
     } catch (e) {
