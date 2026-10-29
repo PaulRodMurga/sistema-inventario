@@ -20,6 +20,8 @@ function InventarioFisicoPage({ soloLectura = false }) {
   const [opcionesJornada, setOpcionesJornada] = useState({ contratos: [], unidades: [] });
   const [filtroTipo, setFiltroTipo] = useState('TODOS');
   const [filtroId, setFiltroId] = useState('');
+  const [filtroUnidadId, setFiltroUnidadId] = useState('');
+  const [unidadesContrato, setUnidadesContrato] = useState([]);
   const [busqueda, setBusqueda] = useState('');
   const [codigo, setCodigo] = useState('');
   const [ubicacion, setUbicacion] = useState('');
@@ -45,6 +47,18 @@ function InventarioFisicoPage({ soloLectura = false }) {
     cargarSesiones();
     solicitarApi('/inventario-fisico/catalogos/opciones').then(extraerObjetoApi).then(data => setOpcionesJornada(data || { contratos: [], unidades: [] })).catch(e => setError(e.message));
   }, [cargarSesiones]);
+
+  useEffect(() => {
+    setFiltroUnidadId('');
+    setUnidadesContrato([]);
+    if (filtroTipo !== 'CONTRATO' || !filtroId) return;
+    let vigente = true;
+    solicitarApi('/inventario-fisico/catalogos/opciones?contrato_id=' + encodeURIComponent(filtroId))
+      .then(extraerObjetoApi)
+      .then(data => { if (vigente) setUnidadesContrato(data?.unidades || []); })
+      .catch(e => { if (vigente) setError(e.message); });
+    return () => { vigente = false; };
+  }, [filtroTipo, filtroId]);
 
   // Mantiene actualizada la jornada abierta cuando un QR se verifica desde otro dispositivo.
   useEffect(() => {
@@ -93,7 +107,7 @@ function InventarioFisicoPage({ soloLectura = false }) {
       const r = await solicitarApi('/inventario-fisico', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre, observaciones: observacionesSesion, filtro_tipo: filtroTipo, filtro_id: filtroId ? Number(filtroId) : null })
+        body: JSON.stringify({ nombre, observaciones: observacionesSesion, filtro_tipo: filtroTipo, filtro_id: filtroId ? Number(filtroId) : null, filtro_unidad_id: filtroUnidadId ? Number(filtroUnidadId) : null })
       });
       const nueva = extraerObjetoApi(r);
       setNombre('');
@@ -197,8 +211,15 @@ function InventarioFisicoPage({ soloLectura = false }) {
             {(filtroTipo === 'CONTRATO' ? opcionesJornada.contratos : opcionesJornada.unidades).map(op => <option key={op.id} value={op.id}>{filtroTipo === 'CONTRATO' ? op.nro_contrato : op.nombre}</option>)}
           </select>
         </label>}
+        {filtroTipo === 'CONTRATO' && filtroId && <label>Unidad empresarial (opcional)
+          <select value={filtroUnidadId} onChange={e => setFiltroUnidadId(e.target.value)}>
+            <option value="">Todas las unidades de este contrato</option>
+            {unidadesContrato.map(op => <option key={op.id} value={op.id}>{op.nombre}</option>)}
+          </select>
+          <small>Si eliges una unidad, solo se incluirán equipos del contrato asignados actualmente a colaboradores de esa unidad.</small>
+        </label>}
         <label>Observaciones iniciales<textarea value={observacionesSesion} onChange={e => setObservacionesSesion(e.target.value)} maxLength={5000} rows={2} placeholder="Área, sede o instrucciones (opcional)"/></label>
-        <button className="boton-primario" disabled={guardando || (filtroTipo !== 'TODOS' && !filtroId)}>{guardando ? 'Creando...' : <><Plus size={17}/> Crear jornada</>}</button>
+        <button className="boton-primario" disabled={guardando || (filtroTipo !== 'TODOS' && !filtroId) || (filtroTipo === 'CONTRATO' && Boolean(filtroId) && unidadesContrato.length === 0)}>{guardando ? 'Creando...' : <><Plus size={17}/> Crear jornada</>}</button>
       </form>}
       <div className="if-listado-cabecera"><div><h3>Jornadas registradas</h3><p>Abre una jornada para revisar sus activos.</p></div></div>
       {cargando ? <p>Cargando jornadas...</p> : sesiones.length === 0 ? <div className="if-vacio">Aún no hay jornadas de inventario físico.</div> :
