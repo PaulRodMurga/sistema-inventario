@@ -43,7 +43,7 @@ function InventarioFisicoPage({ soloLectura = false }) {
 
   useEffect(() => {
     cargarSesiones();
-    solicitarApi('/inventario-fisico/opciones').then(extraerObjetoApi).then(data => setOpcionesJornada(data || { contratos: [], unidades: [] })).catch(e => setError(e.message));
+    solicitarApi('/inventario-fisico/catalogos/opciones').then(extraerObjetoApi).then(data => setOpcionesJornada(data || { contratos: [], unidades: [] })).catch(e => setError(e.message));
   }, [cargarSesiones]);
 
   // Mantiene actualizada la jornada abierta cuando un QR se verifica desde otro dispositivo.
