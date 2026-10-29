@@ -91,7 +91,12 @@ function InventarioFisicoPage({ soloLectura = false }) {
     setMensaje('');
     try {
       const r = await solicitarApi(`/inventario-fisico/${id}`);
-      setSesion(extraerObjetoApi(r));
+      const datosSesion = extraerObjetoApi(r);
+      setSesion({
+        ...datosSesion,
+        activos: Array.isArray(datosSesion?.activos) ? datosSesion.activos : []
+      });
+      setBusqueda('');
       setActivoSeleccionado(null);
       setCodigo('');
       setUbicacion('');
