@@ -6,6 +6,7 @@ import './EtiquetasQRPage.css';
 export default function EtiquetasQRPage() {
     const [activos, setActivos] = useState([]);
     const [busqueda, setBusqueda] = useState('');
+    const [contratoSeleccionado, setContratoSeleccionado] = useState('TODOS');
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState('');
 
@@ -26,14 +27,29 @@ export default function EtiquetasQRPage() {
 
     useEffect(() => { cargar(); }, []);
 
+    const contratos = useMemo(() => {
+        const unicos = new Map();
+        activos.forEach((a) => {
+            if (a.contrato_id != null) {
+                unicos.set(String(a.contrato_id), a.nro_contrato || `Contrato #${a.contrato_id}`);
+            }
+        });
+        return Array.from(unicos, ([id, etiqueta]) => ({ id, etiqueta }))
+            .sort((a, b) => a.etiqueta.localeCompare(b.etiqueta, 'es-PE'));
+    }, [activos]);
+
     const filtrados = useMemo(() => {
         const texto = busqueda.trim().toLocaleLowerCase('es-PE');
-        if (!texto) return activos;
-        return activos.filter((a) => [
-            a.codigo_qr, a.tipo, a.marca, a.modelo, a.serie,
-            a.codigo_patrimonial, a.estado_actual
-        ].some((v) => String(v || '').toLocaleLowerCase('es-PE').includes(texto)));
-    }, [activos, busqueda]);
+        return activos.filter((a) => {
+            const coincideContrato = contratoSeleccionado === 'TODOS' ||
+                (contratoSeleccionado === 'SIN_CONTRATO' ? a.contrato_id == null : String(a.contrato_id ?? '') === contratoSeleccionado);
+            const coincideTexto = !texto || [
+                a.codigo_qr, a.tipo, a.marca, a.modelo, a.serie,
+                a.codigo_patrimonial, a.estado_actual, a.nro_contrato
+            ].some((v) => String(v || '').toLocaleLowerCase('es-PE').includes(texto));
+            return coincideContrato && coincideTexto;
+        });
+    }, [activos, busqueda, contratoSeleccionado]);
 
     const imprimir = () => window.print();
 
@@ -51,10 +67,20 @@ export default function EtiquetasQRPage() {
                 </div>
             </div>
 
-            <label className="etiquetas-qr-busqueda no-imprimir">
-                <Search size={17} aria-hidden="true" />
-                <input value={busqueda} onChange={(e) => setBusqueda(e.target.value)} placeholder="Buscar por serie, código, tipo, marca o modelo..." />
-            </label>
+            <div className="etiquetas-qr-filtros no-imprimir">
+                <label className="etiquetas-qr-filtro-contrato">
+                    <span>Filtrar por contrato</span>
+                    <select value={contratoSeleccionado} onChange={(e) => setContratoSeleccionado(e.target.value)}>
+                        <option value="TODOS">Todos los contratos</option>
+                        {contratos.map((contrato) => <option key={contrato.id} value={contrato.id}>{contrato.etiqueta}</option>)}
+                        <option value="SIN_CONTRATO">Sin contrato</option>
+                    </select>
+                </label>
+                <label className="etiquetas-qr-busqueda">
+                    <Search size={17} aria-hidden="true" />
+                    <input value={busqueda} onChange={(e) => setBusqueda(e.target.value)} placeholder="Buscar por serie, código, tipo, marca o modelo..." />
+                </label>
+            </div>
 
             {error && <div className="mensaje-conexion mensaje-error" role="alert">{error}</div>}
             {cargando && <p className="etiquetas-qr-vacio">Generando códigos QR...</p>}
