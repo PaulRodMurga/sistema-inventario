@@ -11,6 +11,24 @@ const idValido = (v) => {
     return Number.isSafeInteger(n) && n > 0 ? n : null;
 };
 
+const listarOpcionesJornada = async (req, res) => {
+    try {
+        const [contratos] = await pool.query(`
+            SELECT DISTINCT cm.id, cm.nro_contrato
+            FROM contrato_movil cm
+            INNER JOIN contrato_gama cg ON cg.contrato_id = cm.id
+            INNER JOIN equipo e ON e.contrato_gama_id = cg.id
+            WHERE e.estado_actual <> 'BAJA'
+            ORDER BY cm.nro_contrato
+        `);
+        const [unidades] = await pool.query('SELECT id, nombre FROM unidad_empresarial ORDER BY nombre');
+        return res.json({ success: true, data: { contratos, unidades } });
+    } catch (e) {
+        console.error('Error al listar opciones de jornada:', e);
+        return res.status(500).json({ success: false, mensaje: 'No se pudieron cargar los filtros de jornada' });
+    }
+};
+
 const listarSesiones = async (req, res) => {
     try {
         const [data] = await pool.query(`
@@ -36,7 +54,10 @@ const listarSesiones = async (req, res) => {
 const crearSesion = async (req, res) => {
     const nombre = texto(req.body?.nombre, 150, true);
     const observaciones = texto(req.body?.observaciones, 5000);
+    const filtroTipo = req.body?.filtro_tipo ?? 'TODOS';
+    const filtroId = filtroTipo === 'TODOS' ? null : idValido(req.body?.filtro_id);
     if (!nombre || observaciones === null) return res.status(400).json({ success: false, mensaje: 'Indica un nombre válido y observaciones de hasta 5000 caracteres' });
+    if (!['TODOS', 'CONTRATO', 'UNIDAD_EMPRESARIAL'].includes(filtroTipo) || (filtroTipo !== 'TODOS' && !filtroId)) return res.status(400).json({ success: false, mensaje: 'Selecciona un filtro válido para la jornada' });
     let conexion;
     try {
         conexion = await pool.getConnection();
@@ -55,8 +76,16 @@ const crearSesion = async (req, res) => {
                 INNER JOIN (SELECT equipo_id, MAX(id) id FROM asignacion WHERE estado='ACTIVA' GROUP BY equipo_id) x
                     ON x.id = a1.id
             ) a ON a.equipo_id = e.id
+            LEFT JOIN contrato_gama cg ON cg.id = e.contrato_gama_id
+            LEFT JOIN equipo_periferico ep ON ep.periferico_id = e.id
+            LEFT JOIN asignacion asignacion_unidad ON asignacion_unidad.equipo_id = COALESCE(ep.equipo_principal_id, e.id) AND asignacion_unidad.estado = 'ACTIVA'
+            LEFT JOIN colaborador c ON c.id = asignacion_unidad.colaborador_id
             WHERE e.estado_actual <> 'BAJA'
-        `, [r.insertId]);
+              AND (? = 'TODOS'
+                OR (? = 'CONTRATO' AND cg.contrato_id = ?)
+                OR (? = 'UNIDAD_EMPRESARIAL' AND c.unidad_empresarial_id = ?))
+            GROUP BY e.id, a.ubicacion
+        `, [r.insertId, filtroTipo, filtroTipo, filtroId, filtroTipo, filtroId]);
         await conexion.commit();
         return res.status(201).json({ success: true, mensaje: 'Jornada creada', data: { id: Number(r.insertId), nombre, estado: 'ABIERTA' } });
     } catch (e) {
@@ -157,4 +186,4 @@ const cerrarSesion = async (req, res) => {
     }
 };
 
-module.exports = { listarSesiones, crearSesion, obtenerSesion, verificarActivo, verificarQRJornadaActual, cerrarSesion };
+module.exports = { listarOpcionesJornada, listarSesiones, crearSesion, obtenerSesion, verificarActivo, verificarQRJornadaActual, cerrarSesion };
