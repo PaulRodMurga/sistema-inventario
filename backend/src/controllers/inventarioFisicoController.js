@@ -144,7 +144,7 @@ const obtenerSesion = async (req, res) => {
             SELECT d.id AS detalle_id, d.equipo_id, d.estado_revision, d.fecha_verificacion,
                 d.ubicacion_esperada, d.ubicacion_observada, d.observaciones AS observaciones_revision,
                 e.tipo, e.marca, e.modelo, e.serie, e.codigo_patrimonial, e.imei,
-                CONCAT_WS(' ', c.nombres, c.apellidos) AS colaborador, ar.nombre AS ubicacion_colaborador
+                CONCAT_WS(' ', c.nombres, c.apellidos) AS colaborador, ar.nombre AS area_colaborador
             FROM detalle_inventario_fisico d
             INNER JOIN equipo e ON e.id=d.equipo_id
             LEFT JOIN equipo_periferico ep ON ep.periferico_id=e.id
