@@ -42,3 +42,16 @@ export const listarMovimientosPorEquipo = async (equipoId) => {
         'La API no devolvió un historial válido para el equipo'
     );
 };
+
+
+export const listarHistorialCompletoPorEquipo = async (equipoId) => {
+    const resultado = await solicitarApi(
+        `${RUTA_API}/equipo/${encodeURIComponent(equipoId)}/historial-completo`,
+        { mensajeError: 'No se pudo cargar el historial completo del equipo' }
+    );
+
+    return extraerListaApi(
+        resultado,
+        'La API no devolvió un historial completo válido para el equipo'
+    );
+};
