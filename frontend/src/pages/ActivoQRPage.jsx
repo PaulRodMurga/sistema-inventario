@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { obtenerApiUrl } from '../services/apiClient';
+import { obtenerApiUrl, solicitarApi, obtenerTokenSesion } from '../services/apiClient';
 import './ActivoQRPage.css';
 
 export default function ActivoQRPage({ codigo }) {
     const [activo, setActivo] = useState(null);
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState('');
+    const [resultadoInventario, setResultadoInventario] = useState('');
 
     useEffect(() => {
         let vigente = true;
@@ -17,7 +18,15 @@ export default function ActivoQRPage({ codigo }) {
                 }
                 return resultado.data;
             })
-            .then((datos) => { if (vigente) setActivo(datos); })
+            .then(async (datos) => {
+                if (!vigente) return;
+                setActivo(datos);
+                if (!obtenerTokenSesion()) { setResultadoInventario('Para registrar la verificación, inicia sesión en este navegador y vuelve a escanear el QR.'); return; }
+                try {
+                    const respuesta = await solicitarApi('/inventario-fisico/verificar-qr/' + encodeURIComponent(codigo), { method: 'POST' });
+                    if (vigente) setResultadoInventario(respuesta.mensaje || 'Activo verificado en la jornada actual.');
+                } catch (err) { if (vigente) setResultadoInventario(err.message || 'No se pudo verificar el activo en la jornada actual.'); }
+            })
             .catch((err) => { if (vigente) setError(err.message); })
             .finally(() => { if (vigente) setCargando(false); });
         return () => { vigente = false; };
@@ -34,6 +43,7 @@ export default function ActivoQRPage({ codigo }) {
                 <h1>{activo.tipo} #{activo.id}</h1>
                 <p className="activo-qr-subtitulo">{activo.marca} {activo.modelo}</p>
                 <span className={`activo-qr-estado estado-${String(activo.estado_actual || '').toLowerCase()}`}>{activo.estado_actual || 'SIN ESTADO'}</span>
+                {resultadoInventario && <p className="activo-qr-inventario" role="status">{resultadoInventario}</p>}
                 <dl>
                     <div><dt>Serie</dt><dd>{activo.serie || 'No registrada'}</dd></div>
                     <div><dt>Código patrimonial</dt><dd>{activo.codigo_patrimonial || 'No registrado'}</dd></div>
