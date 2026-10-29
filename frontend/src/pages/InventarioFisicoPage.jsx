@@ -40,6 +40,32 @@ function InventarioFisicoPage({ soloLectura = false }) {
 
   useEffect(() => { cargarSesiones(); }, [cargarSesiones]);
 
+  // Mantiene actualizada la jornada abierta cuando un QR se verifica desde otro dispositivo.
+  useEffect(() => {
+    if (!sesion?.id || sesion.estado !== 'ABIERTA') return undefined;
+
+    let vigente = true;
+    const actualizarJornada = async () => {
+      try {
+        const r = await solicitarApi(`/inventario-fisico/${sesion.id}`);
+        const actualizada = extraerObjetoApi(r);
+        if (vigente) setSesion(actualizada);
+        if (vigente) {
+          const listado = await solicitarApi('/inventario-fisico');
+          setSesiones(extraerListaApi(listado));
+        }
+      } catch {
+        // Un fallo temporal de red no debe interrumpir la jornada abierta.
+      }
+    };
+
+    const intervalo = window.setInterval(actualizarJornada, 4000);
+    return () => {
+      vigente = false;
+      window.clearInterval(intervalo);
+    };
+  }, [sesion?.id, sesion?.estado]);
+
   const abrirSesion = async (id) => {
     setError('');
     setMensaje('');
