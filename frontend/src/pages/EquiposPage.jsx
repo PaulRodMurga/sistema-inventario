@@ -36,7 +36,7 @@ import {
     validarImportacionEquipos
 } from '../services/equipoService';
 import { listarContratoGamas } from '../services/contratoGamaService';
-import { listarMovimientosPorEquipo } from '../services/movimientoService';
+import { listarMovimientosPorEquipo, listarHistorialCompletoPorEquipo } from '../services/movimientoService';
 import DialogoAccesible from '../components/DialogoAccesible';
 import BotonAccionTabla from '../components/BotonAccionTabla';
 import EtiquetaEstado from '../components/EtiquetaEstado';
@@ -544,7 +544,7 @@ function EquiposPage({ soloLectura = false } = {}) {
 
             try {
                 const [historial, ...historialesPerifericos] = await Promise.all([
-                    listarMovimientosPorEquipo(id),
+                    listarHistorialCompletoPorEquipo(id),
                     ...perifericos.map(async (periferico) => {
                         try {
                             const movimientos = await listarMovimientosPorEquipo(periferico.id);
@@ -2051,12 +2051,15 @@ function EquiposPage({ soloLectura = false } = {}) {
                                         <span className="historial-equipo-icono"><History size={16} aria-hidden="true" /></span>
                                         <div className="historial-equipo-contenido">
                                             <div className="historial-equipo-linea">
-                                                <strong>{formatearTipoMovimiento(movimiento.tipo_movimiento)}</strong>
+                                                <strong>{formatearTipoMovimiento(movimiento.tipo || movimiento.tipo_movimiento)}</strong>
                                                 <time dateTime={fechaIsoHistorial(movimiento.fecha)}>
                                                     {formatearFechaHistorial(movimiento.fecha)}
                                                 </time>
                                             </div>
-                                            <p>{movimiento.descripcion || 'Sin descripción adicional.'}</p>
+                                            <p>{movimiento.descripcion || 'Sin descripción adicional.'}
+                                                    {movimiento.activo && <small className="historial-equipo-detalle">Activo relacionado: {movimiento.activo}{movimiento.serie ? ` · Serie: ${movimiento.serie}` : ''}</small>}
+                                                    {movimiento.inventario && <small className="historial-equipo-detalle">Jornada: {movimiento.inventario}</small>}
+                                                    {(movimiento.ubicacion_esperada || movimiento.ubicacion_observada) && <small className="historial-equipo-detalle">Ubicación esperada: {movimiento.ubicacion_esperada || 'No registrada'} · Observada: {movimiento.ubicacion_observada || 'No registrada'}</small>}</p>
                                             <div className="historial-equipo-meta">
                                                 <span>Colaborador: {movimiento.colaborador || 'No indicado'}</span>
                                             </div>
@@ -2180,8 +2183,11 @@ function EquiposPage({ soloLectura = false } = {}) {
                                                     </div>
                                                     <p>{movimiento.descripcion || 'Sin descripción adicional.'}</p>
                                                     <div className="historial-equipo-meta">
-                                                        <span>Colaborador: {movimiento.colaborador || 'No indicado'}</span>
-                                                        <span>Autorizado por: {movimiento.autorizado_por || 'No indicado'}</span>
+                                                        {movimiento.colaborador && <span>Colaborador: {movimiento.colaborador}</span>}
+                                                        {movimiento.autorizado_por && <span>Autorizado por: {movimiento.autorizado_por}</span>}
+                                                        {movimiento.usuario && <span>Registrado por: {movimiento.usuario}{movimiento.rol ? ` (${movimiento.rol})` : ''}</span>}
+                                                        {movimiento.resultado && <span>Resultado: {movimiento.resultado}</span>}
+                                                        {movimiento.origen && <span>Fuente: {movimiento.origen === 'INVENTARIO_FISICO' ? 'Inventario físico' : movimiento.origen === 'AUDITORIA' ? 'Auditoría' : 'Movimiento'}</span>}
                                                     </div>
                                                 </div>
                                             </li>
