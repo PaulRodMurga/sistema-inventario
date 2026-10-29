@@ -148,7 +148,12 @@ const obtenerSesion = async (req, res) => {
             FROM detalle_inventario_fisico d
             INNER JOIN equipo e ON e.id=d.equipo_id
             LEFT JOIN equipo_periferico ep ON ep.periferico_id=e.id
-            LEFT JOIN asignacion a ON a.equipo_id=COALESCE(ep.equipo_principal_id, e.id) AND a.estado='ACTIVA'
+            LEFT JOIN asignacion a ON a.id=(
+                SELECT MAX(a2.id)
+                FROM asignacion a2
+                WHERE a2.equipo_id=COALESCE(ep.equipo_principal_id, e.id)
+                  AND a2.estado='ACTIVA'
+            )
             LEFT JOIN colaborador c ON c.id=a.colaborador_id
             LEFT JOIN area ar ON ar.id=c.area_id
             WHERE d.inventario_fisico_id=?
