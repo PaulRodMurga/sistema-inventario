@@ -127,6 +127,23 @@ const verificarActivo = async (req, res) => {
     }
 };
 
+const verificarQRJornadaActual = async (req, res) => {
+    const codigo = typeof req.params.codigo === 'string' ? req.params.codigo.trim().toUpperCase() : '';
+    const coincidencia = codigo.match(/^(EQ|PF)-([1-9][0-9]*)$/);
+    if (!coincidencia) return res.status(400).json({ success: false, mensaje: 'El código QR no es válido' });
+    const equipoId = Number(coincidencia[2]);
+    if (!Number.isSafeInteger(equipoId) || equipoId <= 0) return res.status(400).json({ success: false, mensaje: 'Identificador de activo inválido' });
+    try {
+        const [sesiones] = await pool.query("SELECT id, nombre FROM inventario_fisico WHERE estado='ABIERTA' ORDER BY id DESC LIMIT 1");
+        if (!sesiones.length) return res.status(409).json({ success: false, mensaje: 'No hay una jornada de inventario físico abierta' });
+        const sesion = sesiones[0];
+        const [detalles] = await pool.query('SELECT id, estado_revision FROM detalle_inventario_fisico WHERE inventario_fisico_id=? AND equipo_id=? LIMIT 1', [sesion.id, equipoId]);
+        if (!detalles.length) return res.status(404).json({ success: false, mensaje: 'Este activo no está incluido en la jornada abierta actual' });
+        await pool.query("UPDATE detalle_inventario_fisico SET estado_revision='VERIFICADO', fecha_verificacion=CURRENT_TIMESTAMP, ubicacion_observada=COALESCE(ubicacion_observada, ubicacion_esperada), verificado_por=? WHERE id=?", [req.usuario.id, detalles[0].id]);
+        return res.json({ success: true, mensaje: detalles[0].estado_revision === 'VERIFICADO' ? 'Este activo ya estaba verificado en la jornada actual' : 'Activo marcado como verificado en la jornada actual', data: { inventario_id: sesion.id, jornada: sesion.nombre, equipo_id: equipoId, estado_revision: 'VERIFICADO' } });
+    } catch (error) { console.error('Error al verificar QR en jornada actual:', error); return res.status(500).json({ success: false, mensaje: 'No se pudo registrar la verificación del QR' }); }
+};
+
 const cerrarSesion = async (req, res) => {
     const id = idValido(req.params.id);
     if (!id) return res.status(400).json({ success: false, mensaje: 'Identificador inválido' });
@@ -140,4 +157,4 @@ const cerrarSesion = async (req, res) => {
     }
 };
 
-module.exports = { listarSesiones, crearSesion, obtenerSesion, verificarActivo, cerrarSesion };
+module.exports = { listarSesiones, crearSesion, obtenerSesion, verificarActivo, verificarQRJornadaActual, cerrarSesion };
