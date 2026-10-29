@@ -17,6 +17,9 @@ function InventarioFisicoPage({ soloLectura = false }) {
   const [error, setError] = useState('');
   const [nombre, setNombre] = useState('');
   const [observacionesSesion, setObservacionesSesion] = useState('');
+  const [opcionesJornada, setOpcionesJornada] = useState({ contratos: [], unidades: [] });
+  const [filtroTipo, setFiltroTipo] = useState('TODOS');
+  const [filtroId, setFiltroId] = useState('');
   const [busqueda, setBusqueda] = useState('');
   const [codigo, setCodigo] = useState('');
   const [ubicacion, setUbicacion] = useState('');
@@ -38,7 +41,10 @@ function InventarioFisicoPage({ soloLectura = false }) {
     }
   }, []);
 
-  useEffect(() => { cargarSesiones(); }, [cargarSesiones]);
+  useEffect(() => {
+    cargarSesiones();
+    solicitarApi('/inventario-fisico/opciones').then(extraerObjetoApi).then(data => setOpcionesJornada(data || { contratos: [], unidades: [] })).catch(e => setError(e.message));
+  }, [cargarSesiones]);
 
   // Mantiene actualizada la jornada abierta cuando un QR se verifica desde otro dispositivo.
   useEffect(() => {
@@ -87,7 +93,7 @@ function InventarioFisicoPage({ soloLectura = false }) {
       const r = await solicitarApi('/inventario-fisico', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre, observaciones: observacionesSesion })
+        body: JSON.stringify({ nombre, observaciones: observacionesSesion, filtro_tipo: filtroTipo, filtro_id: filtroId ? Number(filtroId) : null })
       });
       const nueva = extraerObjetoApi(r);
       setNombre('');
@@ -178,8 +184,21 @@ function InventarioFisicoPage({ soloLectura = false }) {
       {!soloLectura && <form className="if-nueva" onSubmit={crearSesion}>
         <div className="if-titulo"><ClipboardCheck size={21}/><div><strong>Nueva jornada</strong><span>Se guardará una lista de los equipos que no estén dados de baja.</span></div></div>
         <label>Nombre de la jornada<input value={nombre} onChange={e => setNombre(e.target.value)} maxLength={150} required placeholder="Ej. Inventario de oficina central"/></label>
+        <label>Incluir equipos de
+          <select value={filtroTipo} onChange={e => { setFiltroTipo(e.target.value); setFiltroId(''); }}>
+            <option value="TODOS">Todos los equipos</option>
+            <option value="CONTRATO">Un contrato</option>
+            <option value="UNIDAD_EMPRESARIAL">Una unidad empresarial</option>
+          </select>
+        </label>
+        {filtroTipo !== 'TODOS' && <label>{filtroTipo === 'CONTRATO' ? 'Contrato' : 'Unidad empresarial'}
+          <select value={filtroId} onChange={e => setFiltroId(e.target.value)} required>
+            <option value="">Selecciona una opción</option>
+            {(filtroTipo === 'CONTRATO' ? opcionesJornada.contratos : opcionesJornada.unidades).map(op => <option key={op.id} value={op.id}>{filtroTipo === 'CONTRATO' ? op.nro_contrato : op.nombre}</option>)}
+          </select>
+        </label>}
         <label>Observaciones iniciales<textarea value={observacionesSesion} onChange={e => setObservacionesSesion(e.target.value)} maxLength={5000} rows={2} placeholder="Área, sede o instrucciones (opcional)"/></label>
-        <button className="boton-primario" disabled={guardando}>{guardando ? 'Creando...' : <><Plus size={17}/> Crear jornada</>}</button>
+        <button className="boton-primario" disabled={guardando || (filtroTipo !== 'TODOS' && !filtroId)}>{guardando ? 'Creando...' : <><Plus size={17}/> Crear jornada</>}</button>
       </form>}
       <div className="if-listado-cabecera"><div><h3>Jornadas registradas</h3><p>Abre una jornada para revisar sus activos.</p></div></div>
       {cargando ? <p>Cargando jornadas...</p> : sesiones.length === 0 ? <div className="if-vacio">Aún no hay jornadas de inventario físico.</div> :
