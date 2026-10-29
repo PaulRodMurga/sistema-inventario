@@ -89,8 +89,9 @@ const crearSesion = async (req, res) => {
     const observaciones = texto(req.body?.observaciones, 5000);
     const filtroTipo = req.body?.filtro_tipo ?? 'TODOS';
     const filtroId = filtroTipo === 'TODOS' ? null : idValido(req.body?.filtro_id);
+    const filtroUnidadId = filtroTipo === 'CONTRATO' && req.body?.filtro_unidad_id ? idValido(req.body.filtro_unidad_id) : null;
     if (!nombre || observaciones === null) return res.status(400).json({ success: false, mensaje: 'Indica un nombre válido y observaciones de hasta 5000 caracteres' });
-    if (!['TODOS', 'CONTRATO', 'UNIDAD_EMPRESARIAL'].includes(filtroTipo) || (filtroTipo !== 'TODOS' && !filtroId)) return res.status(400).json({ success: false, mensaje: 'Selecciona un filtro válido para la jornada' });
+    if (!['TODOS', 'CONTRATO', 'UNIDAD_EMPRESARIAL'].includes(filtroTipo) || (filtroTipo !== 'TODOS' && !filtroId) || (filtroTipo === 'CONTRATO' && req.body?.filtro_unidad_id && !filtroUnidadId)) return res.status(400).json({ success: false, mensaje: 'Selecciona un filtro válido para la jornada' });
     let conexion;
     try {
         conexion = await pool.getConnection();
@@ -115,10 +116,10 @@ const crearSesion = async (req, res) => {
             LEFT JOIN colaborador c ON c.id = asignacion_unidad.colaborador_id
             WHERE e.estado_actual <> 'BAJA'
               AND (? = 'TODOS'
-                OR (? = 'CONTRATO' AND cg.contrato_id = ?)
+                OR (? = 'CONTRATO' AND cg.contrato_id = ? AND (? IS NULL OR c.unidad_empresarial_id = ?))
                 OR (? = 'UNIDAD_EMPRESARIAL' AND c.unidad_empresarial_id = ?))
             GROUP BY e.id, a.ubicacion
-        `, [r.insertId, filtroTipo, filtroTipo, filtroId, filtroTipo, filtroId]);
+        `, [r.insertId, filtroTipo, filtroTipo, filtroId, filtroTipo, filtroId, filtroUnidadId, filtroUnidadId, filtroTipo, filtroId]);
         await conexion.commit();
         return res.status(201).json({ success: true, mensaje: 'Jornada creada', data: { id: Number(r.insertId), nombre, estado: 'ABIERTA' } });
     } catch (e) {
