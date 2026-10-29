@@ -1,9 +1,10 @@
 const express = require('express');
 const {
-    listarSesiones, crearSesion, obtenerSesion, verificarActivo, verificarQRJornadaActual, cerrarSesion
+    listarOpcionesJornada, listarSesiones, crearSesion, obtenerSesion, verificarActivo, verificarQRJornadaActual, cerrarSesion
 } = require('../controllers/inventarioFisicoController');
 
 const router = express.Router();
+router.get('/opciones', listarOpcionesJornada);
 router.get('/', listarSesiones);
 router.post('/', crearSesion);
 router.post('/verificar-qr/:codigo', verificarQRJornadaActual);
