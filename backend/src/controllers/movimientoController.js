@@ -370,9 +370,100 @@ const registrarMovimiento = async (req, res) => {
 };
 
 
+// ==========================================
+// HISTORIAL INTEGRAL DE UN EQUIPO
+// ==========================================
+const historialCompletoPorEquipo = async (req, res) => {
+    const equipoId = Number(req.params.equipo_id);
+    if (!Number.isSafeInteger(equipoId) || equipoId <= 0) {
+        return res.status(400).json({ success: false, mensaje: 'Identificador de equipo inválido' });
+    }
+
+    try {
+        const [equipos] = await pool.query(
+            'SELECT id, tipo, marca, modelo, serie FROM equipo WHERE id = ? LIMIT 1',
+            [equipoId]
+        );
+        if (!equipos.length) {
+            return res.status(404).json({ success: false, mensaje: 'El equipo no existe' });
+        }
+
+        const [movimientos] = await pool.query(`
+            SELECT m.id, m.fecha, m.tipo_movimiento AS tipo, m.descripcion,
+                m.equipo_id AS activo_id, e.tipo AS tipo_activo,
+                e.marca, e.modelo, e.serie,
+                CONCAT_WS(', ', c.apellidos, c.nombres) AS colaborador,
+                CONCAT_WS(', ', aut.apellidos, aut.nombres) AS autorizado_por,
+                m.asignacion_id
+            FROM movimiento_equipo m
+            INNER JOIN equipo e ON e.id = m.equipo_id
+            LEFT JOIN colaborador c ON c.id = m.colaborador_id
+            LEFT JOIN colaborador aut ON aut.id = m.autorizado_por
+            WHERE m.equipo_id = ?
+               OR (m.descripcion LIKE CONCAT('%equipo principal ID ', ?, '%'))
+            ORDER BY m.fecha DESC, m.id DESC
+        `, [equipoId, equipoId]);
+
+        const [auditorias] = await pool.query(`
+            SELECT a.id, a.creado_en AS fecha, a.accion AS tipo,
+                a.recurso, a.recurso_id, a.metodo, a.ruta, a.resultado,
+                a.estado_http, a.cuenta_usuario, a.nombre_usuario, a.rol_usuario
+            FROM auditoria a
+            WHERE (a.recurso = 'equipos' AND a.recurso_id = ?)
+               OR a.ruta LIKE CONCAT('%/api/equipos/', ?, '/perifericos/%')
+            ORDER BY a.creado_en DESC, a.id DESC
+        `, [equipoId, equipoId]);
+
+        const [verificaciones] = await pool.query(`
+            SELECT d.id, d.fecha_verificacion AS fecha, d.estado_revision,
+                d.ubicacion_esperada, d.ubicacion_observada, d.observaciones,
+                i.id AS inventario_id, i.nombre AS inventario,
+                i.estado AS estado_inventario,
+                u.nombre AS verificado_por
+            FROM detalle_inventario_fisico d
+            INNER JOIN inventario_fisico i ON i.id = d.inventario_fisico_id
+            LEFT JOIN usuario u ON u.id = d.verificado_por
+            WHERE d.equipo_id = ?
+            ORDER BY COALESCE(d.fecha_verificacion, i.fecha_inicio) DESC, d.id DESC
+        `, [equipoId]);
+
+        const eventos = [
+            ...movimientos.map((m) => ({
+                id: `movimiento-${m.id}`, origen: 'MOVIMIENTO', fecha: m.fecha,
+                tipo: m.tipo, descripcion: m.descripcion,
+                activo_id: m.activo_id, activo: [m.tipo_activo, m.marca, m.modelo].filter(Boolean).join(' '),
+                serie: m.serie, colaborador: m.colaborador,
+                autorizado_por: m.autorizado_por, asignacion_id: m.asignacion_id
+            })),
+            ...auditorias.map((a) => ({
+                id: `auditoria-${a.id}`, origen: 'AUDITORIA', fecha: a.fecha,
+                tipo: a.accion, descripcion: `${a.metodo || ''} ${a.ruta || ''}`.trim(),
+                usuario: a.nombre_usuario || a.cuenta_usuario || 'Usuario no identificado',
+                rol: a.rol_usuario, resultado: a.resultado, estado_http: a.estado_http
+            })),
+            ...verificaciones.map((v) => ({
+                id: `inventario-${v.id}`, origen: 'INVENTARIO_FISICO', fecha: v.fecha,
+                tipo: 'VERIFICACION_FISICA', estado_revision: v.estado_revision,
+                descripcion: v.observaciones || `Jornada: ${v.inventario}. Estado: ${v.estado_revision.replaceAll('_', ' ').toLowerCase()}.`,
+                inventario_id: v.inventario_id, inventario: v.inventario,
+                ubicacion_esperada: v.ubicacion_esperada,
+                ubicacion_observada: v.ubicacion_observada,
+                usuario: v.verificado_por || null
+            }))
+        ].sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0));
+
+        return res.json({ success: true, equipo: equipos[0], cantidad: eventos.length, data: eventos });
+    } catch (error) {
+        console.error('Error al obtener historial integral del equipo:', error);
+        return res.status(500).json({ success: false, mensaje: 'No se pudo obtener el historial completo del equipo' });
+    }
+};
+
+
 module.exports = {
     listarMovimientos,
     movimientosPorEquipo,
+    historialCompletoPorEquipo,
     movimientosPorImei,
     obtenerMovimientoPorId,
     registrarMovimiento
