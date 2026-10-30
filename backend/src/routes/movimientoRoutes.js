@@ -3,6 +3,7 @@ const express = require('express');
 const {
     listarMovimientos,
     movimientosPorEquipo,
+    historialCompletoPorEquipo,
     movimientosPorImei,
     obtenerMovimientoPorId,
     registrarMovimiento
@@ -13,6 +14,8 @@ const router = express.Router();
 router.get('/', listarMovimientos);
 
 router.get('/:id', obtenerMovimientoPorId);
+
+router.get('/equipo/:equipo_id/historial-completo', historialCompletoPorEquipo);
 
 router.get('/equipo/:equipo_id', movimientosPorEquipo);
 
