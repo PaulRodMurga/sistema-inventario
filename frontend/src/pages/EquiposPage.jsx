@@ -36,7 +36,7 @@ import {
     validarImportacionEquipos
 } from '../services/equipoService';
 import { listarContratoGamas } from '../services/contratoGamaService';
-import { listarMovimientosPorEquipo } from '../services/movimientoService';
+import { listarMovimientosPorEquipo, listarHistorialCompletoPorEquipo } from '../services/movimientoService';
 import DialogoAccesible from '../components/DialogoAccesible';
 import BotonAccionTabla from '../components/BotonAccionTabla';
 import EtiquetaEstado from '../components/EtiquetaEstado';
@@ -544,7 +544,7 @@ function EquiposPage({ soloLectura = false } = {}) {
 
             try {
                 const [historial, ...historialesPerifericos] = await Promise.all([
-                    listarMovimientosPorEquipo(id),
+                    listarHistorialCompletoPorEquipo(id),
                     ...perifericos.map(async (periferico) => {
                         try {
                             const movimientos = await listarMovimientosPorEquipo(periferico.id);
@@ -2180,8 +2180,14 @@ function EquiposPage({ soloLectura = false } = {}) {
                                                     </div>
                                                     <p>{movimiento.descripcion || 'Sin descripción adicional.'}</p>
                                                     <div className="historial-equipo-meta">
-                                                        <span>Colaborador: {movimiento.colaborador || 'No indicado'}</span>
-                                                        <span>Autorizado por: {movimiento.autorizado_por || 'No indicado'}</span>
+                                                        {movimiento.colaborador && <span>Colaborador: {movimiento.colaborador}</span>}
+                                                        {movimiento.autorizado_por && <span>Autorizado por: {movimiento.autorizado_por}</span>}
+                                                        {movimiento.usuario && <span>Usuario: {movimiento.usuario}</span>}
+                                                        {movimiento.responsable && <span>Responsable de jornada: {movimiento.responsable}</span>}
+                                                        {movimiento.equipo_relacionado && <span>Periférico: {movimiento.equipo_relacionado}</span>}
+                                                        {movimiento.ubicacion_esperada && <span>Ubicación esperada: {movimiento.ubicacion_esperada}</span>}
+                                                        {movimiento.ubicacion_observada && <span>Ubicación observada: {movimiento.ubicacion_observada}</span>}
+                                                        {movimiento.origen && <span>Origen: {formatearTipoMovimiento(movimiento.origen)}</span>}
                                                     </div>
                                                 </div>
                                             </li>
