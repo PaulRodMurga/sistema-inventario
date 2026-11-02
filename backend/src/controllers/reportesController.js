@@ -13,7 +13,11 @@ const obtenerReportes = async (req, res) => {
         if (areaId) { filtros.push('c.area_id = ?'); parametros.push(areaId); }
         if (colaboradorId) { filtros.push('c.id = ?'); parametros.push(colaboradorId); }
         if (estado) { filtros.push('e.estado_actual = ?'); parametros.push(estado); }
-        const where = filtros.length ? 'WHERE ' + filtros.join(' AND ') : '';
+        // Los periféricos son registros de la tabla equipo, pero se reportan
+        // por separado para evitar duplicarlos en los indicadores de equipos.
+        const where = filtros.length
+            ? 'WHERE ' + filtros.join(' AND ') + " AND e.tipo NOT IN ('MONITOR', 'TECLADO', 'MOUSE', 'PARLANTES', 'CAMARA WEB', 'AUDIFONOS')"
+            : "WHERE e.tipo NOT IN ('MONITOR', 'TECLADO', 'MOUSE', 'PARLANTES', 'CAMARA WEB', 'AUDIFONOS')";
 
         const [resumen] = await pool.query(`
             SELECT e.estado_actual AS estado, COUNT(DISTINCT e.id) AS cantidad
