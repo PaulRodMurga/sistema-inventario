@@ -35,6 +35,7 @@ const contratoRoutes = require('./routes/contratoRoutes');
 const planRoutes = require('./routes/planRoutes');
 const contratoGamaRoutes = require('./routes/contratoGamaRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const reportesRoutes = require('./routes/reportesRoutes');
 const catalogoRoutes = require('./routes/catalogoRoutes');
 const authRoutes = require('./routes/authRoutes');
 const usuarioRoutes = require('./routes/usuarioRoutes');
@@ -226,6 +227,7 @@ app.use(
     contratoGamaRoutes
 );
 app.use('/api/dashboard', requiereAutenticacion, dashboardRoutes);
+app.use('/api/reportes', requiereAutenticacion, accesoOperativo, reportesRoutes);
 app.use('/api/qr', requiereAutenticacion, qrRoutes);
 app.use('/api/catalogos', requiereAutenticacion, catalogoRoutes);
 app.use('/api', requiereAutenticacion, catalogoRoutes);
