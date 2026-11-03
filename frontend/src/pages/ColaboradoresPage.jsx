@@ -142,7 +142,7 @@ function ColaboradoresPage({ soloLectura = false, registroInicialId = null, onRe
         registroInicialProcesadoRef.current = registroInicialId;
         verColaborador(registroInicialId);
         onRegistroInicialAtendido?.();
-    }, [registroInicialId]);
+    }, [registroInicialId, onRegistroInicialAtendido]);
 
     const cerrarDetalle = () => {
         setDetalleAbierto(false);
