@@ -127,6 +127,7 @@ function SelectorBusqueda({
 }
 
 function AsignacionesPage({ soloLectura = false, registroInicialId = null, onRegistroInicialAtendido } = {}) {
+    const registroInicialProcesadoRef = useRef(null);
     const [asignaciones, setAsignaciones] = useState([]);
     const [busqueda, setBusqueda] = useState('');
     const [cargando, setCargando] = useState(true);
@@ -210,7 +211,14 @@ function AsignacionesPage({ soloLectura = false, registroInicialId = null, onReg
     };
 
     useEffect(() => {
-        if (!registroInicialId) return;
+        if (!registroInicialId) {
+            registroInicialProcesadoRef.current = null;
+            return;
+        }
+
+        if (registroInicialProcesadoRef.current === registroInicialId) return;
+
+        registroInicialProcesadoRef.current = registroInicialId;
         verAsignacion(registroInicialId);
         onRegistroInicialAtendido?.();
     }, [registroInicialId]);
