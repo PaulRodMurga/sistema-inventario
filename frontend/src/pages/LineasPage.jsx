@@ -23,6 +23,7 @@ import BotonAccionTabla from '../components/BotonAccionTabla';
 import './LineasPage.css';
 
 function LineasPage({ soloLectura = false, registroInicialId = null, onRegistroInicialAtendido } = {}) {
+    const registroInicialProcesadoRef = useRef(null);
     const [lineas, setLineas] = useState([]);
     const [busqueda, setBusqueda] = useState('');
 
@@ -117,7 +118,14 @@ function LineasPage({ soloLectura = false, registroInicialId = null, onRegistroI
     };
 
     useEffect(() => {
-        if (!registroInicialId) return;
+        if (!registroInicialId) {
+            registroInicialProcesadoRef.current = null;
+            return;
+        }
+
+        if (registroInicialProcesadoRef.current === registroInicialId) return;
+
+        registroInicialProcesadoRef.current = registroInicialId;
         verLinea(registroInicialId);
         onRegistroInicialAtendido?.();
     }, [registroInicialId]);
