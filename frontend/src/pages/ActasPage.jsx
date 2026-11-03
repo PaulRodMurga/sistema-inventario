@@ -238,7 +238,7 @@ function ActasPage({ filtroInicial = 'TODOS', registroInicialId = null, onRegist
         registroInicialProcesadoRef.current = registroInicialId;
         verActa(registroInicialId);
         onRegistroInicialAtendido?.();
-    }, [registroInicialId]);
+    }, [registroInicialId, onRegistroInicialAtendido]);
 
     const cerrarDetalle = () => {
         peticionDetalle.current += 1;
