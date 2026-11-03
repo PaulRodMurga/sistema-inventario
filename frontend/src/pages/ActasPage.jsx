@@ -29,7 +29,7 @@ import BotonAccionTabla from '../components/BotonAccionTabla';
 
 import './ActasPage.css';
 
-function ActasPage({ filtroInicial = 'TODOS', registroInicialId = null } = {}) {
+function ActasPage({ filtroInicial = 'TODOS', registroInicialId = null, onRegistroInicialAtendido } = {}) {
     const [actas, setActas] = useState([]);
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState('');
@@ -227,7 +227,9 @@ function ActasPage({ filtroInicial = 'TODOS', registroInicialId = null } = {}) {
     };
 
     useEffect(() => {
-        if (registroInicialId) verActa(registroInicialId);
+        if (!registroInicialId) return;
+        verActa(registroInicialId);
+        onRegistroInicialAtendido?.();
     }, [registroInicialId]);
 
     const cerrarDetalle = () => {
