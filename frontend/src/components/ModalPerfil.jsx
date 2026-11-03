@@ -35,6 +35,16 @@ function obtenerIniciales(nombre) {
         .toUpperCase();
 }
 
+function formatearRol(rol) {
+    const etiquetas = {
+        ADMINISTRADOR: 'Administrador',
+        OPERADOR: 'Operador',
+        CONSULTA: 'Consulta'
+    };
+
+    return etiquetas[rol] || rol;
+}
+
 export default function ModalPerfil({ usuario, onCerrar, onActualizado }) {
     const [nombre, setNombre] = useState(usuario.nombre || '');
     const [fotoVista, setFotoVista] = useState(
@@ -217,7 +227,7 @@ export default function ModalPerfil({ usuario, onCerrar, onActualizado }) {
 
                             <div className="perfil-foto-acciones">
                                 <strong>Foto de perfil</strong>
-                                <p>Una imagen cuadrada funciona mejor. Máximo 2 MB.</p>
+                                <p>JPG, PNG o WEBP. Una imagen cuadrada funciona mejor; máximo 2 MB.</p>
                                 <div>
                                     <button
                                         type="button"
@@ -291,7 +301,7 @@ export default function ModalPerfil({ usuario, onCerrar, onActualizado }) {
                                 </div>
                                 <div>
                                     <span>Tipo de cuenta</span>
-                                    <strong>{usuario.rol}</strong>
+                                    <strong>{formatearRol(usuario.rol)}</strong>
                                 </div>
                             </div>
                         </section>
