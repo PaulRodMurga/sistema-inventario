@@ -858,6 +858,7 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
           <EquiposPage
             soloLectura={esConsulta}
             registroInicialId={['EQUIPO', 'PERIFERICO'].includes(destinoBusqueda?.categoria) ? destinoBusqueda.id : null}
+            onRegistroInicialAtendido={() => setDestinoBusqueda(null)}
           />
         )}
 
@@ -873,6 +874,7 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
           <AsignacionesPage
             soloLectura={esConsulta}
             registroInicialId={destinoBusqueda?.categoria === 'ASIGNACION' ? destinoBusqueda.id : null}
+            onRegistroInicialAtendido={() => setDestinoBusqueda(null)}
           />
         )}
 
@@ -880,6 +882,7 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
           <ColaboradoresPage
             soloLectura={esConsulta}
             registroInicialId={destinoBusqueda?.categoria === 'COLABORADOR' ? destinoBusqueda.id : null}
+            onRegistroInicialAtendido={() => setDestinoBusqueda(null)}
           />
         )}
 
@@ -887,6 +890,7 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
           <LineasPage
             soloLectura={esConsulta}
             registroInicialId={destinoBusqueda?.categoria === 'LINEA' ? destinoBusqueda.id : null}
+            onRegistroInicialAtendido={() => setDestinoBusqueda(null)}
           />
         )}
 
@@ -898,6 +902,7 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
           <ActasPage
             filtroInicial={filtroActasDashboard}
             registroInicialId={destinoBusqueda?.categoria === 'ACTA' ? destinoBusqueda.id : null}
+            onRegistroInicialAtendido={() => setDestinoBusqueda(null)}
           />
         )}
 
