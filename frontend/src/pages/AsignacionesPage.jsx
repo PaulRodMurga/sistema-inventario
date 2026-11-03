@@ -221,7 +221,7 @@ function AsignacionesPage({ soloLectura = false, registroInicialId = null, onReg
         registroInicialProcesadoRef.current = registroInicialId;
         verAsignacion(registroInicialId);
         onRegistroInicialAtendido?.();
-    }, [registroInicialId]);
+    }, [registroInicialId, onRegistroInicialAtendido]);
 
     const cargarAsignaciones = async () => {
         try {
