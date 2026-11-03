@@ -22,7 +22,7 @@ import BotonAccionTabla from '../components/BotonAccionTabla';
 
 import './LineasPage.css';
 
-function LineasPage({ soloLectura = false } = {}) {
+function LineasPage({ soloLectura = false, registroInicialId = null } = {}) {
     const [lineas, setLineas] = useState([]);
     const [busqueda, setBusqueda] = useState('');
 
@@ -115,6 +115,10 @@ function LineasPage({ soloLectura = false } = {}) {
             setCargandoDetalle(false);
         }
     };
+
+    useEffect(() => {
+        if (registroInicialId) verLinea(registroInicialId);
+    }, [registroInicialId]);
 
     const cerrarDetalle = () => {
         setDetalleAbierto(false);
