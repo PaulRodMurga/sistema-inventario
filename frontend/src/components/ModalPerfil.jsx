@@ -5,7 +5,6 @@ import {
     LoaderCircle,
     Save,
     Trash2,
-    UserRound,
     X
 } from 'lucide-react';
 
