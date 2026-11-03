@@ -1,0 +1,203 @@
+/* =========================================================
+   Microinteracciones y transiciones globales del sistema
+   Estilo sutil: prioriza claridad, fluidez y accesibilidad.
+   ========================================================= */
+
+:root {
+    --ui-motion-fast: 150ms;
+    --ui-motion-base: 200ms;
+    --ui-motion-page: 380ms;
+    --ui-ease: cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+/* Entrada suave al cambiar de módulo */
+@keyframes ui-page-enter {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.contenido > section.pagina,
+.contenido > section.pagina-reportes {
+    animation: ui-page-enter var(--ui-motion-page) var(--ui-ease) both;
+    transform-origin: top center;
+}
+
+/* Apertura de ventanas modales */
+@keyframes ui-backdrop-enter {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes ui-modal-enter {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.985);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-fondo {
+    animation: ui-backdrop-enter 180ms ease-out both;
+}
+
+.modal-contenido {
+    animation: ui-modal-enter 240ms var(--ui-ease) both;
+    transform-origin: center;
+}
+
+/* Navegación lateral */
+.menu-opcion {
+    transition:
+        background-color var(--ui-motion-base) ease,
+        color var(--ui-motion-base) ease,
+        transform var(--ui-motion-base) var(--ui-ease),
+        box-shadow var(--ui-motion-base) ease;
+}
+
+.menu-opcion svg {
+    transition: transform var(--ui-motion-base) var(--ui-ease);
+}
+
+@media (hover: hover) {
+    .menu-opcion:not(.activo):hover {
+        transform: translateX(3px);
+    }
+
+    .menu-opcion:hover svg {
+        transform: scale(1.06);
+    }
+}
+
+/* Botones y controles interactivos */
+.contenido button:not(:disabled),
+.modal-contenido button:not(:disabled) {
+    transition-duration: var(--ui-motion-fast);
+    transition-timing-function: ease-out;
+}
+
+@media (hover: hover) {
+    .contenido button:not(:disabled):not(.menu-opcion):hover,
+    .modal-contenido button:not(:disabled):hover {
+        filter: brightness(1.015);
+    }
+
+    .boton-primario:hover:not(:disabled),
+    .boton-secundario:hover:not(:disabled),
+    .boton-actualizar:hover:not(:disabled),
+    .boton-icono:hover:not(:disabled),
+    .boton-guardar:hover:not(:disabled),
+    .boton-cancelar:hover:not(:disabled),
+    .modal-cerrar:hover:not(:disabled),
+    .boton-agregar-periferico:hover:not(:disabled) {
+        transform: translateY(-1px);
+    }
+
+    .boton-icono:hover:not(:disabled),
+    .modal-cerrar:hover:not(:disabled) {
+        box-shadow: 0 4px 10px rgb(15 23 42 / 8%);
+    }
+}
+
+.contenido button:active:not(:disabled),
+.modal-contenido button:active:not(:disabled) {
+    transform: scale(0.985);
+}
+
+.contenido button:focus-visible,
+.modal-contenido button:focus-visible {
+    outline-offset: 3px;
+}
+
+/* Campos: respuesta visual más fluida al enfocar */
+.contenido input,
+.contenido select,
+.contenido textarea,
+.modal-contenido input,
+.modal-contenido select,
+.modal-contenido textarea {
+    transition:
+        border-color var(--ui-motion-base) ease,
+        box-shadow var(--ui-motion-base) ease;
+}
+
+/* Tarjetas y paneles del dashboard */
+.tarjeta,
+.dashboard-kpi,
+.dashboard-panel-grafico,
+.dashboard-alerta {
+    transition:
+        transform var(--ui-motion-base) var(--ui-ease),
+        box-shadow var(--ui-motion-base) ease,
+        border-color var(--ui-motion-base) ease;
+}
+
+@media (hover: hover) {
+    .tarjeta:hover,
+    .dashboard-kpi:hover,
+    .dashboard-panel-grafico:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgb(15 23 42 / 8%);
+    }
+}
+
+/* Filas de tablas: entrada discreta y respuesta al pasar el cursor */
+@keyframes ui-row-enter {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.contenido .contenedor-tabla tbody tr {
+    animation: ui-row-enter 220ms ease-out both;
+    transition: background-color var(--ui-motion-fast) ease;
+}
+
+.contenido .contenedor-tabla tbody tr:nth-child(2) { animation-delay: 20ms; }
+.contenido .contenedor-tabla tbody tr:nth-child(3) { animation-delay: 40ms; }
+.contenido .contenedor-tabla tbody tr:nth-child(4) { animation-delay: 60ms; }
+.contenido .contenedor-tabla tbody tr:nth-child(5) { animation-delay: 80ms; }
+.contenido .contenedor-tabla tbody tr:nth-child(6) { animation-delay: 100ms; }
+
+/* Indicador animado para la carga del dashboard */
+.mensaje-cargando {
+    gap: 10px;
+}
+
+.mensaje-cargando::before {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 14px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    content: "";
+    animation: ui-spin 750ms linear infinite;
+}
+
+@keyframes ui-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* No animar contenido al imprimir */
+@media print {
+    .contenido > section.pagina,
+    .contenido > section.pagina-reportes,
+    .modal-fondo,
+    .modal-contenido {
+        animation: none !important;
+    }
+}
