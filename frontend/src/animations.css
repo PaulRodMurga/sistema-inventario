@@ -14,18 +14,20 @@
 @keyframes ui-page-enter {
     from {
         opacity: 0;
-        transform: translateY(10px);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
     }
 }
 
 .contenido > section.pagina,
 .contenido > section.pagina-reportes {
-    animation: ui-page-enter var(--ui-motion-page) var(--ui-ease) both;
-    transform-origin: top center;
+    /*
+     * No aplicar transform al contenedor de página:
+     * contiene modales position: fixed y transform cambiaría
+     * su bloque de referencia, impidiendo centrarlos en viewport.
+     */
+    animation: ui-page-enter var(--ui-motion-page) ease-out both;
 }
 
 /* Apertura de ventanas modales */
