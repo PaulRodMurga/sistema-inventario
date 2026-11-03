@@ -597,7 +597,7 @@ function EquiposPage({ soloLectura = false, registroInicialId = null, onRegistro
         registroInicialProcesadoRef.current = registroInicialId;
         verEquipo(registroInicialId);
         onRegistroInicialAtendido?.();
-    }, [registroInicialId]);
+    }, [registroInicialId, onRegistroInicialAtendido]);
 
     const actualizarFormulario = (evento) => {
         const { name, value } = evento.target;
