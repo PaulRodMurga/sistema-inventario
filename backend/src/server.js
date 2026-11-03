@@ -41,6 +41,7 @@ const authRoutes = require('./routes/authRoutes');
 const usuarioRoutes = require('./routes/usuarioRoutes');
 const auditoriaRoutes = require('./routes/auditoriaRoutes');
 const qrRoutes = require('./routes/qrRoutes');
+const busquedaRoutes = require('./routes/busquedaRoutes');
 const { obtenerActivoQR } = require('./controllers/qrController');
 
 const configuracion = obtenerConfiguracion();
@@ -227,6 +228,7 @@ app.use(
     contratoGamaRoutes
 );
 app.use('/api/dashboard', requiereAutenticacion, dashboardRoutes);
+app.use('/api/busqueda', requiereAutenticacion, accesoOperativo, busquedaRoutes);
 app.use('/api/reportes', requiereAutenticacion, accesoOperativo, reportesRoutes);
 app.use('/api/qr', requiereAutenticacion, qrRoutes);
 app.use('/api/catalogos', requiereAutenticacion, catalogoRoutes);
