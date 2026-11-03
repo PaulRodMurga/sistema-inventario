@@ -128,7 +128,7 @@ function LineasPage({ soloLectura = false, registroInicialId = null, onRegistroI
         registroInicialProcesadoRef.current = registroInicialId;
         verLinea(registroInicialId);
         onRegistroInicialAtendido?.();
-    }, [registroInicialId]);
+    }, [registroInicialId, onRegistroInicialAtendido]);
 
     const cerrarDetalle = () => {
         setDetalleAbierto(false);
