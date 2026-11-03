@@ -126,7 +126,7 @@ function SelectorBusqueda({
     );
 }
 
-function AsignacionesPage({ soloLectura = false, registroInicialId = null } = {}) {
+function AsignacionesPage({ soloLectura = false, registroInicialId = null, onRegistroInicialAtendido } = {}) {
     const [asignaciones, setAsignaciones] = useState([]);
     const [busqueda, setBusqueda] = useState('');
     const [cargando, setCargando] = useState(true);
@@ -210,7 +210,9 @@ function AsignacionesPage({ soloLectura = false, registroInicialId = null } = {}
     };
 
     useEffect(() => {
-        if (registroInicialId) verAsignacion(registroInicialId);
+        if (!registroInicialId) return;
+        verAsignacion(registroInicialId);
+        onRegistroInicialAtendido?.();
     }, [registroInicialId]);
 
     const cargarAsignaciones = async () => {
