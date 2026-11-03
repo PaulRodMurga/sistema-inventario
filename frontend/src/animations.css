@@ -62,20 +62,11 @@
 
 .modal-fondo {
     animation: ui-backdrop-enter 220ms ease-out both;
-    will-change: opacity;
 }
 
 .modal-contenido {
     animation: ui-modal-enter 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
     transform-origin: center;
-    will-change: opacity, transform;
-}
-
-/* Evita conservar capas de composición tras terminar la entrada. */
-@media (prefers-reduced-motion: no-preference) {
-    .modal-contenido:not(:focus-visible) {
-        outline-offset: 3px;
-    }
 }
 
 /* Navegación lateral */
