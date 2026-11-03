@@ -26,7 +26,7 @@ export default function ReportesPage() {
   const exportarCSV = (filas, nombre) => {
     if(!filas?.length) return;
     const columnas=Object.keys(filas[0]);
-    const csv=[columnas.join(';'),...filas.map(f=>columnas.map(k=>String(f[k]??'').replaceAll(';',',').replaceAll('"','""')).map(v=>`"${v}"`).join(';'))].join('\r\n');
+    const protegerCelda = (valor) => {\n      const texto = String(valor ?? '').replaceAll('"', '""');\n      const seguro = /^[=+\\-@\\t\\r]/.test(texto) ? "'" + texto : texto;\n      return `"${seguro}"`;\n    };\n    const csv=[columnas.map(protegerCelda).join(';'),...filas.map(f=>columnas.map(k=>protegerCelda(f[k])).join(';'))].join('\\r\\n');
     const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
     const url=URL.createObjectURL(blob); const a=document.createElement('a');a.href=url;a.download=nombre;a.click();URL.revokeObjectURL(url);
   };
