@@ -30,7 +30,7 @@ import { leerImportacionColaboradores } from '../utils/importacionExcel';
 
 import './ColaboradoresPage.css';
 
-function ColaboradoresPage({ soloLectura = false } = {}) {
+function ColaboradoresPage({ soloLectura = false, registroInicialId = null } = {}) {
     const [colaboradores, setColaboradores] =
         useState([]);
 
@@ -129,6 +129,10 @@ function ColaboradoresPage({ soloLectura = false } = {}) {
             setCargandoDetalle(false);
         }
     };
+
+    useEffect(() => {
+        if (registroInicialId) verColaborador(registroInicialId);
+    }, [registroInicialId]);
 
     const cerrarDetalle = () => {
         setDetalleAbierto(false);
