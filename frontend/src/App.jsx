@@ -53,6 +53,8 @@ import './pages/ReportesPage.css';
 import './animations.css';
 import LoginPage from './pages/LoginPage';
 import CampoBusqueda from './components/CampoBusqueda';
+import ModalPerfil from './components/ModalPerfil';
+import { obtenerPerfil, obtenerUrlFotoPerfil } from './services/perfilService';
 import {
   cerrarSesion,
   hayTokenSesion,
@@ -131,11 +133,12 @@ function App() {
     <AplicacionInventario
       usuario={usuarioAutenticado}
       onCerrarSesion={salir}
+      onActualizarUsuario={setUsuarioAutenticado}
     />
   );
 }
 
-function AplicacionInventario({ usuario, onCerrarSesion }) {
+function AplicacionInventario({ usuario, onCerrarSesion, onActualizarUsuario }) {
 
   const [seccionActiva, setSeccionActiva] = useState('Dashboard');
   const [dashboard, setDashboard] = useState(null);
@@ -144,6 +147,7 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
   const [filtroActasDashboard, setFiltroActasDashboard] = useState('TODOS');
   const [contratosSoloPorVencer, setContratosSoloPorVencer] = useState(false);
   const [notificacionesAbiertas, setNotificacionesAbiertas] = useState(false);
+  const [perfilAbierto, setPerfilAbierto] = useState(false);
   const [cargandoNotificaciones, setCargandoNotificaciones] = useState(false);
   const [errorNotificaciones, setErrorNotificaciones] = useState('');
   const [fechaActualizacionNotificaciones, setFechaActualizacionNotificaciones] = useState(null);
@@ -173,6 +177,24 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
       setCargando(false);
     }
   };
+
+  useEffect(() => {
+    let activo = true;
+
+    obtenerPerfil()
+      .then((perfil) => {
+        if (activo) {
+          onActualizarUsuario((actual) => ({ ...actual, ...perfil }));
+        }
+      })
+      .catch((errorPerfil) => {
+        console.warn('No se pudo cargar la foto de perfil:', errorPerfil);
+      });
+
+    return () => {
+      activo = false;
+    };
+  }, [onActualizarUsuario]);
 
   useEffect(() => {
     let activo = true;
@@ -654,16 +676,30 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
               )}
             </div>
 
-            <div className="usuario">
+            <button
+              type="button"
+              className="usuario usuario-boton"
+              onClick={() => setPerfilAbierto(true)}
+              title="Editar perfil"
+              aria-label="Abrir edición de perfil"
+            >
               <div className="avatar">
-                {obtenerIniciales(usuario.nombre)}
+                {usuario.foto_perfil ? (
+                  <img
+                    src={obtenerUrlFotoPerfil(usuario.foto_perfil)}
+                    alt=""
+                    aria-hidden="true"
+                  />
+                ) : (
+                  obtenerIniciales(usuario.nombre)
+                )}
               </div>
 
               <div>
                 <strong>{usuario.nombre}</strong>
                 <span>{formatearRol(usuario.rol)}</span>
               </div>
-            </div>
+            </button>
 
             <button
               type="button"
@@ -925,6 +961,14 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
 
 
       </main>
+
+      {perfilAbierto && (
+        <ModalPerfil
+          usuario={usuario}
+          onCerrar={() => setPerfilAbierto(false)}
+          onActualizado={onActualizarUsuario}
+        />
+      )}
     </div>
   );
 }
