@@ -47,6 +47,7 @@ import ConfiguracionPage from './pages/ConfiguracionPage';
 import InventarioFisicoPage from './pages/InventarioFisicoPage';
 import ReportesPage from './pages/ReportesPage';
 import './pages/ReportesPage.css';
+import './animations.css';
 import LoginPage from './pages/LoginPage';
 import CampoBusqueda from './components/CampoBusqueda';
 import {
