@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
+const path = require('node:path');
 
 const {
     obtenerConfiguracion
@@ -42,6 +43,7 @@ const usuarioRoutes = require('./routes/usuarioRoutes');
 const auditoriaRoutes = require('./routes/auditoriaRoutes');
 const qrRoutes = require('./routes/qrRoutes');
 const busquedaRoutes = require('./routes/busquedaRoutes');
+const perfilRoutes = require('./routes/perfilRoutes');
 const { obtenerActivoQR } = require('./controllers/qrController');
 
 const configuracion = obtenerConfiguracion();
@@ -77,6 +79,17 @@ app.use(
 );
 
 app.use(registrarAuditoria);
+
+// Las imágenes de perfil se sirven desde el backend con nombres aleatorios.
+app.use(
+    '/uploads/perfiles',
+    express.static(path.join(__dirname, '../uploads/perfiles'), {
+        dotfiles: 'deny',
+        index: false,
+        maxAge: '1d',
+        immutable: true
+    })
+);
 
 
 // ===============================
@@ -229,6 +242,7 @@ app.use(
 );
 app.use('/api/dashboard', requiereAutenticacion, dashboardRoutes);
 app.use('/api/busqueda', requiereAutenticacion, accesoOperativo, busquedaRoutes);
+app.use('/api/perfil', requiereAutenticacion, perfilRoutes);
 app.use('/api/reportes', requiereAutenticacion, accesoOperativo, reportesRoutes);
 app.use('/api/qr', requiereAutenticacion, qrRoutes);
 app.use('/api/catalogos', requiereAutenticacion, catalogoRoutes);
