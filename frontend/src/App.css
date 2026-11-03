@@ -1202,3 +1202,26 @@
   border-radius: 50%;
   object-fit: cover;
 }
+
+
+.usuario-informacion {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.usuario .avatar {
+  margin-top: 0;
+  color: #1d4ed8;
+  font-size: 13px;
+}
+
+.usuario-informacion span {
+  margin-top: 2px;
+}
+
+@media (max-width: 760px) {
+  .usuario-informacion {
+    display: none;
+  }
+}
