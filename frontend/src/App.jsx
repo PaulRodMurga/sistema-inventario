@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
   LayoutDashboard,
@@ -10,6 +10,8 @@ import {
   FileText,
   Settings,
   Bell,
+  CheckCircle2,
+  RefreshCw,
   LogOut,
   PackageCheck,
   Package,
@@ -140,6 +142,11 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
   const [error, setError] = useState('');
   const [filtroActasDashboard, setFiltroActasDashboard] = useState('TODOS');
   const [contratosSoloPorVencer, setContratosSoloPorVencer] = useState(false);
+  const [notificacionesAbiertas, setNotificacionesAbiertas] = useState(false);
+  const [cargandoNotificaciones, setCargandoNotificaciones] = useState(false);
+  const [errorNotificaciones, setErrorNotificaciones] = useState('');
+  const [fechaActualizacionNotificaciones, setFechaActualizacionNotificaciones] = useState(null);
+  const notificacionesRef = useRef(null);
   const esAdministrador = usuario.rol === 'ADMINISTRADOR';
   const esConsulta = usuario.rol === 'CONSULTA';
 
@@ -201,6 +208,48 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
     setSeccionActiva('Configuración');
   };
 
+  const cargarNotificaciones = async () => {
+    setCargandoNotificaciones(true);
+    setErrorNotificaciones('');
+
+    try {
+      const datos = await obtenerDashboard();
+      setDashboard(datos);
+      setFechaActualizacionNotificaciones(new Date());
+    } catch (errorSolicitud) {
+      console.error('Error al actualizar notificaciones:', errorSolicitud);
+      setErrorNotificaciones(
+        errorSolicitud.message || 'No se pudieron cargar las notificaciones.'
+      );
+    } finally {
+      setCargandoNotificaciones(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!notificacionesAbiertas) return undefined;
+
+    const cerrarAlHacerClicFuera = (evento) => {
+      if (!notificacionesRef.current?.contains(evento.target)) {
+        setNotificacionesAbiertas(false);
+      }
+    };
+
+    const cerrarConEscape = (evento) => {
+      if (evento.key === 'Escape') {
+        setNotificacionesAbiertas(false);
+      }
+    };
+
+    document.addEventListener('mousedown', cerrarAlHacerClicFuera);
+    document.addEventListener('keydown', cerrarConEscape);
+
+    return () => {
+      document.removeEventListener('mousedown', cerrarAlHacerClicFuera);
+      document.removeEventListener('keydown', cerrarConEscape);
+    };
+  }, [notificacionesAbiertas]);
+
   const resumen = dashboard?.resumen || {
     total_equipos: 0,
     asignados: 0,
@@ -218,6 +267,52 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
   const porcentajeAsignados = Number(resumen.total_equipos || 0) > 0 ? Math.round((Number(resumen.asignados || 0) / Number(resumen.total_equipos)) * 100) : 0;
   const porcentajeLibres = Number(resumen.total_equipos || 0) > 0 ? Math.round((Number(resumen.libres || 0) / Number(resumen.total_equipos)) * 100) : 0;
   const alertasDashboard = dashboard?.alertas || { actas_pendientes: 0, devoluciones_pendientes: 0, devoluciones_por_revisar: 0, contratos_por_vencer: 0 };
+  const notificaciones = [
+    {
+      id: 'actas-pendientes',
+      titulo: 'Actas pendientes',
+      descripcion: 'Hay actas que todavía necesitan ser atendidas.',
+      cantidad: Number(alertasDashboard.actas_pendientes || 0),
+      clase: 'aviso',
+      icono: FileWarning,
+      accion: 'Revisar actas',
+      alAbrir: () => abrirActasConFiltro('PENDIENTES')
+    },
+    {
+      id: 'devoluciones-pendientes',
+      titulo: 'Devoluciones pendientes',
+      descripcion: 'Hay equipos que siguen registrados como entregados.',
+      cantidad: Number(alertasDashboard.devoluciones_pendientes || 0),
+      clase: 'informacion',
+      icono: CalendarClock,
+      accion: 'Ver devoluciones',
+      alAbrir: () => abrirActasConFiltro('DEVOLUCIONES_PENDIENTES')
+    },
+    {
+      id: 'devoluciones-revisar',
+      titulo: 'Devoluciones por revisar',
+      descripcion: 'Existen diferencias entre el estado y la devolución registrada.',
+      cantidad: Number(alertasDashboard.devoluciones_por_revisar || 0),
+      clase: 'critica',
+      icono: AlertTriangle,
+      accion: 'Revisar diferencias',
+      alAbrir: () => abrirActasConFiltro('DEVOLUCIONES_REVISAR')
+    },
+    {
+      id: 'contratos-por-vencer',
+      titulo: 'Contratos por vencer',
+      descripcion: 'Contratos que finalizan dentro de los próximos 30 días.',
+      cantidad: Number(alertasDashboard.contratos_por_vencer || 0),
+      clase: 'aviso',
+      icono: CalendarClock,
+      accion: 'Ver contratos',
+      alAbrir: abrirContratosPorVencer
+    }
+  ].filter((notificacion) => notificacion.cantidad > 0);
+  const totalNotificaciones = notificaciones.reduce(
+    (total, notificacion) => total + notificacion.cantidad,
+    0
+  );
   const formatearCantidad = (valor) => Number(valor || 0).toLocaleString('es-PE');
 
   const datosPorEstado = (dashboard?.por_estado || []).map((elemento) => ({
@@ -348,14 +443,119 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
               placeholder="Buscar..."
             />
 
-            <button
-              type="button"
-              className="boton-icono"
-              title="Notificaciones"
-              aria-label="Abrir notificaciones"
-            >
-              <Bell size={20} aria-hidden="true" />
-            </button>
+            <div className="notificaciones-contenedor" ref={notificacionesRef}>
+              <button
+                type="button"
+                className={`boton-icono boton-notificaciones ${notificacionesAbiertas ? 'activo' : ''}`}
+                title="Notificaciones"
+                aria-label={totalNotificaciones > 0
+                  ? `Abrir notificaciones: ${formatearCantidad(totalNotificaciones)} pendientes`
+                  : 'Abrir notificaciones'}
+                aria-expanded={notificacionesAbiertas}
+                aria-controls="panel-notificaciones"
+                onClick={() => {
+                  const abrir = !notificacionesAbiertas;
+                  setNotificacionesAbiertas(abrir);
+                  if (abrir) cargarNotificaciones();
+                }}
+              >
+                <Bell size={20} aria-hidden="true" />
+                {totalNotificaciones > 0 && (
+                  <span className="notificaciones-contador">
+                    {totalNotificaciones > 99 ? '99+' : totalNotificaciones}
+                  </span>
+                )}
+              </button>
+
+              {notificacionesAbiertas && (
+                <section
+                  id="panel-notificaciones"
+                  className="notificaciones-panel"
+                  aria-label="Centro de notificaciones"
+                >
+                  <header className="notificaciones-panel-cabecera">
+                    <div>
+                      <strong>Notificaciones</strong>
+                      <small>
+                        {totalNotificaciones > 0
+                          ? `${formatearCantidad(totalNotificaciones)} pendiente(s) por atender`
+                          : 'Estado actual del inventario'}
+                      </small>
+                    </div>
+                    <button
+                      type="button"
+                      className="notificaciones-actualizar"
+                      onClick={cargarNotificaciones}
+                      disabled={cargandoNotificaciones}
+                      aria-label="Actualizar notificaciones"
+                      title="Actualizar"
+                    >
+                      <RefreshCw size={15} className={cargandoNotificaciones ? 'girando' : ''} />
+                    </button>
+                  </header>
+
+                  {cargandoNotificaciones && (
+                    <p className="notificaciones-estado" role="status">
+                      Actualizando notificaciones...
+                    </p>
+                  )}
+
+                  {errorNotificaciones && (
+                    <div className="notificaciones-error" role="alert">
+                      <span>{errorNotificaciones}</span>
+                      <button type="button" onClick={cargarNotificaciones}>
+                        Reintentar
+                      </button>
+                    </div>
+                  )}
+
+                  {!cargandoNotificaciones && !errorNotificaciones && notificaciones.length === 0 && (
+                    <div className="notificaciones-vacias">
+                      <span><CheckCircle2 size={24} aria-hidden="true" /></span>
+                      <strong>Todo está al día</strong>
+                      <p>No hay alertas pendientes por atender.</p>
+                    </div>
+                  )}
+
+                  {notificaciones.length > 0 && (
+                    <div className="notificaciones-lista">
+                      {notificaciones.map((notificacion) => {
+                        const IconoNotificacion = notificacion.icono;
+                        return (
+                          <button
+                            type="button"
+                            key={notificacion.id}
+                            className={`notificacion-item notificacion-${notificacion.clase}`}
+                            onClick={() => {
+                              setNotificacionesAbiertas(false);
+                              notificacion.alAbrir();
+                            }}
+                          >
+                            <span className="notificacion-icono">
+                              <IconoNotificacion size={18} aria-hidden="true" />
+                            </span>
+                            <span className="notificacion-texto">
+                              <strong>{notificacion.titulo}</strong>
+                              <small>{notificacion.descripcion}</small>
+                              <span className="notificacion-accion">{notificacion.accion}</span>
+                            </span>
+                            <b className="notificacion-cantidad">
+                              {formatearCantidad(notificacion.cantidad)}
+                            </b>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  <footer className="notificaciones-panel-pie">
+                    {fechaActualizacionNotificaciones
+                      ? `Actualizado: ${fechaActualizacionNotificaciones.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })}`
+                      : 'Las alertas se consultan directamente desde el inventario.'}
+                  </footer>
+                </section>
+              )}
+            </div>
 
             <div className="usuario">
               <div className="avatar">
@@ -555,7 +755,7 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
                 <button type="button" className="dashboard-alerta" onClick={() => abrirActasConFiltro('DEVOLUCIONES_REVISAR')}><span className="dashboard-alerta-icono alerta-rojo"><AlertTriangle size={19} /></span><span className="dashboard-alerta-texto"><strong>Devoluciones por revisar</strong><small>Estado y marca de devolución no coinciden</small></span><b>{formatearCantidad(alertasDashboard.devoluciones_por_revisar)}</b><ArrowUpRight size={16} /></button>
                 <button type="button" className="dashboard-alerta" onClick={abrirContratosPorVencer}><span className="dashboard-alerta-icono alerta-verde"><CalendarClock size={19} /></span><span className="dashboard-alerta-texto"><strong>Contratos por vencer</strong><small>Finalizan dentro de los próximos 30 días</small></span><b>{formatearCantidad(alertasDashboard.contratos_por_vencer)}</b><ArrowUpRight size={16} /></button>
               </div>
-              <p className="dashboard-nota-datos">Las alertas se calculan con los registros actuales de MySQL; no son notificaciones enviadas automáticamente.</p>
+              <p className="dashboard-nota-datos">Las notificaciones muestran situaciones pendientes calculadas con los registros actuales de MySQL.</p>
             </section>
 
           </section>
