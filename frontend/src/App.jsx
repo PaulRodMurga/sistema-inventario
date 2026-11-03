@@ -37,6 +37,7 @@ import './App.css';
 // Componentes visuales compartidos por las páginas del inventario.
 import './pages/EquiposPage.css';
 import { obtenerDashboard } from './services/dashboardService';
+import { buscarGlobalmente } from './services/busquedaService';
 import EquiposPage from './pages/EquiposPage';
 import EtiquetasQRPage from './pages/EtiquetasQRPage';
 import ActivoQRPage from './pages/ActivoQRPage';
@@ -147,6 +148,12 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
   const [errorNotificaciones, setErrorNotificaciones] = useState('');
   const [fechaActualizacionNotificaciones, setFechaActualizacionNotificaciones] = useState(null);
   const notificacionesRef = useRef(null);
+  const [busquedaGlobal, setBusquedaGlobal] = useState('');
+  const [resultadosBusqueda, setResultadosBusqueda] = useState(null);
+  const [cargandoBusqueda, setCargandoBusqueda] = useState(false);
+  const [errorBusqueda, setErrorBusqueda] = useState('');
+  const [destinoBusqueda, setDestinoBusqueda] = useState(null);
+  const secuenciaBusquedaRef = useRef(0);
   const esAdministrador = usuario.rol === 'ADMINISTRADOR';
   const esConsulta = usuario.rol === 'CONSULTA';
 
@@ -197,6 +204,66 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
       activo = false;
     };
   }, [seccionActiva]);
+
+  useEffect(() => {
+    const consulta = busquedaGlobal.trim();
+
+    if (consulta.length < 2) {
+      setResultadosBusqueda(null);
+      setCargandoBusqueda(false);
+      setErrorBusqueda('');
+      return undefined;
+    }
+
+    const secuencia = ++secuenciaBusquedaRef.current;
+    setResultadosBusqueda(null);
+    setErrorBusqueda('');
+    setCargandoBusqueda(true);
+
+    const temporizador = setTimeout(async () => {
+      try {
+        const datos = await buscarGlobalmente(consulta);
+        if (secuencia !== secuenciaBusquedaRef.current) return;
+        setResultadosBusqueda(datos);
+      } catch (errorSolicitud) {
+        if (secuencia !== secuenciaBusquedaRef.current) return;
+        setErrorBusqueda(errorSolicitud.message || 'No se pudo realizar la búsqueda');
+      } finally {
+        if (secuencia === secuenciaBusquedaRef.current) {
+          setCargandoBusqueda(false);
+        }
+      }
+    }, 280);
+
+    return () => {
+      clearTimeout(temporizador);
+      secuenciaBusquedaRef.current += 1;
+    };
+  }, [busquedaGlobal]);
+
+  const abrirResultadoBusqueda = (resultado) => {
+    const secciones = {
+      EQUIPO: 'Equipos',
+      PERIFERICO: 'Equipos',
+      COLABORADOR: 'Colaboradores',
+      LINEA: 'Líneas móviles',
+      ASIGNACION: 'Asignaciones',
+      ACTA: 'Actas'
+    };
+
+    const seccion = secciones[resultado?.categoria];
+    if (!seccion || !resultado?.id) return;
+
+    setDestinoBusqueda({
+      categoria: resultado.categoria,
+      id: Number(resultado.id)
+    });
+    setBusquedaGlobal('');
+    setResultadosBusqueda(null);
+    setErrorBusqueda('');
+    setNotificacionesAbiertas(false);
+    setSeccionActiva(seccion);
+  };
 
   const abrirActasConFiltro = (filtro) => {
     setFiltroActasDashboard(filtro);
@@ -459,8 +526,14 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
           <div className="acciones-superiores">
             <CampoBusqueda
               className="buscador"
-              etiqueta="Buscar en el inventario"
-              placeholder="Buscar..."
+              etiqueta="Buscar en todo el inventario"
+              placeholder="Buscar equipo, serie, colaborador, acta..."
+              value={busquedaGlobal}
+              onChange={(evento) => setBusquedaGlobal(evento.target.value)}
+              resultados={resultadosBusqueda}
+              cargando={cargandoBusqueda}
+              error={errorBusqueda}
+              onSeleccionar={abrirResultadoBusqueda}
             />
 
             <div className="notificaciones-contenedor" ref={notificacionesRef}>
@@ -782,7 +855,10 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
         )}
 
         {seccionActiva === 'Equipos' && (
-          <EquiposPage soloLectura={esConsulta} />
+          <EquiposPage
+            soloLectura={esConsulta}
+            registroInicialId={['EQUIPO', 'PERIFERICO'].includes(destinoBusqueda?.categoria) ? destinoBusqueda.id : null}
+          />
         )}
 
         {seccionActiva === 'Etiquetas QR' && (
@@ -794,15 +870,24 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
         )}
 
         {seccionActiva === 'Asignaciones' && (
-          <AsignacionesPage soloLectura={esConsulta} />
+          <AsignacionesPage
+            soloLectura={esConsulta}
+            registroInicialId={destinoBusqueda?.categoria === 'ASIGNACION' ? destinoBusqueda.id : null}
+          />
         )}
 
         {seccionActiva === 'Colaboradores' && (
-          <ColaboradoresPage soloLectura={esConsulta} />
+          <ColaboradoresPage
+            soloLectura={esConsulta}
+            registroInicialId={destinoBusqueda?.categoria === 'COLABORADOR' ? destinoBusqueda.id : null}
+          />
         )}
 
         {seccionActiva === 'Líneas móviles' && (
-          <LineasPage soloLectura={esConsulta} />
+          <LineasPage
+            soloLectura={esConsulta}
+            registroInicialId={destinoBusqueda?.categoria === 'LINEA' ? destinoBusqueda.id : null}
+          />
         )}
 
         {seccionActiva === 'Movimientos' && (
@@ -810,7 +895,10 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
         )}
 
         {seccionActiva === 'Actas' && (
-          <ActasPage filtroInicial={filtroActasDashboard} />
+          <ActasPage
+            filtroInicial={filtroActasDashboard}
+            registroInicialId={destinoBusqueda?.categoria === 'ACTA' ? destinoBusqueda.id : null}
+          />
         )}
 
         {seccionActiva === 'Reportes' && (
