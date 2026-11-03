@@ -269,6 +269,26 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
   const alertasDashboard = dashboard?.alertas || { actas_pendientes: 0, devoluciones_pendientes: 0, devoluciones_por_revisar: 0, contratos_por_vencer: 0 };
   const notificaciones = [
     {
+      id: 'equipos-robados',
+      titulo: 'Equipos reportados como robados',
+      descripcion: 'Hay equipos en estado robado que requieren seguimiento.',
+      cantidad: Number(resumen.robados || 0),
+      clase: 'critica',
+      icono: AlertTriangle,
+      accion: 'Ver equipos',
+      alAbrir: () => setSeccionActiva('Equipos')
+    },
+    {
+      id: 'equipos-perdidos',
+      titulo: 'Equipos reportados como perdidos',
+      descripcion: 'Hay equipos en estado perdido que requieren seguimiento.',
+      cantidad: Number(resumen.perdidos || 0),
+      clase: 'critica',
+      icono: AlertTriangle,
+      accion: 'Ver equipos',
+      alAbrir: () => setSeccionActiva('Equipos')
+    },
+    {
       id: 'actas-pendientes',
       titulo: 'Actas pendientes',
       descripcion: 'Hay actas que todavía necesitan ser atendidas.',
