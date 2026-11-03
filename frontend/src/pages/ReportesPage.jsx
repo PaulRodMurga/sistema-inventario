@@ -31,8 +31,7 @@ export default function ReportesPage() {
       const seguro = /^[=+\-@\t\r]/.test(texto) ? "'" + texto : texto;
       return `"${seguro}"`;
     };
-    const csv=[columnas.map(protegerCelda).join(';'),...filas.map(f=>columnas.map(k=>protegerCelda(f[k])).join(';'))].join('\\r\
-');
+    const csv=[columnas.map(protegerCelda).join(';'),...filas.map(f=>columnas.map(k=>protegerCelda(f[k])).join(';'))].join('\r\n');
     const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
     const url=URL.createObjectURL(blob); const a=document.createElement('a');a.href=url;a.download=nombre;a.click();URL.revokeObjectURL(url);
   };
