@@ -683,7 +683,7 @@ function AplicacionInventario({ usuario, onCerrarSesion, onActualizarUsuario }) 
               title="Editar perfil"
               aria-label="Abrir edición de perfil"
             >
-              <div className="avatar">
+              <span className="avatar">
                 {usuario.foto_perfil ? (
                   <img
                     src={obtenerUrlFotoPerfil(usuario.foto_perfil)}
@@ -693,12 +693,12 @@ function AplicacionInventario({ usuario, onCerrarSesion, onActualizarUsuario }) 
                 ) : (
                   obtenerIniciales(usuario.nombre)
                 )}
-              </div>
+              </span>
 
-              <div>
+              <span className="usuario-informacion">
                 <strong>{usuario.nombre}</strong>
                 <span>{formatearRol(usuario.rol)}</span>
-              </div>
+              </span>
             </button>
 
             <button
