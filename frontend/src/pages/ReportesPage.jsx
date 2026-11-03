@@ -35,7 +35,7 @@ export default function ReportesPage() {
     <header className="reportes-cabecera"><div><h2>Reportes gerenciales</h2><p>Resumen del inventario TI, distribución y asignaciones.</p></div><button type="button" onClick={cargar} disabled={cargando}><RefreshCw size={16}/> Actualizar</button></header>
     {error && <div className="mensaje-error">{error}</div>}
     <div className="reportes-filtros">
-      <label>Unidad empresarial<select value={filtros.unidad_empresarial_id} onChange={e=>setFiltros({...filtros,unidad_empresarial_id:e.target.value})}><option value="">Todas</option>{datos?.filtros?.unidades?.map(x=><option key={x.id} value={x.id}>{x.nombre}</option>)}</select></label>
+      <label>Unidad empresarial<select value={filtros.unidad_empresarial_id} onChange={e=>setFiltros({...filtros,unidad_empresarial_id:e.target.value,area_id:''})}><option value="">Todas</option>{datos?.filtros?.unidades?.map(x=><option key={x.id} value={x.id}>{x.nombre}</option>)}</select></label>
       <label>Área<select value={filtros.area_id} onChange={e=>setFiltros({...filtros,area_id:e.target.value})}><option value="">Todas</option>{datos?.filtros?.areas?.map(x=><option key={x.id} value={x.id}>{x.nombre}</option>)}</select></label>
       <label>Estado<select value={filtros.estado} onChange={e=>setFiltros({...filtros,estado:e.target.value})}><option value="">Todos</option>{ESTADOS.map(x=><option key={x} value={x}>{etiqueta(x)}</option>)}</select></label>
       <label>Colaborador<select value={filtros.colaborador_id} onChange={e=>setFiltros({...filtros,colaborador_id:e.target.value})}><option value="">Todos</option>{datos?.filtros?.colaboradores?.map(x=><option key={x.id} value={x.id}>{x.nombre}</option>)}</select></label>
