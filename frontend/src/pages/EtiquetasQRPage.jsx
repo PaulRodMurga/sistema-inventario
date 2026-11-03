@@ -91,12 +91,17 @@ export default function EtiquetasQRPage() {
                         <div className="etiquetas-qr-grid">
                             {filtrados.map((a) => (
                                 <article className="etiqueta-qr" key={a.codigo_qr}>
-                                    <div className="etiqueta-qr-codigo">{a.codigo_qr}</div>
+                                    <div className="etiqueta-qr-encabezado">
+                                        <span className="etiqueta-qr-marca">INVENTARIO TI</span>
+                                        <span className="etiqueta-qr-codigo">{a.codigo_qr}</span>
+                                    </div>
                                     <img src={a.qr} alt={`Código QR de ${a.tipo} ${a.id}`} />
-                                    <strong>{a.tipo} · {a.marca} {a.modelo}</strong>
-                                    <span>Serie: {a.serie || 'No registrada'}</span>
-                                    <span>Código patrimonial: {a.codigo_patrimonial || 'No registrado'}</span>
-                                    <span className="etiqueta-qr-estado">{a.estado_actual || 'SIN ESTADO'}</span>
+                                    <div className="etiqueta-qr-datos">
+                                        <strong>{a.tipo} · {a.marca} {a.modelo}</strong>
+                                        <span>Serie: {a.serie || 'No registrada'}</span>
+                                        <span>Cód. patrimonial: {a.codigo_patrimonial || 'No registrado'}</span>
+                                        <span className="etiqueta-qr-estado">{a.estado_actual || 'SIN ESTADO'}</span>
+                                    </div>
                                 </article>
                             ))}
                         </div>
