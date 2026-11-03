@@ -1164,3 +1164,41 @@
     animation: none;
   }
 }
+
+
+/* Acceso al perfil desde la barra superior */
+.usuario-boton {
+  min-width: 0;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color .16s ease, border-color .16s ease;
+}
+
+.usuario-boton:hover {
+  border-color: #e6eaf2;
+  background: #f8fafc;
+}
+
+.usuario-boton:focus-visible {
+  outline: 3px solid rgb(82 104 206 / 22%);
+  outline-offset: 2px;
+}
+
+.usuario-boton .avatar {
+  flex: 0 0 40px;
+  overflow: hidden;
+}
+
+.usuario-boton .avatar img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 50%;
+  object-fit: cover;
+}
