@@ -51,7 +51,19 @@ const crearControladorUsuario = ({
                     bloqueado_hasta,
                     ultimo_acceso,
                     creado_en,
-                    actualizado_en
+                    actualizado_en,
+                    EXISTS (
+                        SELECT 1
+                        FROM sesion_usuario s
+                        WHERE s.usuario_id = usuario.id
+                          AND s.expira_en > CURRENT_TIMESTAMP
+                    ) AS sesion_activa,
+                    (
+                        SELECT MAX(s.expira_en)
+                        FROM sesion_usuario s
+                        WHERE s.usuario_id = usuario.id
+                          AND s.expira_en > CURRENT_TIMESTAMP
+                    ) AS sesion_expira_en
                 FROM usuario
                 ORDER BY
                     estado = 'ACTIVO' DESC,
@@ -415,11 +427,77 @@ const crearControladorUsuario = ({
         }
     };
 
+
+    const desbloquearUsuario = async (req, res) => {
+        const id = validarIdUsuario(req.params?.id);
+        if (!id.valido) {
+            return res.status(400).json({ success: false, mensaje: id.mensaje });
+        }
+
+        try {
+            const [usuarios] = await baseDatos.query(
+                'SELECT id FROM usuario WHERE id = ? LIMIT 1',
+                [id.valor]
+            );
+            if (!usuarios.length) {
+                return res.status(404).json({ success: false, mensaje: 'Usuario no encontrado' });
+            }
+
+            await baseDatos.query(
+                `
+                UPDATE usuario
+                SET intentos_fallidos = 0, bloqueado_hasta = NULL
+                WHERE id = ?
+                `,
+                [id.valor]
+            );
+
+            return res.json({ success: true, mensaje: 'Cuenta desbloqueada correctamente' });
+        } catch (error) {
+            return responderErrorSql(res, error, 'No se pudo desbloquear la cuenta');
+        }
+    };
+
+    const revocarSesionUsuario = async (req, res) => {
+        const id = validarIdUsuario(req.params?.id);
+        if (!id.valido) {
+            return res.status(400).json({ success: false, mensaje: id.mensaje });
+        }
+
+        try {
+            const [usuarios] = await baseDatos.query(
+                'SELECT id FROM usuario WHERE id = ? LIMIT 1',
+                [id.valor]
+            );
+            if (!usuarios.length) {
+                return res.status(404).json({ success: false, mensaje: 'Usuario no encontrado' });
+            }
+
+            const [resultado] = await baseDatos.query(
+                'DELETE FROM sesion_usuario WHERE usuario_id = ?',
+                [id.valor]
+            );
+
+            return res.json({
+                success: true,
+                mensaje: 'Sesión revocada correctamente',
+                data: {
+                    sesiones_cerradas: Number(resultado.affectedRows || 0),
+                    sesion_actual_revocada: Number(req.usuario?.id) === id.valor
+                }
+            });
+        } catch (error) {
+            return responderErrorSql(res, error, 'No se pudo revocar la sesión del usuario');
+        }
+    };
+
     return {
         actualizarUsuario,
+        desbloquearUsuario,
         listarUsuarios,
         registrarUsuario,
-        restablecerClave
+        restablecerClave,
+        revocarSesionUsuario
     };
 };
 

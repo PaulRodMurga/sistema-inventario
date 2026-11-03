@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
     Camera,
     ImagePlus,
+    KeyRound,
     LoaderCircle,
     Save,
     Trash2,
@@ -9,6 +10,7 @@ import {
 } from 'lucide-react';
 
 import {
+    actualizarClavePerfil,
     actualizarFotoPerfil,
     actualizarNombrePerfil,
     eliminarFotoPerfil,
@@ -55,6 +57,13 @@ export default function ModalPerfil({ usuario, onCerrar, onActualizado }) {
     const [guardando, setGuardando] = useState(false);
     const [error, setError] = useState('');
     const [mensaje, setMensaje] = useState('');
+    const [claveActual, setClaveActual] = useState('');
+    const [claveNueva, setClaveNueva] = useState('');
+    const [confirmarClave, setConfirmarClave] = useState('');
+    const [guardandoClave, setGuardandoClave] = useState(false);
+    const [errorClave, setErrorClave] = useState('');
+    const [mensajeClave, setMensajeClave] = useState('');
+    const ocupado = guardando || guardandoClave;
     const archivoRef = useRef(null);
     const nombreRef = useRef(null);
 
@@ -64,12 +73,12 @@ export default function ModalPerfil({ usuario, onCerrar, onActualizado }) {
 
     useEffect(() => {
         const cerrarConEscape = (evento) => {
-            if (evento.key === 'Escape' && !guardando) onCerrar();
+            if (evento.key === 'Escape' && !ocupado) onCerrar();
         };
 
         document.addEventListener('keydown', cerrarConEscape);
         return () => document.removeEventListener('keydown', cerrarConEscape);
-    }, [guardando, onCerrar]);
+    }, [ocupado, onCerrar]);
 
     const seleccionarFoto = (evento) => {
         const archivo = evento.target.files?.[0];
@@ -115,9 +124,49 @@ export default function ModalPerfil({ usuario, onCerrar, onActualizado }) {
         setMensaje('');
     };
 
+    const cambiarClave = async () => {
+        if (ocupado) return;
+        setErrorClave('');
+        setMensajeClave('');
+
+        if (!claveActual) {
+            setErrorClave('Ingresa tu contraseña actual.');
+            return;
+        }
+
+        if (claveNueva !== confirmarClave) {
+            setErrorClave('Las contraseñas nuevas no coinciden.');
+            return;
+        }
+
+        if (
+            claveNueva.length < 10 ||
+            claveNueva.length > 128 ||
+            !/[a-z]/.test(claveNueva) ||
+            !/[A-Z]/.test(claveNueva) ||
+            !/\d/.test(claveNueva)
+        ) {
+            setErrorClave('La contraseña debe tener entre 10 y 128 caracteres e incluir mayúscula, minúscula y número.');
+            return;
+        }
+
+        setGuardandoClave(true);
+        try {
+            await actualizarClavePerfil(claveActual, claveNueva);
+            setClaveActual('');
+            setClaveNueva('');
+            setConfirmarClave('');
+            setMensajeClave('Contraseña actualizada. Se cerraron las demás sesiones activas.');
+        } catch (errorSolicitud) {
+            setErrorClave(errorSolicitud.message || 'No se pudo actualizar la contraseña.');
+        } finally {
+            setGuardandoClave(false);
+        }
+    };
+
     const guardarCambios = async (evento) => {
         evento.preventDefault();
-        if (guardando) return;
+        if (ocupado) return;
 
         const nombreLimpio = nombre.trim().replace(/\s+/g, ' ');
         if (!nombreLimpio) {
@@ -178,7 +227,7 @@ export default function ModalPerfil({ usuario, onCerrar, onActualizado }) {
         <div
             className="perfil-modal-fondo"
             onMouseDown={(evento) => {
-                if (evento.target === evento.currentTarget && !guardando) onCerrar();
+                if (evento.target === evento.currentTarget && !ocupado) onCerrar();
             }}
         >
             <section
@@ -197,7 +246,7 @@ export default function ModalPerfil({ usuario, onCerrar, onActualizado }) {
                         type="button"
                         className="perfil-modal-cerrar"
                         onClick={onCerrar}
-                        disabled={guardando}
+                        disabled={ocupado}
                         aria-label="Cerrar edición de perfil"
                     >
                         <X size={19} />
@@ -217,7 +266,7 @@ export default function ModalPerfil({ usuario, onCerrar, onActualizado }) {
                                     type="button"
                                     className="perfil-foto-camara"
                                     onClick={() => archivoRef.current?.click()}
-                                    disabled={guardando}
+                                    disabled={ocupado}
                                     aria-label="Seleccionar foto de perfil"
                                     title="Cambiar foto"
                                 >
@@ -233,7 +282,7 @@ export default function ModalPerfil({ usuario, onCerrar, onActualizado }) {
                                         type="button"
                                         className="perfil-boton-foto"
                                         onClick={() => archivoRef.current?.click()}
-                                        disabled={guardando}
+                                        disabled={ocupado}
                                     >
                                         <ImagePlus size={15} />
                                         Cambiar foto
@@ -243,7 +292,7 @@ export default function ModalPerfil({ usuario, onCerrar, onActualizado }) {
                                             type="button"
                                             className="perfil-boton-quitar"
                                             onClick={marcarFotoParaEliminar}
-                                            disabled={guardando}
+                                            disabled={ocupado}
                                         >
                                             <Trash2 size={14} />
                                             Quitar
@@ -254,7 +303,7 @@ export default function ModalPerfil({ usuario, onCerrar, onActualizado }) {
                                             type="button"
                                             className="perfil-boton-restablecer"
                                             onClick={restablecerFoto}
-                                            disabled={guardando}
+                                            disabled={ocupado}
                                         >
                                             Deshacer
                                         </button>
@@ -288,7 +337,7 @@ export default function ModalPerfil({ usuario, onCerrar, onActualizado }) {
                                     maxLength={120}
                                     autoComplete="name"
                                     placeholder="Escribe tu nombre"
-                                    disabled={guardando}
+                                    disabled={ocupado}
                                     required
                                 />
                                 <small>Este nombre aparecerá en la barra superior.</small>
@@ -306,6 +355,88 @@ export default function ModalPerfil({ usuario, onCerrar, onActualizado }) {
                             </div>
                         </section>
 
+                        <div className="perfil-separador" />
+
+                        <section className="perfil-seguridad-seccion" aria-labelledby="perfil-seguridad-titulo">
+                            <div>
+                                <h3 id="perfil-seguridad-titulo">Seguridad de la cuenta</h3>
+                                <p>Cambia tu contraseña periódicamente. Se mantendrá abierta esta sesión y se cerrarán las demás.</p>
+                            </div>
+
+                            <div className="perfil-seguridad-campos">
+                                <label className="perfil-campo">
+                                    <span>Contraseña actual</span>
+                                    <input
+                                        type="password"
+                                        value={claveActual}
+                                        onChange={(evento) => {
+                                            setClaveActual(evento.target.value);
+                                            setErrorClave('');
+                                            setMensajeClave('');
+                                        }}
+                                        autoComplete="current-password"
+                                        maxLength={128}
+                                        disabled={ocupado}
+                                        onKeyDown={(evento) => evento.key === 'Enter' && evento.preventDefault()}
+                                    />
+                                </label>
+
+                                <label className="perfil-campo">
+                                    <span>Nueva contraseña</span>
+                                    <input
+                                        type="password"
+                                        value={claveNueva}
+                                        onChange={(evento) => {
+                                            setClaveNueva(evento.target.value);
+                                            setErrorClave('');
+                                            setMensajeClave('');
+                                        }}
+                                        autoComplete="new-password"
+                                        minLength={10}
+                                        maxLength={128}
+                                        disabled={ocupado}
+                                        onKeyDown={(evento) => evento.key === 'Enter' && evento.preventDefault()}
+                                    />
+                                </label>
+
+                                <label className="perfil-campo">
+                                    <span>Repetir nueva contraseña</span>
+                                    <input
+                                        type="password"
+                                        value={confirmarClave}
+                                        onChange={(evento) => {
+                                            setConfirmarClave(evento.target.value);
+                                            setErrorClave('');
+                                            setMensajeClave('');
+                                        }}
+                                        autoComplete="new-password"
+                                        minLength={10}
+                                        maxLength={128}
+                                        disabled={ocupado}
+                                        onKeyDown={(evento) => evento.key === 'Enter' && evento.preventDefault()}
+                                    />
+                                </label>
+                            </div>
+
+                            <small className="perfil-seguridad-ayuda">Mínimo 10 caracteres, con mayúscula, minúscula y número.</small>
+
+                            {errorClave && <p className="perfil-mensaje perfil-mensaje-error" role="alert">{errorClave}</p>}
+                            {mensajeClave && <p className="perfil-mensaje perfil-mensaje-exito" role="status">{mensajeClave}</p>}
+
+                            <div className="perfil-seguridad-acciones">
+                                <button
+                                    type="button"
+                                    className="perfil-boton-guardar"
+                                    onClick={cambiarClave}
+                                    disabled={ocupado || !claveActual || !claveNueva || !confirmarClave}
+                                >
+                                    {guardandoClave
+                                        ? <><LoaderCircle size={16} className="perfil-guardando-icono" /> Actualizando...</>
+                                        : <><KeyRound size={16} /> Actualizar contraseña</>}
+                                </button>
+                            </div>
+                        </section>
+
                         {error && <p className="perfil-mensaje perfil-mensaje-error" role="alert">{error}</p>}
                         {mensaje && <p className="perfil-mensaje perfil-mensaje-exito" role="status">{mensaje}</p>}
                     </div>
@@ -315,14 +446,14 @@ export default function ModalPerfil({ usuario, onCerrar, onActualizado }) {
                             type="button"
                             className="perfil-boton-cancelar"
                             onClick={onCerrar}
-                            disabled={guardando}
+                            disabled={ocupado}
                         >
                             Cancelar
                         </button>
                         <button
                             type="submit"
                             className="perfil-boton-guardar"
-                            disabled={guardando}
+                            disabled={ocupado}
                         >
                             {guardando
                                 ? <><LoaderCircle size={16} className="perfil-guardando-icono" /> Guardando...</>

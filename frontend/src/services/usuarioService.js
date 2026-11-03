@@ -31,6 +31,21 @@ export const actualizarUsuario = async (id, cambios) => {
     });
 };
 
+export const desbloquearUsuario = async (id) => {
+    return solicitarApi(`${RUTA_API}/${id}/desbloquear`, {
+        method: 'POST',
+        mensajeError: 'No se pudo desbloquear la cuenta'
+    });
+};
+
+export const revocarSesionUsuario = async (id) => {
+    const resultado = await solicitarApi(`${RUTA_API}/${id}/sesion`, {
+        method: 'DELETE',
+        mensajeError: 'No se pudo cerrar la sesión del usuario'
+    });
+    return resultado.data || {};
+};
+
 export const restablecerClaveUsuario = async (id, clave) => {
     const resultado = await solicitarApi(`${RUTA_API}/${id}/clave`, {
         method: 'PUT',

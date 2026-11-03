@@ -3,7 +3,16 @@ const path = require('node:path');
 const { randomUUID } = require('node:crypto');
 
 const pool = require('../config/database');
-const { validarNombrePersona } = require('../utils/validacionUsuario');
+const {
+    generarHashClave,
+    hashearToken,
+    verificarClave
+} = require('../utils/criptografia');
+const { extraerToken } = require('../middleware/autenticacion');
+const {
+    validarClaveSegura,
+    validarNombrePersona
+} = require('../utils/validacionUsuario');
 
 const DIRECTORIO_FOTOS = path.resolve(__dirname, '../../uploads/perfiles');
 const RUTA_PUBLICA_FOTOS = '/uploads/perfiles';
@@ -251,7 +260,146 @@ const eliminarFotoPerfil = async (req, res) => {
     }
 };
 
+
+const actualizarClavePerfil = async (req, res) => {
+    const cuerpo = req.body;
+
+    if (
+        !cuerpo ||
+        typeof cuerpo !== 'object' ||
+        Array.isArray(cuerpo) ||
+        Object.keys(cuerpo).length !== 2 ||
+        !Object.hasOwn(cuerpo, 'claveActual') ||
+        !Object.hasOwn(cuerpo, 'claveNueva') ||
+        typeof cuerpo.claveActual !== 'string' ||
+        !cuerpo.claveActual ||
+        cuerpo.claveActual.length > 128
+    ) {
+        return res.status(400).json({
+            success: false,
+            mensaje: 'Indica tu contraseña actual y una nueva contraseña válida'
+        });
+    }
+
+    const claveNueva = validarClaveSegura(cuerpo.claveNueva);
+    if (!claveNueva.valido) {
+        return res.status(400).json({
+            success: false,
+            mensaje: claveNueva.mensaje
+        });
+    }
+
+    const token = extraerToken(req.get?.('authorization'));
+    if (!token) {
+        return res.status(401).json({
+            success: false,
+            mensaje: 'La sesión actual no es válida'
+        });
+    }
+
+    let conexion;
+    let conexionDescartada = false;
+
+    try {
+        conexion = await pool.getConnection();
+        await conexion.beginTransaction();
+
+        const [filas] = await conexion.query(
+            `
+            SELECT clave_hash, estado
+            FROM usuario
+            WHERE id = ?
+            FOR UPDATE
+            `,
+            [req.usuario.id]
+        );
+
+        if (!filas.length || filas[0].estado !== 'ACTIVO') {
+            await conexion.rollback();
+            return res.status(404).json({
+                success: false,
+                mensaje: 'No se encontró una cuenta activa para este usuario'
+            });
+        }
+
+        const hashActual = filas[0].clave_hash;
+        const coincide = await verificarClave(cuerpo.claveActual, hashActual);
+
+        if (!coincide) {
+            await conexion.rollback();
+            return res.status(400).json({
+                success: false,
+                mensaje: 'La contraseña actual es incorrecta'
+            });
+        }
+
+        const reutilizaClave = await verificarClave(claveNueva.valor, hashActual);
+        if (reutilizaClave) {
+            await conexion.rollback();
+            return res.status(400).json({
+                success: false,
+                mensaje: 'La nueva contraseña debe ser diferente a la actual'
+            });
+        }
+
+        const nuevoHash = await generarHashClave(claveNueva.valor);
+        const tokenHash = hashearToken(token);
+
+        await conexion.query(
+            `
+            UPDATE usuario
+            SET
+                clave_hash = ?,
+                intentos_fallidos = 0,
+                bloqueado_hasta = NULL
+            WHERE id = ?
+            `,
+            [nuevoHash, req.usuario.id]
+        );
+
+        // Conserva la sesión desde la que se realizó el cambio y revoca cualquier otra.
+        await conexion.query(
+            `
+            DELETE FROM sesion_usuario
+            WHERE usuario_id = ?
+              AND token_hash <> ?
+            `,
+            [req.usuario.id, tokenHash]
+        );
+
+        await conexion.commit();
+
+        return res.json({
+            success: true,
+            mensaje: 'Contraseña actualizada correctamente',
+            data: {
+                sesion_actual_conservada: true,
+                otras_sesiones_revocadas: true
+            }
+        });
+    } catch (error) {
+        if (conexion) {
+            try {
+                await conexion.rollback();
+            } catch (errorRollback) {
+                console.error('No se pudo revertir el cambio de contraseña:', errorRollback);
+                conexion.destroy?.();
+                conexionDescartada = true;
+            }
+        }
+
+        return responderError(
+            res,
+            error,
+            'No se pudo actualizar la contraseña'
+        );
+    } finally {
+        if (conexion && !conexionDescartada) conexion.release();
+    }
+};
+
 module.exports = {
+    actualizarClavePerfil,
     actualizarFotoPerfil,
     actualizarNombrePerfil,
     eliminarFotoPerfil,

@@ -1204,13 +1204,13 @@
 }
 
 .usuarios-tabla {
-    min-width: 920px;
+    min-width: 1120px;
 }
 
 .usuarios-tabla th:last-child,
 .usuarios-tabla td:last-child {
-    width: 120px;
-    min-width: 120px;
+    width: 180px;
+    min-width: 180px;
 }
 
 .usuario-actual {
@@ -1562,4 +1562,62 @@
 .config-modal-gama .modal-cerrar:disabled {
     cursor: not-allowed;
     opacity: 0.6;
+}
+/* Controles de sesión y desbloqueo del panel de usuarios */
+.usuario-sesion {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #64748b;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.usuario-sesion>span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #94a3b8;
+}
+.usuario-sesion-activa {
+    color: #166534;
+}
+.usuario-sesion-activa>span {
+    background: #16a34a;
+    box-shadow: 0 0 0 3px rgb(22 163 74 / 12%);
+}
+.usuario-accion-desbloquear,
+.usuario-accion-sesion {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 9px;
+    cursor: pointer;
+}
+.usuario-accion-desbloquear {
+    border: 1px solid #a7f3d0;
+    background: #ecfdf5;
+    color: #047857;
+}
+.usuario-accion-desbloquear:hover {
+    border-color: #047857;
+    background: #047857;
+    color: #ffffff;
+}
+.usuario-accion-sesion {
+    border: 1px solid #fecaca;
+    background: #fef2f2;
+    color: #b91c1c;
+}
+.usuario-accion-sesion:hover {
+    border-color: #b91c1c;
+    background: #b91c1c;
+    color: #ffffff;
+}
+.usuario-accion-desbloquear:disabled,
+.usuario-accion-sesion:disabled {
+    opacity: 0.55;
+    cursor: wait;
 }

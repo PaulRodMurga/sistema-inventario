@@ -405,3 +405,52 @@
         animation: none;
     }
 }
+
+/* Seguridad de la cuenta dentro del modal de perfil */
+.perfil-seguridad-seccion {
+    display: grid;
+    gap: 12px;
+    padding: 2px 0;
+}
+.perfil-seguridad-seccion h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+.perfil-seguridad-seccion>div:first-child p {
+    margin: 5px 0 0;
+    color: #64748b;
+    font-size: 0.8rem;
+    line-height: 1.45;
+}
+.perfil-seguridad-campos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+.perfil-seguridad-campos .perfil-campo:last-child {
+    grid-column: 1 / -1;
+}
+.perfil-seguridad-ayuda {
+    color: #64748b;
+    font-size: 0.75rem;
+}
+.perfil-seguridad-acciones {
+    display: flex;
+    justify-content: flex-end;
+}
+.perfil-seguridad-acciones .perfil-boton-guardar {
+    min-height: 38px;
+}
+@media (max-width: 560px) {
+    .perfil-seguridad-campos {
+        grid-template-columns: 1fr;
+    }
+    .perfil-seguridad-campos .perfil-campo:last-child {
+        grid-column: auto;
+    }
+    .perfil-seguridad-acciones .perfil-boton-guardar {
+        width: 100%;
+    }
+}

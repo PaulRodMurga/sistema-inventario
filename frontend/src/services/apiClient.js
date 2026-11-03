@@ -198,6 +198,7 @@ export const guardarTokenSesion = (token) => {
 };
 
 export const eliminarTokenSesion = () => {
+    localStorage.removeItem(CLAVE_TOKEN);
     sessionStorage.removeItem(CLAVE_TOKEN);
 };
 

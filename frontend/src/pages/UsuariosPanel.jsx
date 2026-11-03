@@ -6,12 +6,14 @@ import {
 } from 'react';
 import {
     KeyRound,
+    LogOut,
     Pencil,
     Plus,
     RefreshCw,
     Save,
     Search,
     ShieldCheck,
+    Unlock,
     UserCheck,
     UsersRound,
     UserX,
@@ -20,9 +22,11 @@ import {
 
 import {
     actualizarUsuario,
+    desbloquearUsuario,
     listarUsuarios,
     registrarUsuario,
-    restablecerClaveUsuario
+    restablecerClaveUsuario,
+    revocarSesionUsuario
 } from '../services/usuarioService';
 
 const ROLES = [
@@ -41,6 +45,7 @@ function UsuariosPanel({ usuarioActual, onSesionRevocada }) {
     const [usuarioEditando, setUsuarioEditando] = useState(null);
     const [formularioAbierto, setFormularioAbierto] = useState(false);
     const [usuarioClave, setUsuarioClave] = useState(null);
+    const [accionUsuarioId, setAccionUsuarioId] = useState(null);
 
     useEffect(() => {
         let activo = true;
@@ -103,6 +108,44 @@ function UsuariosPanel({ usuarioActual, onSesionRevocada }) {
         setMensaje('');
         setUsuarioEditando({ ...usuario });
         setFormularioAbierto(true);
+    };
+
+    const desbloquearCuenta = async (usuario) => {
+        if (!window.confirm(`¿Desbloquear la cuenta "${usuario.usuario}"?`)) return;
+
+        setAccionUsuarioId(usuario.id);
+        setMensaje('');
+        setError('');
+        try {
+            await desbloquearUsuario(usuario.id);
+            setMensaje(`La cuenta "${usuario.usuario}" fue desbloqueada.`);
+            actualizarListado();
+        } catch (errorSolicitud) {
+            setError(errorSolicitud.message || 'No se pudo desbloquear la cuenta.');
+        } finally {
+            setAccionUsuarioId(null);
+        }
+    };
+
+    const cerrarSesionUsuario = async (usuario) => {
+        if (!window.confirm(`¿Cerrar la sesión activa de "${usuario.usuario}"? Tendrá que iniciar sesión nuevamente.`)) return;
+
+        setAccionUsuarioId(usuario.id);
+        setMensaje('');
+        setError('');
+        try {
+            const resultado = await revocarSesionUsuario(usuario.id);
+            if (resultado.sesion_actual_revocada) {
+                onSesionRevocada?.();
+                return;
+            }
+            setMensaje(`La sesión de "${usuario.usuario}" fue cerrada.`);
+            actualizarListado();
+        } catch (errorSolicitud) {
+            setError(errorSolicitud.message || 'No se pudo cerrar la sesión.');
+        } finally {
+            setAccionUsuarioId(null);
+        }
     };
 
     return (
@@ -186,6 +229,7 @@ function UsuariosPanel({ usuarioActual, onSesionRevocada }) {
                                     <th scope="col">Usuario</th>
                                     <th scope="col">Rol</th>
                                     <th scope="col">Estado</th>
+                                    <th scope="col">Sesión</th>
                                     <th scope="col">Último acceso</th>
                                     <th scope="col">Acciones</th>
                                 </tr>
@@ -203,6 +247,9 @@ function UsuariosPanel({ usuarioActual, onSesionRevocada }) {
                                         <td><RolUsuario rol={usuario.rol} /></td>
                                         <td>
                                             <EstadoUsuario usuario={usuario} />
+                                        </td>
+                                        <td>
+                                            <EstadoSesion usuario={usuario} />
                                         </td>
                                         <td>{formatearFechaHora(usuario.ultimo_acceso)}</td>
                                         <td>
@@ -222,9 +269,35 @@ function UsuariosPanel({ usuarioActual, onSesionRevocada }) {
                                                     title="Restablecer contraseña"
                                                     aria-label={`Restablecer contraseña de ${usuario.usuario}`}
                                                     onClick={() => setUsuarioClave(usuario)}
+                                                    disabled={accionUsuarioId === usuario.id}
                                                 >
                                                     <KeyRound size={18} aria-hidden="true" />
                                                 </button>
+                                                {estaBloqueado(usuario) && (
+                                                    <button
+                                                        type="button"
+                                                        className="usuario-accion-desbloquear"
+                                                        title="Desbloquear cuenta"
+                                                        aria-label={`Desbloquear cuenta de ${usuario.usuario}`}
+                                                        onClick={() => desbloquearCuenta(usuario)}
+                                                        disabled={accionUsuarioId === usuario.id}
+                                                    >
+                                                        <Unlock size={18} aria-hidden="true" />
+                                                    </button>
+                                                )}
+                                                {Boolean(Number(usuario.sesion_activa)) &&
+                                                    Number(usuario.id) !== Number(usuarioActual?.id) && (
+                                                        <button
+                                                            type="button"
+                                                            className="usuario-accion-sesion"
+                                                            title="Cerrar sesión activa"
+                                                            aria-label={`Cerrar sesión de ${usuario.usuario}`}
+                                                            onClick={() => cerrarSesionUsuario(usuario)}
+                                                            disabled={accionUsuarioId === usuario.id}
+                                                        >
+                                                            <LogOut size={18} aria-hidden="true" />
+                                                        </button>
+                                                    )}
                                             </div>
                                         </td>
                                     </tr>
@@ -303,9 +376,25 @@ function RolUsuario({ rol }) {
     );
 }
 
+function estaBloqueado(usuario) {
+    return Boolean(
+        usuario?.bloqueado_hasta &&
+        new Date(usuario.bloqueado_hasta) > new Date()
+    );
+}
+
+function EstadoSesion({ usuario }) {
+    const activa = Boolean(Number(usuario.sesion_activa));
+    return (
+        <span className={`usuario-sesion ${activa ? 'usuario-sesion-activa' : 'usuario-sesion-inactiva'}`}>
+            <span aria-hidden="true" />
+            {activa ? 'Activa' : 'Sin sesión'}
+        </span>
+    );
+}
+
 function EstadoUsuario({ usuario }) {
-    const bloqueado = usuario.bloqueado_hasta &&
-        new Date(usuario.bloqueado_hasta) > new Date();
+    const bloqueado = estaBloqueado(usuario);
 
     if (bloqueado) {
         return (

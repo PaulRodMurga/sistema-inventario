@@ -59,6 +59,15 @@ export const eliminarFotoPerfil = async () => {
     );
 };
 
+export const actualizarClavePerfil = async (claveActual, claveNueva) => {
+    return solicitarApi('/perfil/clave', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ claveActual, claveNueva }),
+        mensajeError: 'No se pudo actualizar la contraseña'
+    });
+};
+
 export const obtenerUrlFotoPerfil = (ruta) => {
     if (typeof ruta !== 'string' || !ruta.trim()) return '';
 
