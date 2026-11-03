@@ -89,7 +89,7 @@ const buscarGlobalmente = async (req, res) => {
                     c.apellidos,
                     c.nombres,
                     c.dni,
-                    c.email,
+                    c.correo,
                     c.estado
                 FROM colaborador c
                 WHERE CAST(c.id AS CHAR) LIKE ?
@@ -98,7 +98,7 @@ const buscarGlobalmente = async (req, res) => {
                    OR c.nombres LIKE ?
                    OR CONCAT(c.apellidos, ' ', c.nombres) LIKE ?
                    OR c.dni LIKE ?
-                   OR c.email LIKE ?
+                   OR c.correo LIKE ?
                 ORDER BY c.apellidos, c.nombres
                 LIMIT 5
             `, [patron, patron, patron, patron, patron, patron, patron]),
@@ -245,7 +245,7 @@ const buscarGlobalmente = async (req, res) => {
             [
                 fila.codigo && `Código: ${fila.codigo}`,
                 fila.dni && `DNI: ${fila.dni}`,
-                fila.email
+                fila.correo
             ].filter(Boolean).join(' · '),
             fila.estado
         ));
