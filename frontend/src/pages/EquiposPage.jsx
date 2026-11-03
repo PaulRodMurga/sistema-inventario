@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
     Camera,
     FileSpreadsheet,
@@ -304,6 +304,7 @@ function formatearFechaHistorial(valor) {
 }
 
 function EquiposPage({ soloLectura = false, registroInicialId = null, onRegistroInicialAtendido } = {}) {
+    const registroInicialProcesadoRef = useRef(null);
     const [equipos, setEquipos] = useState([]);
     const [tiposEquipo, setTiposEquipo] = useState([]);
     const [tipoEquipoActivo, setTipoEquipoActivo] = useState('');
@@ -586,7 +587,14 @@ function EquiposPage({ soloLectura = false, registroInicialId = null, onRegistro
     };
 
     useEffect(() => {
-        if (!registroInicialId) return;
+        if (!registroInicialId) {
+            registroInicialProcesadoRef.current = null;
+            return;
+        }
+
+        if (registroInicialProcesadoRef.current === registroInicialId) return;
+
+        registroInicialProcesadoRef.current = registroInicialId;
         verEquipo(registroInicialId);
         onRegistroInicialAtendido?.();
     }, [registroInicialId]);
