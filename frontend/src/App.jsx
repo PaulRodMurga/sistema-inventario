@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
   LayoutDashboard,
@@ -264,6 +264,10 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
     setNotificacionesAbiertas(false);
     setSeccionActiva(seccion);
   };
+
+  const limpiarDestinoBusqueda = useCallback(() => {
+    setDestinoBusqueda(null);
+  }, []);
 
   const abrirActasConFiltro = (filtro) => {
     setFiltroActasDashboard(filtro);
@@ -858,7 +862,7 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
           <EquiposPage
             soloLectura={esConsulta}
             registroInicialId={['EQUIPO', 'PERIFERICO'].includes(destinoBusqueda?.categoria) ? destinoBusqueda.id : null}
-            onRegistroInicialAtendido={() => setDestinoBusqueda(null)}
+            onRegistroInicialAtendido={limpiarDestinoBusqueda}
           />
         )}
 
@@ -874,7 +878,7 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
           <AsignacionesPage
             soloLectura={esConsulta}
             registroInicialId={destinoBusqueda?.categoria === 'ASIGNACION' ? destinoBusqueda.id : null}
-            onRegistroInicialAtendido={() => setDestinoBusqueda(null)}
+            onRegistroInicialAtendido={limpiarDestinoBusqueda}
           />
         )}
 
@@ -882,7 +886,7 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
           <ColaboradoresPage
             soloLectura={esConsulta}
             registroInicialId={destinoBusqueda?.categoria === 'COLABORADOR' ? destinoBusqueda.id : null}
-            onRegistroInicialAtendido={() => setDestinoBusqueda(null)}
+            onRegistroInicialAtendido={limpiarDestinoBusqueda}
           />
         )}
 
@@ -890,7 +894,7 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
           <LineasPage
             soloLectura={esConsulta}
             registroInicialId={destinoBusqueda?.categoria === 'LINEA' ? destinoBusqueda.id : null}
-            onRegistroInicialAtendido={() => setDestinoBusqueda(null)}
+            onRegistroInicialAtendido={limpiarDestinoBusqueda}
           />
         )}
 
@@ -902,7 +906,7 @@ function AplicacionInventario({ usuario, onCerrarSesion }) {
           <ActasPage
             filtroInicial={filtroActasDashboard}
             registroInicialId={destinoBusqueda?.categoria === 'ACTA' ? destinoBusqueda.id : null}
-            onRegistroInicialAtendido={() => setDestinoBusqueda(null)}
+            onRegistroInicialAtendido={limpiarDestinoBusqueda}
           />
         )}
 
