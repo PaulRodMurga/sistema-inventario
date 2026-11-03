@@ -303,7 +303,7 @@ function formatearFechaHistorial(valor) {
     });
 }
 
-function EquiposPage({ soloLectura = false } = {}) {
+function EquiposPage({ soloLectura = false, registroInicialId = null } = {}) {
     const [equipos, setEquipos] = useState([]);
     const [tiposEquipo, setTiposEquipo] = useState([]);
     const [tipoEquipoActivo, setTipoEquipoActivo] = useState('');
@@ -584,6 +584,10 @@ function EquiposPage({ soloLectura = false } = {}) {
             setCargandoDetalle(false);
         }
     };
+
+    useEffect(() => {
+        if (registroInicialId) verEquipo(registroInicialId);
+    }, [registroInicialId]);
 
     const actualizarFormulario = (evento) => {
         const { name, value } = evento.target;
