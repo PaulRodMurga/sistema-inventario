@@ -32,28 +32,50 @@
 
 /* Apertura de ventanas modales */
 @keyframes ui-backdrop-enter {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes ui-modal-enter {
     from {
         opacity: 0;
-        transform: translateY(12px) scale(0.985);
+        backdrop-filter: blur(0);
     }
     to {
         opacity: 1;
+        backdrop-filter: blur(2px);
+    }
+}
+
+@keyframes ui-modal-enter {
+    0% {
+        opacity: 0;
+        transform: translateY(18px) scale(0.97);
+        filter: blur(2px);
+    }
+    72% {
+        opacity: 1;
+        transform: translateY(-2px) scale(1.005);
+        filter: blur(0);
+    }
+    100% {
+        opacity: 1;
         transform: translateY(0) scale(1);
+        filter: blur(0);
     }
 }
 
 .modal-fondo {
-    animation: ui-backdrop-enter 180ms ease-out both;
+    animation: ui-backdrop-enter 220ms ease-out both;
+    will-change: opacity;
 }
 
 .modal-contenido {
-    animation: ui-modal-enter 240ms var(--ui-ease) both;
+    animation: ui-modal-enter 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
     transform-origin: center;
+    will-change: opacity, transform;
+}
+
+/* Evita conservar capas de composición tras terminar la entrada. */
+@media (prefers-reduced-motion: no-preference) {
+    .modal-contenido:not(:focus-visible) {
+        outline-offset: 3px;
+    }
 }
 
 /* Navegación lateral */
