@@ -80,6 +80,13 @@
 /* Botones y controles interactivos */
 .contenido button:not(:disabled),
 .modal-contenido button:not(:disabled) {
+    transition-property:
+        background-color,
+        color,
+        border-color,
+        box-shadow,
+        transform,
+        filter;
     transition-duration: var(--ui-motion-fast);
     transition-timing-function: ease-out;
 }
