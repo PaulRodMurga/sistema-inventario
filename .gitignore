@@ -29,3 +29,6 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+
+# Fotos de perfil cargadas por los usuarios (no subir archivos personales a Git)
+backend/uploads/perfiles/
