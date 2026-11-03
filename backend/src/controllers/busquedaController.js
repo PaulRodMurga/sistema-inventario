@@ -233,7 +233,8 @@ const buscarGlobalmente = async (req, res) => {
                 fila.estado_actual
             );
 
-            (esPeriferico ? perifericos : equipos).push(resultado);
+            const grupo = esPeriferico ? perifericos : equipos;
+            if (grupo.length < 5) grupo.push(resultado);
             if (equipos.length >= 5 && perifericos.length >= 5) break;
         }
 
