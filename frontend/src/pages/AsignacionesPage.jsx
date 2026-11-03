@@ -126,7 +126,7 @@ function SelectorBusqueda({
     );
 }
 
-function AsignacionesPage({ soloLectura = false } = {}) {
+function AsignacionesPage({ soloLectura = false, registroInicialId = null } = {}) {
     const [asignaciones, setAsignaciones] = useState([]);
     const [busqueda, setBusqueda] = useState('');
     const [cargando, setCargando] = useState(true);
@@ -208,6 +208,10 @@ function AsignacionesPage({ soloLectura = false } = {}) {
             setCargandoDetalle(false);
         }
     };
+
+    useEffect(() => {
+        if (registroInicialId) verAsignacion(registroInicialId);
+    }, [registroInicialId]);
 
     const cargarAsignaciones = async () => {
         try {
