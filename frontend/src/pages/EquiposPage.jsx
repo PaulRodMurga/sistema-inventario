@@ -1,11 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
     Camera,
-    Building2,
-    BriefcaseBusiness,
-    CalendarDays,
     FileText,
-    MapPin,
     UserRound,
     FileSpreadsheet,
     Download,
