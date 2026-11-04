@@ -188,7 +188,7 @@ export default function ReportesPage() {
     URL.revokeObjectURL(url);
   };
 
-  const exportarEquipos = () => exportarCSV(filasEquipos.map((fila) => ({
+  const exportarEquipos = () => exportarCSV(equiposFiltrados.map((fila) => ({
     Tipo: etiqueta(fila.tipo),
     Equipo: [fila.marca, fila.modelo].filter(Boolean).join(' ') || 'Sin descripción',
     Serie: fila.serie || '—',
@@ -299,7 +299,7 @@ export default function ReportesPage() {
       <CabeceraSeccion
         titulo="Detalle de equipos"
         descripcion="Listado de equipos principales que coinciden con los filtros aplicados."
-        accion={<BotonExportar disabled={!filasEquipos.length} onClick={exportarEquipos}>Exportar equipos</BotonExportar>}
+        accion={<BotonExportar disabled={!equiposFiltrados.length} onClick={exportarEquipos}>Exportar equipos</BotonExportar>}
       />
       <section className="reportes-panel">
         <div className="reportes-tabla-barra">
