@@ -1400,7 +1400,7 @@ function AsignacionesPage({ soloLectura = false, registroInicialId = null, onReg
                             <div className="modal-ficha-resumen">
                                 <span className="modal-ficha-resumen-icono"><ClipboardList size={21} aria-hidden="true" /></span>
                                 <div className="modal-ficha-resumen-texto">
-                                    <span>ASIGNACIÓN #${asignacionSeleccionada.id || '—'}</span>
+                                    <span>ASIGNACIÓN #{asignacionSeleccionada.id || '—'}</span>
                                     <strong>{[asignacionSeleccionada.marca, asignacionSeleccionada.modelo].filter(Boolean).join(' ') || asignacionSeleccionada.tipo_equipo || 'Equipo asignado'}</strong>
                                     <small>{asignacionSeleccionada.colaborador || 'Colaborador sin información'}</small>
                                 </div>
