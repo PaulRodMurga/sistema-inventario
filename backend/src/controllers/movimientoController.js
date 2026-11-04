@@ -385,7 +385,19 @@ const historialCompletoPorEquipo = async (req, res) => {
 
     try {
         const [equipos] = await pool.query(
-            'SELECT id, tipo, marca, modelo, serie FROM equipo WHERE id = ?',
+            `
+            SELECT
+                id,
+                tipo,
+                marca,
+                modelo,
+                serie,
+                codigo_patrimonial,
+                estado_actual
+            FROM equipo
+            WHERE id = ?
+            LIMIT 1
+            `,
             [equipoId]
         );
 
@@ -396,8 +408,7 @@ const historialCompletoPorEquipo = async (req, res) => {
             });
         }
 
-        // Los periféricos conservan sus movimientos bajo su propio equipo_id.
-        // La descripción permite recuperar también vínculos que ya fueron eliminados.
+        // Movimientos del equipo principal y de los periféricos vinculados.
         const [movimientos] = await pool.query(`
             SELECT
                 m.id,
@@ -405,12 +416,13 @@ const historialCompletoPorEquipo = async (req, res) => {
                 m.tipo_movimiento,
                 m.descripcion,
                 m.equipo_id,
+                m.asignacion_id,
                 e.tipo AS tipo_equipo,
                 e.marca,
                 e.modelo,
                 e.serie,
-                CONCAT(c.apellidos, ', ', c.nombres) AS colaborador,
-                CONCAT(aut.apellidos, ', ', aut.nombres) AS autorizado_por
+                CONCAT_WS(', ', c.apellidos, c.nombres) AS colaborador,
+                CONCAT_WS(', ', aut.apellidos, aut.nombres) AS autorizado_por
             FROM movimiento_equipo m
             INNER JOIN equipo e ON e.id = m.equipo_id
             LEFT JOIN colaborador c ON c.id = m.colaborador_id
@@ -419,6 +431,32 @@ const historialCompletoPorEquipo = async (req, res) => {
                OR m.descripcion LIKE CONCAT('%equipo principal ID ', ?, '%')
             ORDER BY m.fecha DESC, m.id DESC
         `, [equipoId, equipoId]);
+
+        // Fuente directa de asignaciones: permite mostrar la entrega/devolución
+        // aunque algún trigger no haya generado su fila en movimiento_equipo.
+        const [asignaciones] = await pool.query(`
+            SELECT
+                a.id,
+                a.fecha_asignacion,
+                a.fecha_devolucion,
+                a.modalidad,
+                a.ubicacion,
+                a.estado AS estado_asignacion,
+                a.acta_id,
+                CONCAT_WS(', ', c.apellidos, c.nombres) AS colaborador,
+                c.codigo AS codigo_colaborador,
+                l.numero AS numero_linea,
+                ac.nro_acta,
+                ac.estado AS estado_acta,
+                ac.firmo_amo,
+                ac.firmo_dmo
+            FROM asignacion a
+            INNER JOIN colaborador c ON c.id = a.colaborador_id
+            LEFT JOIN linea l ON l.id = a.linea_id
+            LEFT JOIN acta ac ON ac.id = a.acta_id
+            WHERE a.equipo_id = ?
+            ORDER BY a.fecha_asignacion, a.id
+        `, [equipoId]);
 
         const [auditorias] = await pool.query(`
             SELECT
@@ -466,25 +504,136 @@ const historialCompletoPorEquipo = async (req, res) => {
             ORDER BY COALESCE(d.fecha_verificacion, i.fecha_inicio) DESC, d.id DESC
         `, [equipoId]);
 
+        const [detallesActa] = await pool.query(`
+            SELECT
+                da.id,
+                da.acta_id,
+                da.fecha_entrega,
+                da.fecha_devolucion,
+                da.devolvio_equipo,
+                da.estado AS estado_detalle,
+                da.observaciones AS observaciones_detalle,
+                ac.nro_acta,
+                ac.fecha AS fecha_acta,
+                ac.estado AS estado_acta,
+                ac.firmo_amo,
+                ac.firmo_dmo,
+                CONCAT_WS(', ', c.apellidos, c.nombres) AS colaborador
+            FROM detalle_acta da
+            INNER JOIN acta ac ON ac.id = da.acta_id
+            LEFT JOIN colaborador c ON c.id = ac.colaborador_id
+            WHERE da.equipo_id = ?
+            ORDER BY ac.fecha, ac.id, da.id
+        `, [equipoId]);
+
+        const idsActasAsignadas = new Set(
+            asignaciones
+                .map((a) => a.acta_id)
+                .filter((id) => id !== null && id !== undefined)
+                .map(Number)
+        );
+
         const eventosMovimiento = movimientos.map((m) => ({
             id: `movimiento-${m.id}`,
             origen: 'MOVIMIENTO',
             fecha: m.fecha,
             tipo_movimiento: m.tipo_movimiento,
             descripcion: m.descripcion || `Movimiento de ${m.tipo_equipo || 'equipo'}`,
-            equipo_id: m.equipo_id,
-            equipo_relacionado: m.equipo_id === equipoId
+            equipo_id: Number(m.equipo_id),
+            equipo_relacionado: Number(m.equipo_id) === equipoId
                 ? null
                 : `${m.tipo_equipo || 'Periférico'} ${m.marca || ''} ${m.modelo || ''}`.trim(),
+            asignacion_id: m.asignacion_id ? Number(m.asignacion_id) : null,
             colaborador: m.colaborador,
             usuario: null,
             autorizado_por: m.autorizado_por
         }));
 
-        const auditoriasUsadas = new Set();
+        const eventosAsignacion = [];
+        const existeMovimientoAsignacion = (asignacion, tipo) =>
+            eventosMovimiento.some((evento) => {
+                if (evento.tipo_movimiento !== tipo) return false;
+
+                if (
+                    evento.asignacion_id &&
+                    Number(evento.asignacion_id) === Number(asignacion.id)
+                ) {
+                    return true;
+                }
+
+                // Compatibilidad con triggers antiguos que no guardaban asignacion_id.
+                const fechaEvento = new Date(evento.fecha).getTime();
+                const fechaAsignacion = new Date(
+                    tipo === 'ASIGNACION'
+                        ? asignacion.fecha_asignacion
+                        : asignacion.fecha_devolucion
+                ).getTime();
+                return Number.isFinite(fechaEvento) &&
+                    Number.isFinite(fechaAsignacion) &&
+                    Math.abs(fechaEvento - fechaAsignacion) <= 60000 &&
+                    (!evento.colaborador ||
+                        evento.colaborador === asignacion.colaborador);
+            });
+
+        for (const asignacion of asignaciones) {
+            const metadatos = {
+                asignacion_id: Number(asignacion.id),
+                colaborador: asignacion.colaborador,
+                codigo_colaborador: asignacion.codigo_colaborador,
+                ubicacion: asignacion.ubicacion,
+                modalidad: asignacion.modalidad,
+                numero_linea: asignacion.numero_linea,
+                acta: asignacion.nro_acta,
+                estado_asignacion: asignacion.estado_asignacion,
+                estado_acta: asignacion.estado_acta,
+                firmo_amo: asignacion.firmo_amo,
+                firmo_dmo: asignacion.firmo_dmo
+            };
+
+            const movimientoEntrega = eventosMovimiento.find((evento) =>
+                evento.tipo_movimiento === 'ASIGNACION' &&
+                (
+                    Number(evento.asignacion_id) === Number(asignacion.id) ||
+                    (
+                        !evento.asignacion_id &&
+                        existeMovimientoAsignacion(asignacion, 'ASIGNACION') &&
+                        evento.colaborador === asignacion.colaborador
+                    )
+                )
+            );
+
+            if (movimientoEntrega) {
+                Object.assign(movimientoEntrega, metadatos);
+            } else if (!existeMovimientoAsignacion(asignacion, 'ASIGNACION')) {
+                eventosAsignacion.push({
+                    id: `asignacion-${asignacion.id}-entrega`,
+                    origen: 'ASIGNACION',
+                    fecha: asignacion.fecha_asignacion,
+                    tipo_movimiento: 'ASIGNACION',
+                    descripcion: `Equipo asignado a ${asignacion.colaborador || 'un colaborador'}.`,
+                    equipo_id: equipoId,
+                    ...metadatos
+                });
+            }
+
+            if (
+                asignacion.fecha_devolucion &&
+                !existeMovimientoAsignacion(asignacion, 'DEVOLUCION')
+            ) {
+                eventosAsignacion.push({
+                    id: `asignacion-${asignacion.id}-devolucion`,
+                    origen: 'ASIGNACION',
+                    fecha: asignacion.fecha_devolucion,
+                    tipo_movimiento: 'DEVOLUCION',
+                    descripcion: `Devolución del equipo por ${asignacion.colaborador || 'el colaborador'}.`,
+                    equipo_id: equipoId,
+                    ...metadatos
+                });
+            }
+        }
+
         const eventosAuditoria = auditorias.map((a) => {
-            // Une la auditoría con el movimiento de cambio equivalente cuando coinciden
-            // en el tiempo. Así evitamos duplicar el mismo evento en la cronología.
+            // Une la auditoría con el movimiento de edición equivalente.
             const indice = eventosMovimiento.findIndex((m) =>
                 m.tipo_movimiento === 'CAMBIO' &&
                 Math.abs(new Date(m.fecha).getTime() - new Date(a.creado_en).getTime()) <= 5000 &&
@@ -493,22 +642,31 @@ const historialCompletoPorEquipo = async (req, res) => {
 
             if (indice >= 0) {
                 eventosMovimiento[indice].usuario = a.nombre_usuario || 'No registrado';
+                eventosMovimiento[indice].rol_usuario = a.rol_usuario;
                 eventosMovimiento[indice].auditoria = {
                     accion: a.accion,
                     resultado: a.resultado,
                     ruta: a.ruta,
                     rol: a.rol_usuario
                 };
-                auditoriasUsadas.add(a.id);
                 return null;
             }
+
+            const descripciones = {
+                CREAR: 'Equipo registrado en el inventario.',
+                REGISTRAR_LOTE: 'Equipo registrado como parte de un lote.',
+                ACTUALIZAR: 'Se actualizaron los datos del equipo.',
+                ELIMINAR: 'Se eliminó un registro del equipo.',
+                IMPORTAR: 'Equipo incorporado mediante importación.'
+            };
 
             return {
                 id: `auditoria-${a.id}`,
                 origen: 'AUDITORIA',
                 fecha: a.creado_en,
-                tipo_movimiento: a.accion,
-                descripcion: `${a.metodo || ''} ${a.ruta || ''} — ${a.resultado || 'Resultado no registrado'}`.trim(),
+                tipo_movimiento: a.accion === 'CREAR' ? 'REGISTRO' : a.accion,
+                descripcion: descripciones[a.accion] ||
+                    `${a.metodo || ''} ${a.ruta || ''} — ${a.resultado || 'Resultado no registrado'}`.trim(),
                 equipo_id: equipoId,
                 colaborador: null,
                 usuario: a.nombre_usuario || 'No registrado',
@@ -516,6 +674,27 @@ const historialCompletoPorEquipo = async (req, res) => {
                 resultado: a.resultado
             };
         }).filter(Boolean);
+
+        // Las actas creadas fuera de una asignación también forman parte de la vida del equipo.
+        const eventosActa = detallesActa
+            .filter((d) => !idsActasAsignadas.has(Number(d.acta_id)))
+            .map((d) => ({
+                id: `acta-${d.id}`,
+                origen: 'ACTA',
+                fecha: d.fecha_entrega || d.fecha_acta,
+                tipo_movimiento: 'ACTA',
+                descripcion: `Acta ${d.nro_acta || d.acta_id} vinculada al equipo.`,
+                equipo_id: equipoId,
+                acta_id: Number(d.acta_id),
+                acta: d.nro_acta,
+                colaborador: d.colaborador,
+                estado_acta: d.estado_acta,
+                estado_detalle_acta: d.estado_detalle,
+                fecha_devolucion_acta: d.fecha_devolucion,
+                firmo_amo: d.firmo_amo,
+                firmo_dmo: d.firmo_dmo,
+                observaciones: d.observaciones_detalle
+            }));
 
         const eventosInventario = inventarios.map((d) => ({
             id: `inventario-${d.id}`,
@@ -541,13 +720,29 @@ const historialCompletoPorEquipo = async (req, res) => {
 
         const historial = [
             ...eventosMovimiento,
+            ...eventosAsignacion,
             ...eventosAuditoria,
+            ...eventosActa,
             ...eventosInventario
-        ].sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+        ].sort((a, b) => {
+            const diferencia = new Date(b.fecha).getTime() - new Date(a.fecha).getTime();
+            return diferencia || String(b.id).localeCompare(String(a.id));
+        });
 
         return res.json({
             success: true,
             equipo: equipos[0],
+            resumen: {
+                total: historial.length,
+                asignaciones: historial.filter((e) =>
+                    e.origen === 'ASIGNACION' ||
+                    ['ASIGNACION', 'DEVOLUCION'].includes(e.tipo_movimiento)
+                ).length,
+                movimientos: eventosMovimiento.length,
+                actas: eventosActa.length,
+                inventarios: eventosInventario.length,
+                cambios: eventosAuditoria.length
+            },
             cantidad: historial.length,
             data: historial
         });

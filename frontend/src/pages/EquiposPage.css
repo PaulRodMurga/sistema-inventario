@@ -1847,3 +1847,73 @@
 .modal-fondo:has(.modal-historial-periferico) {
     z-index: 1010;
 }
+
+
+/* Filtros del historial de vida del equipo */
+.historial-equipo-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin: 0 0 16px;
+}
+
+.historial-equipo-filtro {
+    min-height: 34px;
+    padding: 6px 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #475569;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease, color .15s ease;
+}
+
+.historial-equipo-filtro:hover {
+    border-color: #bfdbfe;
+    background: #f8fbff;
+    color: #1d4ed8;
+}
+
+.historial-equipo-filtro.activo {
+    border-color: #2563eb;
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.historial-equipo-filtro small {
+    min-width: 18px;
+    padding: 2px 5px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 10px;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.historial-equipo-filtro.activo small {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.historial-equipo-filtro:focus-visible {
+    outline: 3px solid rgb(37 99 235 / 18%);
+    outline-offset: 2px;
+}
+
+@media (max-width: 560px) {
+    .historial-equipo-filtros {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .historial-equipo-filtro {
+        justify-content: space-between;
+    }
+}

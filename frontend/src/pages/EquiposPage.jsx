@@ -303,6 +303,25 @@ function formatearFechaHistorial(valor) {
     });
 }
 
+function perteneceAFiltroHistorial(evento, filtro) {
+    const tipo = String(evento?.tipo_movimiento || '').toUpperCase();
+    const origen = String(evento?.origen || '').toUpperCase();
+
+    if (filtro === 'TODOS') return true;
+    if (filtro === 'ASIGNACIONES') {
+        return ['ASIGNACION', 'DEVOLUCION'].includes(tipo);
+    }
+    if (filtro === 'MOVIMIENTOS') {
+        return origen === 'MOVIMIENTO' &&
+            !['ASIGNACION', 'DEVOLUCION'].includes(tipo);
+    }
+    if (filtro === 'ACTAS') return origen === 'ACTA';
+    if (filtro === 'INVENTARIO') return origen === 'INVENTARIO_FISICO';
+    if (filtro === 'CAMBIOS') return origen === 'AUDITORIA';
+
+    return true;
+}
+
 function EquiposPage({ soloLectura = false, registroInicialId = null, onRegistroInicialAtendido } = {}) {
     const registroInicialProcesadoRef = useRef(null);
     const [equipos, setEquipos] = useState([]);
@@ -328,6 +347,7 @@ function EquiposPage({ soloLectura = false, registroInicialId = null, onRegistro
     const [equipoSeleccionado, setEquipoSeleccionado] = useState(null);
     const [cargandoDetalle, setCargandoDetalle] = useState(false);
     const [historialEquipo, setHistorialEquipo] = useState([]);
+    const [filtroHistorial, setFiltroHistorial] = useState('TODOS');
     const [historialPerifericos, setHistorialPerifericos] = useState({});
     const [erroresHistorialPerifericos, setErroresHistorialPerifericos] = useState({});
     const [perifericoHistorialActivo, setPerifericoHistorialActivo] = useState(null);
@@ -372,6 +392,31 @@ function EquiposPage({ soloLectura = false, registroInicialId = null, onRegistro
         () => contratoGamas.filter(estaDisponible),
         [contratoGamas]
     );
+
+    const historialFiltrado = useMemo(
+        () => historialEquipo.filter((evento) =>
+            perteneceAFiltroHistorial(evento, filtroHistorial)
+        ),
+        [historialEquipo, filtroHistorial]
+    );
+
+    const resumenHistorial = useMemo(() => ({
+        total: historialEquipo.length,
+        asignaciones: historialEquipo.filter((evento) =>
+            ['ASIGNACION', 'DEVOLUCION'].includes(
+                String(evento.tipo_movimiento || '').toUpperCase()
+            )
+        ).length,
+        movimientos: historialEquipo.filter((evento) =>
+            evento.origen === 'MOVIMIENTO' &&
+            !['ASIGNACION', 'DEVOLUCION'].includes(
+                String(evento.tipo_movimiento || '').toUpperCase()
+            )
+        ).length,
+        actas: historialEquipo.filter((evento) => evento.origen === 'ACTA').length,
+        inventarios: historialEquipo.filter((evento) => evento.origen === 'INVENTARIO_FISICO').length,
+        cambios: historialEquipo.filter((evento) => evento.origen === 'AUDITORIA').length
+    }), [historialEquipo]);
 
     const contratasDisponibles = useMemo(() => {
         const porId = new Map();
@@ -519,6 +564,7 @@ function EquiposPage({ soloLectura = false, registroInicialId = null, onRegistro
             setDetalleAbierto(true);
 
             setHistorialEquipo([]);
+            setFiltroHistorial('TODOS');
             setHistorialPerifericos({});
             setErroresHistorialPerifericos({});
             setErrorHistorial('');
@@ -2168,21 +2214,49 @@ function EquiposPage({ soloLectura = false, registroInicialId = null, onRegistro
                             <section className="historial-equipo" aria-labelledby="historial-equipo-titulo">
                                 <div className="historial-equipo-encabezado">
                                     <div>
-                                        <h5 id="historial-equipo-titulo">Historial del equipo</h5>
-                                        <p>Registro cronológico de movimientos y responsables.</p>
+                                        <h5 id="historial-equipo-titulo">Historial de vida del equipo</h5>
+                                        <p>Registro cronológico de su ingreso, asignaciones, devoluciones, actas, verificaciones y cambios.</p>
                                     </div>
-                                    <span className="historial-equipo-contador">{historialEquipo.length}</span>
+                                    <span className="historial-equipo-contador" title="Eventos registrados">
+                                        {historialFiltrado.length}/{resumenHistorial.total}
+                                    </span>
                                 </div>
+
+                                {!cargandoHistorial && !errorHistorial && historialEquipo.length > 0 && (
+                                    <div className="historial-equipo-filtros" role="group" aria-label="Filtrar historial del equipo">
+                                        {[
+                                            ['TODOS', 'Todos', resumenHistorial.total],
+                                            ['ASIGNACIONES', 'Asignaciones', resumenHistorial.asignaciones],
+                                            ['MOVIMIENTOS', 'Movimientos', resumenHistorial.movimientos],
+                                            ['ACTAS', 'Actas', resumenHistorial.actas],
+                                            ['INVENTARIO', 'Inventario físico', resumenHistorial.inventarios],
+                                            ['CAMBIOS', 'Registro y cambios', resumenHistorial.cambios]
+                                        ].map(([valor, etiqueta, cantidad]) => (
+                                            <button
+                                                key={valor}
+                                                type="button"
+                                                className={`historial-equipo-filtro ${filtroHistorial === valor ? 'activo' : ''}`}
+                                                aria-pressed={filtroHistorial === valor}
+                                                onClick={() => setFiltroHistorial(valor)}
+                                            >
+                                                <span>{etiqueta}</span>
+                                                <small>{cantidad}</small>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
 
                                 {cargandoHistorial ? (
                                     <p className="historial-equipo-estado" role="status">Cargando historial...</p>
                                 ) : errorHistorial ? (
                                     <p className="historial-equipo-error" role="alert">{errorHistorial}</p>
                                 ) : historialEquipo.length === 0 ? (
-                                    <p className="historial-equipo-estado">No hay movimientos registrados para este equipo.</p>
+                                    <p className="historial-equipo-estado">Todavía no hay eventos registrados para este equipo.</p>
+                                ) : historialFiltrado.length === 0 ? (
+                                    <p className="historial-equipo-estado">No hay eventos en esta categoría del historial.</p>
                                 ) : (
                                     <ol className="historial-equipo-lista">
-                                        {historialEquipo.map((movimiento) => (
+                                        {historialFiltrado.map((movimiento) => (
                                             <li key={movimiento.id} className="historial-equipo-item">
                                                 <span className="historial-equipo-icono"><History size={16} aria-hidden="true" /></span>
                                                 <div className="historial-equipo-contenido">
@@ -2195,9 +2269,20 @@ function EquiposPage({ soloLectura = false, registroInicialId = null, onRegistro
                                                     <p>{movimiento.descripcion || 'Sin descripción adicional.'}</p>
                                                     <div className="historial-equipo-meta">
                                                         {movimiento.colaborador && <span>Colaborador: {movimiento.colaborador}</span>}
+                                                        {movimiento.codigo_colaborador && <span>Código de colaborador: {movimiento.codigo_colaborador}</span>}
                                                         {movimiento.autorizado_por && <span>Autorizado por: {movimiento.autorizado_por}</span>}
                                                         {movimiento.usuario && <span>Usuario: {movimiento.usuario}</span>}
+                                                        {movimiento.rol_usuario && <span>Rol: {formatearTipoMovimiento(movimiento.rol_usuario)}</span>}
                                                         {movimiento.responsable && <span>Responsable de jornada: {movimiento.responsable}</span>}
+                                                        {movimiento.ubicacion && <span>Ubicación: {movimiento.ubicacion}</span>}
+                                                        {movimiento.modalidad && <span>Modalidad: {formatearTipoMovimiento(movimiento.modalidad)}</span>}
+                                                        {movimiento.numero_linea && <span>Línea: {movimiento.numero_linea}</span>}
+                                                        {movimiento.acta && <span>Acta: {movimiento.acta}</span>}
+                                                        {movimiento.estado_asignacion && <span>Estado de asignación: {formatearTipoMovimiento(movimiento.estado_asignacion)}</span>}
+                                                        {movimiento.estado_acta && <span>Estado del acta: {formatearTipoMovimiento(movimiento.estado_acta)}</span>}
+                                                        {movimiento.estado_detalle_acta && <span>Estado del detalle: {formatearTipoMovimiento(movimiento.estado_detalle_acta)}</span>}
+                                                        {movimiento.estado_revision && <span>Resultado de verificación: {formatearTipoMovimiento(movimiento.estado_revision)}</span>}
+                                                        {movimiento.resultado && <span>Resultado de operación: {formatearTipoMovimiento(movimiento.resultado)}</span>}
                                                         {movimiento.equipo_relacionado && <span>Periférico: {movimiento.equipo_relacionado}</span>}
                                                         {movimiento.ubicacion_esperada && <span>Ubicación esperada: {movimiento.ubicacion_esperada}</span>}
                                                         {movimiento.ubicacion_observada && <span>Ubicación observada: {movimiento.ubicacion_observada}</span>}
