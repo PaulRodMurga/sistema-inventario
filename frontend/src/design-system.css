@@ -531,3 +531,58 @@ textarea:focus-visible {
   .contenido { width: 100% !important; margin: 0 !important; }
   body,.aplicacion { background: #fff !important; }
 }
+
+/* Ocultar títulos de navegación duplicados: los controles permanecen visibles. */
+.barra-superior {
+  justify-content: flex-end;
+}
+.encabezado-pagina,
+.actas-encabezado,
+.movimientos-encabezado,
+.etiquetas-qr-cabecera {
+  min-height: 0;
+  margin: 0 0 12px;
+  padding: 0;
+  justify-content: flex-end;
+  border: 0;
+}
+.contenido .pagina > .encabezado-pagina > div:first-child,
+.contenido .pagina > .actas-encabezado > div:first-child,
+.contenido .pagina > .movimientos-encabezado > div:first-child,
+.contenido .pagina > .etiquetas-qr-cabecera > div:first-child {
+  display: none !important;
+}
+.configuracion-pagina > .config-encabezado {
+  display: none !important;
+}
+.config-encabezado {
+  min-height: 0;
+  margin: 0 0 12px;
+  padding: 0;
+  justify-content: flex-end;
+  border: 0;
+}
+.config-encabezado > div:first-child {
+  display: none !important;
+}
+.reportes-hero {
+  min-height: 0;
+  margin: 0 0 8px;
+  padding: 0;
+  justify-content: flex-end;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.reportes-hero-contenido {
+  display: none !important;
+}
+.dashboard-bienvenida .dashboard-eyebrow,
+.dashboard-bienvenida h3 {
+  display: none !important;
+}
+.dashboard-bienvenida {
+  min-height: 0;
+  padding: 15px 19px;
+}
+

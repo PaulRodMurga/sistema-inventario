@@ -541,15 +541,6 @@ function AplicacionInventario({ usuario, onCerrarSesion, onActualizarUsuario }) 
       <main id="contenido-principal" className="contenido" tabIndex="-1">
 
         <header className="barra-superior">
-          <div>
-            <h2>{seccionActiva}</h2>
-            <p>
-              {seccionActiva === 'Dashboard'
-                ? 'Resumen general del inventario tecnológico'
-                : 'Administración del sistema de inventario'}
-            </p>
-          </div>
-
           <div className="acciones-superiores">
             <CampoBusqueda
               className="buscador"
