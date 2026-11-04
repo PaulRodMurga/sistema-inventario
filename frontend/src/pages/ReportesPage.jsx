@@ -27,6 +27,7 @@ const ESTADOS = [
 const PESTANAS = [
   { id: 'resumen', etiqueta: 'Resumen general', icono: Activity, descripcion: 'Indicadores principales del inventario' },
   { id: 'organizacion', etiqueta: 'Por unidad y área', icono: Building2, descripcion: 'Distribución organizacional de equipos' },
+  { id: 'equipos', etiqueta: 'Detalle de equipos', icono: Laptop, descripcion: 'Listado detallado según los filtros aplicados' },
   { id: 'colaboradores', etiqueta: 'Por colaborador', icono: Users, descripcion: 'Equipos que tiene cada colaborador' },
   { id: 'perifericos', etiqueta: 'Periféricos', icono: Monitor, descripcion: 'Disponibilidad y vinculación' }
 ];
@@ -53,6 +54,7 @@ export default function ReportesPage() {
   const [filtrosAplicados, setFiltrosAplicados] = useState(FILTROS_INICIALES);
   const [pestanaActiva, setPestanaActiva] = useState('resumen');
   const [busquedaColaborador, setBusquedaColaborador] = useState('');
+  const [busquedaEquipo, setBusquedaEquipo] = useState('');
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState('');
   const [actualizadoEn, setActualizadoEn] = useState(null);
@@ -76,6 +78,7 @@ export default function ReportesPage() {
 
   const resumen = datos?.resumen || [];
   const filasUnidadArea = datos?.por_unidad_area || [];
+  const filasEquipos = datos?.equipos || [];
   const filasColaborador = datos?.por_colaborador || [];
   const filasPerifericos = datos?.perifericos || [];
   const totalEquipos = useMemo(() => resumen.reduce((total, fila) => total + Number(fila.cantidad || 0), 0), [resumen]);
@@ -118,6 +121,15 @@ export default function ReportesPage() {
   const totalPerifericos = useMemo(() => filasPerifericos.reduce((total, fila) => total + Number(fila.cantidad || 0), 0), [filasPerifericos]);
   const perifericosVinculados = datosGraficoPerifericos.find((fila) => fila.nombre === 'Vinculados')?.cantidad || 0;
   const perifericosDisponibles = datosGraficoPerifericos.find((fila) => fila.nombre === 'Disponibles')?.cantidad || 0;
+
+  const equiposFiltrados = useMemo(() => {
+    const busqueda = busquedaEquipo.trim().toLocaleLowerCase('es');
+    if (!busqueda) return filasEquipos;
+    return filasEquipos.filter((fila) => [
+      fila.tipo, fila.marca, fila.modelo, fila.serie, fila.codigo_patrimonial,
+      fila.colaborador, fila.unidad_empresarial, fila.area, fila.estado_actual
+    ].some((valor) => String(valor || '').toLocaleLowerCase('es').includes(busqueda)));
+  }, [filasEquipos, busquedaEquipo]);
 
   const colaboradoresFiltrados = useMemo(() => {
     const busqueda = busquedaColaborador.trim().toLocaleLowerCase('es');
@@ -175,6 +187,17 @@ export default function ReportesPage() {
     enlace.remove();
     URL.revokeObjectURL(url);
   };
+
+  const exportarEquipos = () => exportarCSV(filasEquipos.map((fila) => ({
+    Tipo: etiqueta(fila.tipo),
+    Equipo: [fila.marca, fila.modelo].filter(Boolean).join(' ') || 'Sin descripción',
+    Serie: fila.serie || '—',
+    'Código patrimonial': fila.codigo_patrimonial || '—',
+    Colaborador: fila.colaborador || 'Sin asignar',
+    'Unidad empresarial': fila.unidad_empresarial || 'Sin unidad empresarial',
+    Área: fila.area || 'Sin área',
+    Estado: etiqueta(fila.estado_actual)
+  })), 'equipos-segun-filtros.csv');
 
   const aplicarFiltros = (evento) => { evento.preventDefault(); cargar(filtros); };
   const limpiarFiltros = () => { setFiltros(FILTROS_INICIALES); cargar(FILTROS_INICIALES); };
@@ -267,6 +290,76 @@ export default function ReportesPage() {
             </table>
           </div>
         ) : <EstadoVacio titulo="No hay resultados" detalle="Modifica los filtros y vuelve a generar el reporte." />}
+      </section>
+    </div>
+  );
+
+  const renderEquipos = () => (
+    <div className="reportes-vista">
+      <CabeceraSeccion
+        titulo="Detalle de equipos"
+        descripcion="Listado de equipos principales que coinciden con los filtros aplicados."
+        accion={<BotonExportar disabled={!filasEquipos.length} onClick={exportarEquipos}>Exportar equipos</BotonExportar>}
+      />
+      <section className="reportes-panel">
+        <div className="reportes-tabla-barra">
+          <div>
+            <strong>{numero(equiposFiltrados.length)} equipos encontrados</strong>
+            <span>Los resultados corresponden a la última consulta generada.</span>
+          </div>
+          <label className="reportes-busqueda-tabla">
+            <Search size={16} />
+            <input
+              type="search"
+              value={busquedaEquipo}
+              onChange={(evento) => setBusquedaEquipo(evento.target.value)}
+              placeholder="Buscar equipo, serie o colaborador..."
+              aria-label="Buscar equipo"
+            />
+            {busquedaEquipo && (
+              <button type="button" onClick={() => setBusquedaEquipo('')} aria-label="Limpiar búsqueda">
+                <X size={15} />
+              </button>
+            )}
+          </label>
+        </div>
+        {equiposFiltrados.length ? (
+          <div className="reportes-tabla-contenedor">
+            <table className="reportes-tabla">
+              <thead>
+                <tr>
+                  <th>Tipo</th>
+                  <th>Equipo</th>
+                  <th>Serie / código</th>
+                  <th>Colaborador</th>
+                  <th>Unidad empresarial</th>
+                  <th>Área</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {equiposFiltrados.map((fila) => (
+                  <tr key={fila.equipo_id}>
+                    <td>{etiqueta(fila.tipo)}</td>
+                    <td><strong>{[fila.marca, fila.modelo].filter(Boolean).join(' ') || 'Sin descripción'}</strong></td>
+                    <td>{fila.serie || fila.codigo_patrimonial || '—'}</td>
+                    <td>{fila.colaborador || 'Sin asignar'}</td>
+                    <td>{fila.unidad_empresarial || 'Sin unidad empresarial'}</td>
+                    <td>{fila.area || 'Sin área'}</td>
+                    <td><span className={'reportes-etiqueta-estado estado-' + String(fila.estado_actual || '').toLowerCase()}>{etiqueta(fila.estado_actual)}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <EstadoVacio
+            titulo={busquedaEquipo ? 'No se encontraron coincidencias' : 'No hay equipos para mostrar'}
+            detalle={busquedaEquipo
+              ? 'Prueba con otro tipo, marca, modelo, serie o colaborador.'
+              : 'No se encontraron equipos con los filtros aplicados. Ajusta los criterios y genera nuevamente el reporte.'}
+          />
+        )}
       </section>
     </div>
   );
@@ -453,6 +546,7 @@ export default function ReportesPage() {
         <section className="reportes-contenido" role="tabpanel" aria-label={pestana.etiqueta}>
           {pestanaActiva === 'resumen' && renderResumen()}
           {pestanaActiva === 'organizacion' && renderOrganizacion()}
+          {pestanaActiva === 'equipos' && renderEquipos()}
           {pestanaActiva === 'colaboradores' && renderColaboradores()}
           {pestanaActiva === 'perifericos' && renderPerifericos()}
         </section>

@@ -43,6 +43,31 @@ const obtenerReportes = async (req, res) => {
             ORDER BY ue.nombre, ar.nombre, cantidad DESC
         `, parametros);
 
+        const [equipos] = await pool.query(`
+            SELECT
+                e.id AS equipo_id,
+                e.tipo,
+                e.marca,
+                e.modelo,
+                e.serie,
+                e.codigo_patrimonial,
+                e.estado_actual,
+                CONCAT(c.apellidos, ', ', c.nombres) AS colaborador,
+                COALESCE(ue.nombre, 'Sin unidad empresarial') AS unidad_empresarial,
+                COALESCE(ar.nombre, 'Sin área') AS area
+            FROM equipo e
+            LEFT JOIN asignacion a
+                ON a.equipo_id = e.id AND a.estado = 'ACTIVA'
+            LEFT JOIN colaborador c
+                ON c.id = a.colaborador_id
+            LEFT JOIN unidad_empresarial ue
+                ON ue.id = c.unidad_empresarial_id
+            LEFT JOIN area ar
+                ON ar.id = c.area_id
+            ${where}
+            ORDER BY e.tipo, e.marca, e.modelo, e.id
+        `, parametros);
+
         const [porColaborador] = await pool.query(`
             SELECT c.id AS colaborador_id,
                    CONCAT(c.apellidos, ', ', c.nombres) AS colaborador,
@@ -78,7 +103,7 @@ const obtenerReportes = async (req, res) => {
         const [areas] = await pool.query("SELECT id, nombre FROM area WHERE estado = 'ACTIVO' ORDER BY nombre");
         const [colaboradores] = await pool.query("SELECT id, CONCAT(apellidos, ', ', nombres) AS nombre FROM colaborador WHERE estado = 'ACTIVO' ORDER BY apellidos, nombres");
 
-        return res.json({ success: true, data: { resumen, por_unidad_area: porUnidadArea, por_colaborador: porColaborador, perifericos, filtros: { unidades, areas, colaboradores } } });
+        return res.json({ success: true, data: { resumen, por_unidad_area: porUnidadArea, equipos, por_colaborador: porColaborador, perifericos, filtros: { unidades, areas, colaboradores } } });
     } catch (error) {
         console.error('Error al generar reportes gerenciales:', error);
         return res.status(500).json({ success: false, mensaje: 'No se pudieron generar los reportes gerenciales' });
