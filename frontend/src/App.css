@@ -1201,6 +1201,10 @@
   display: block;
   border-radius: 50%;
   object-fit: cover;
+
+    aspect-ratio: 1 / 1;
+        object-position: center center;
+        clip-path: circle(50% at 50% 50%);
 }
 
 
