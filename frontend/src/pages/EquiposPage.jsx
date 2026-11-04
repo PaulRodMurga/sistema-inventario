@@ -315,7 +315,7 @@ function perteneceAFiltroHistorial(evento, filtro) {
         return origen === 'MOVIMIENTO' &&
             !['ASIGNACION', 'DEVOLUCION'].includes(tipo);
     }
-    if (filtro === 'ACTAS') return origen === 'ACTA';
+    if (filtro === 'ACTAS') return origen === 'ACTA' || Boolean(evento?.acta);
     if (filtro === 'INVENTARIO') return origen === 'INVENTARIO_FISICO';
     if (filtro === 'CAMBIOS') return origen === 'AUDITORIA';
 
@@ -413,7 +413,7 @@ function EquiposPage({ soloLectura = false, registroInicialId = null, onRegistro
                 String(evento.tipo_movimiento || '').toUpperCase()
             )
         ).length,
-        actas: historialEquipo.filter((evento) => evento.origen === 'ACTA').length,
+        actas: historialEquipo.filter((evento) => evento.origen === 'ACTA' || Boolean(evento.acta)).length,
         inventarios: historialEquipo.filter((evento) => evento.origen === 'INVENTARIO_FISICO').length,
         cambios: historialEquipo.filter((evento) => evento.origen === 'AUDITORIA').length
     }), [historialEquipo]);
