@@ -1369,13 +1369,14 @@ function AsignacionesPage({ soloLectura = false, registroInicialId = null, onReg
 
             {detalleAbierto && (
                 <DialogoAccesible
-                    className="modal-detalle-asignacion"
+                    className="modal-ficha modal-detalle-asignacion"
                     tituloId="asignacion-detalle-titulo"
                     descripcionId="asignacion-detalle-descripcion"
                     onCerrar={() => setDetalleAbierto(false)}
                 >
-                    <div className="modal-encabezado">
+                    <div className="modal-encabezado modal-ficha-encabezado">
                         <div>
+                            <span className="modal-ficha-eyebrow">REGISTRO DE ENTREGA</span>
                             <h3 id="asignacion-detalle-titulo">Detalle de asignación</h3>
                             <p id="asignacion-detalle-descripcion">Información de la entrega registrada</p>
                         </div>
@@ -1395,8 +1396,19 @@ function AsignacionesPage({ soloLectura = false, registroInicialId = null, onReg
                             Cargando información...
                         </div>
                     ) : asignacionSeleccionada ? (
-                        <div className="detalle-asignacion">
-                            <div className="detalle-seccion">
+                        <div className="detalle-asignacion modal-ficha-cuerpo">
+                            <div className="modal-ficha-resumen">
+                                <span className="modal-ficha-resumen-icono"><ClipboardList size={21} aria-hidden="true" /></span>
+                                <div className="modal-ficha-resumen-texto">
+                                    <span>ASIGNACIÓN #${asignacionSeleccionada.id || '—'}</span>
+                                    <strong>{[asignacionSeleccionada.marca, asignacionSeleccionada.modelo].filter(Boolean).join(' ') || asignacionSeleccionada.tipo_equipo || 'Equipo asignado'}</strong>
+                                    <small>{asignacionSeleccionada.colaborador || 'Colaborador sin información'}</small>
+                                </div>
+                                <span className={"modal-ficha-estado estado-asignacion estado-" + String(obtenerEstadoAsignacion(asignacionSeleccionada) || 'SIN ESTADO').toLowerCase()}>
+                                    {obtenerEstadoAsignacion(asignacionSeleccionada) || 'SIN ESTADO'}
+                                </span>
+                            </div>
+                            <div className="detalle-seccion modal-ficha-seccion">
                                 <h4>Colaborador</h4>
 
                                 <div className="detalle-grid">
@@ -1424,7 +1436,7 @@ function AsignacionesPage({ soloLectura = false, registroInicialId = null, onReg
                                 </div>
                             </div>
 
-                            <div className="detalle-seccion">
+                            <div className="detalle-seccion modal-ficha-seccion">
                                 <h4>Equipo</h4>
 
                                 <div className="detalle-grid">
@@ -1490,7 +1502,7 @@ function AsignacionesPage({ soloLectura = false, registroInicialId = null, onReg
                                 </div>
                             </div>
 
-                            <div className="detalle-seccion">
+                            <div className="detalle-seccion modal-ficha-seccion">
                                 <h4>Datos de la asignación</h4>
 
                                 <div className="detalle-grid">
@@ -1523,7 +1535,7 @@ function AsignacionesPage({ soloLectura = false, registroInicialId = null, onReg
                                     </div>
                                 </div>
                             </div>
-                            <div className="detalle-seccion">
+                            <div className="detalle-seccion modal-ficha-seccion">
                                 <h4>Información registrada</h4>
                                 <div className="detalle-campo">
                                     <span>Equipo anterior</span>
@@ -1540,7 +1552,7 @@ function AsignacionesPage({ soloLectura = false, registroInicialId = null, onReg
                             </div>
                             {(asignacionSeleccionada.fecha_devolucion ||
                                 asignacionSeleccionada.descripcion_devolucion) && (
-                                    <div className="detalle-seccion">
+                                    <div className="detalle-seccion modal-ficha-seccion">
                                         <h4>Devolución</h4>
                                         <div className="detalle-grid">
                                             <div className="detalle-campo">
