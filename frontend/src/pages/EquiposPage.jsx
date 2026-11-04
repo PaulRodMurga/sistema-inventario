@@ -2090,13 +2090,14 @@ function EquiposPage({ soloLectura = false, registroInicialId = null, onRegistro
 
             {perifericoHistorialActivo && (
                 <DialogoAccesible
-                    className="modal-detalle modal-historial-periferico"
+                    className="modal-ficha modal-detalle modal-historial-periferico"
                     tituloId="historial-periferico-titulo"
                     descripcionId="historial-periferico-descripcion"
                     onCerrar={() => setPerifericoHistorialActivo(null)}
                 >
-                    <div className="modal-encabezado">
+                    <div className="modal-encabezado modal-ficha-encabezado">
                         <div>
+                            <span className="modal-ficha-eyebrow">TRAZABILIDAD DEL COMPONENTE</span>
                             <h3 id="historial-periferico-titulo">Historial del periférico</h3>
                             <p id="historial-periferico-descripcion">
                                 {perifericoHistorialActivo.tipo}: {perifericoHistorialActivo.marca} {perifericoHistorialActivo.modelo}
@@ -2111,7 +2112,7 @@ function EquiposPage({ soloLectura = false, registroInicialId = null, onRegistro
                             <X size={18} aria-hidden="true" />
                         </button>
                     </div>
-                    <div className="contenido-historial-periferico">
+                    <div className="contenido-historial-periferico modal-ficha-cuerpo">
                         <div className="historial-periferico-identificacion">
                             <span>Serie</span>
                             <strong>{perifericoHistorialActivo.serie || 'Sin serie registrada'}</strong>
