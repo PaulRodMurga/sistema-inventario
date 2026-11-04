@@ -937,3 +937,53 @@
         min-width: 1450px;
     }
 }
+
+
+/* Modal de detalle de acta con cuerpo desplazable */
+.actas-pagina .modal-ficha.modal-acta-detalle {
+  box-sizing: border-box;
+  width: min(1020px, calc(100vw - 36px));
+  height: min(820px, calc(100dvh - 36px));
+  max-height: calc(100dvh - 36px);
+  display: flex; flex-direction: column; overflow: hidden;
+  border: 1px solid #dfe7f1; border-radius: 18px; background: #f6f8fc;
+}
+.actas-pagina .modal-ficha.modal-acta-detalle .modal-ficha-encabezado {
+  flex: 0 0 auto; padding: 17px 22px; background: #fff;
+}
+.actas-pagina .modal-ficha.modal-acta-detalle .detalle-acta-moderno {
+  flex: 1 1 0; min-height: 0; padding: 18px 21px 22px;
+  overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
+  background: #f6f8fc;
+}
+.actas-pagina .detalle-acta-principal {
+  padding: 16px 18px; border: 1px solid #d9e6f6; border-radius: 14px;
+  background: linear-gradient(110deg, #edf5ff, #fff 78%);
+}
+.actas-pagina .detalle-acta-principal > svg {
+  border: 1px solid #d3e4fb; background: #fff; color: #2e68c6;
+}
+.actas-pagina .detalle-acta-principal h4 { color: #1e2e46; font-size: 17px; }
+.actas-pagina .detalle-acta-firmas {
+  margin-left: auto; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px;
+}
+.actas-pagina .detalle-acta-firmas > span {
+  display: flex; align-items: center; gap: 6px;
+  color: #6b7b91; font-size: 9px; font-weight: 700;
+}
+.actas-pagina .detalle-acta-grid { gap: 9px; }
+.actas-pagina .campo-detalle-acta {
+  padding: 12px; border: 1px solid #e4eaf2; border-radius: 11px; background: #fff;
+}
+.actas-pagina .campo-detalle-acta span { color: #8390a2; font-size: 9px; font-weight: 700; }
+.actas-pagina .campo-detalle-acta strong { color: #33445d; font-size: 11px; }
+.actas-pagina .equipos-acta-encabezado { margin-top: 18px; }
+.actas-pagina .equipos-acta-encabezado h4 { color: #293b54; font-size: 13px; }
+@media (max-width: 600px) {
+  .actas-pagina .modal-ficha.modal-acta-detalle {
+    width: calc(100vw - 18px); height: calc(100dvh - 18px); max-height: calc(100dvh - 18px);
+  }
+  .actas-pagina .modal-ficha.modal-acta-detalle .detalle-acta-moderno { padding: 12px; }
+  .actas-pagina .detalle-acta-principal { align-items: flex-start; }
+  .actas-pagina .detalle-acta-firmas { width: 100%; margin-left: 0; justify-content: flex-start; }
+}
