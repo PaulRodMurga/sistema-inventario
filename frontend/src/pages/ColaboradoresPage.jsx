@@ -1096,13 +1096,14 @@ function ColaboradoresPage({ soloLectura = false, registroInicialId = null, onRe
 
             {detalleAbierto && (
                 <DialogoAccesible
-                    className="modal-detalle-colaborador"
+                    className="modal-ficha modal-detalle-colaborador"
                     tituloId="colaborador-detalle-titulo"
                     descripcionId="colaborador-detalle-descripcion"
                     onCerrar={cerrarDetalle}
                 >
-                    <div className="modal-encabezado">
+                    <div className="modal-encabezado modal-ficha-encabezado">
                         <div>
+                            <span className="modal-ficha-eyebrow">FICHA DEL COLABORADOR</span>
                             <h3 id="colaborador-detalle-titulo">Detalle del colaborador</h3>
                             <p id="colaborador-detalle-descripcion">
                                 Información completa del personal registrado
@@ -1124,7 +1125,7 @@ function ColaboradoresPage({ soloLectura = false, registroInicialId = null, onRe
                             Cargando información...
                         </div>
                     ) : colaboradorSeleccionado ? (
-                        <div className="detalle-colaborador">
+                        <div className="detalle-colaborador modal-ficha-cuerpo">
                             <div className="perfil-colaborador">
                                 <div className="perfil-colaborador-avatar">
                                     {colaboradorSeleccionado.nombres
@@ -1153,61 +1154,53 @@ function ColaboradoresPage({ soloLectura = false, registroInicialId = null, onRe
                                 </div>
                             </div>
 
-                            <div className="detalle-grid">
-                                <div className="detalle-campo">
-                                    <span>Código</span>
-                                    <strong>
-                                        {colaboradorSeleccionado.codigo || '-'}
-                                    </strong>
-                                </div>
-
-                                <div className="detalle-campo">
-                                    <span>DNI</span>
-                                    <strong>
-                                        {colaboradorSeleccionado.dni || '-'}
-                                    </strong>
-                                </div>
-
-                                <div className="detalle-campo">
-                                    <span>Cargo</span>
-                                    <strong>
-                                        {colaboradorSeleccionado.cargo_nombre ||
-                                            colaboradorSeleccionado.cargo ||
-                                            '-'}
-                                    </strong>
-                                </div>
-
-                                <div className="detalle-campo">
-                                    <span>Área</span>
-                                    <strong>
-                                        {colaboradorSeleccionado.area_nombre ||
-                                            colaboradorSeleccionado.area ||
-                                            '-'}
-                                    </strong>
-                                </div>
-
-                                <div className="detalle-campo">
-                                    <span>Centro de costos</span>
-                                    <strong>
-                                        {colaboradorSeleccionado
-                                            .centro_costos_nombre ||
-                                            colaboradorSeleccionado
-                                                .centro_costos ||
-                                            '-'}
-                                    </strong>
-                                </div>
-
-                                <div className="detalle-campo">
-                                    <span>Unidad empresarial</span>
-                                    <strong>
-                                        {colaboradorSeleccionado
-                                            .unidad_empresarial_nombre ||
-                                            colaboradorSeleccionado
-                                                .unidad_empresarial ||
-                                            '-'}
-                                    </strong>
-                                </div>
+                            <div className="modal-ficha-secciones-colaborador">
+                                <section className="modal-ficha-seccion">
+                                    <div className="modal-ficha-seccion-encabezado">
+                                        <strong>Datos personales</strong>
+                                        <span>Identificación y contacto del colaborador.</span>
+                                    </div>
+                                    <div className="detalle-grid">
+                                        <div className="detalle-campo">
+                                            <span>Código</span>
+                                            <strong>{colaboradorSeleccionado.codigo || '-'}</strong>
+                                        </div>
+                                        <div className="detalle-campo">
+                                            <span>DNI</span>
+                                            <strong>{colaboradorSeleccionado.dni || '-'}</strong>
+                                        </div>
+                                        <div className="detalle-campo detalle-ancho-completo">
+                                            <span>Correo electrónico</span>
+                                            <strong>{colaboradorSeleccionado.correo || 'Sin registrar'}</strong>
+                                        </div>
+                                    </div>
+                                </section>
+                                <section className="modal-ficha-seccion">
+                                    <div className="modal-ficha-seccion-encabezado">
+                                        <strong>Información organizacional</strong>
+                                        <span>Datos laborales y ubicación dentro de la empresa.</span>
+                                    </div>
+                                    <div className="detalle-grid">
+                                        <div className="detalle-campo">
+                                            <span>Cargo</span>
+                                            <strong>{colaboradorSeleccionado.cargo_nombre || colaboradorSeleccionado.cargo || '-'}</strong>
+                                        </div>
+                                        <div className="detalle-campo">
+                                            <span>Área</span>
+                                            <strong>{colaboradorSeleccionado.area_nombre || colaboradorSeleccionado.area || '-'}</strong>
+                                        </div>
+                                        <div className="detalle-campo">
+                                            <span>Centro de costos</span>
+                                            <strong>{colaboradorSeleccionado.centro_costos_nombre || colaboradorSeleccionado.centro_costos || '-'}</strong>
+                                        </div>
+                                        <div className="detalle-campo">
+                                            <span>Unidad empresarial</span>
+                                            <strong>{colaboradorSeleccionado.unidad_empresarial_nombre || colaboradorSeleccionado.unidad_empresarial || '-'}</strong>
+                                        </div>
+                                    </div>
+                                </section>
                             </div>
+
                         </div>
                     ) : null}
                 </DialogoAccesible>
