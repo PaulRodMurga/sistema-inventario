@@ -51,6 +51,7 @@ import InventarioFisicoPage from './pages/InventarioFisicoPage';
 import ReportesPage from './pages/ReportesPage';
 import './pages/ReportesPage.css';
 import './animations.css';
+import './design-system.css';
 import LoginPage from './pages/LoginPage';
 import CampoBusqueda from './components/CampoBusqueda';
 import ModalPerfil from './components/ModalPerfil';
