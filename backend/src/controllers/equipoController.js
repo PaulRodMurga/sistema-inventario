@@ -281,6 +281,17 @@ const obtenerEquipoPorId = async (req, res) => {
         principal.marca AS marca_equipo_principal,
         principal.modelo AS modelo_equipo_principal,
 
+        asignacion_actual.id AS asignacion_actual_id,
+        asignacion_actual.fecha_asignacion,
+        asignacion_actual.modalidad AS modalidad_asignacion,
+        asignacion_actual.ubicacion AS ubicacion_asignacion,
+        colaborador_actual.id AS colaborador_actual_id,
+        colaborador_actual.codigo AS codigo_colaborador_actual,
+        colaborador_actual.correo AS correo_colaborador_actual,
+        CONCAT(colaborador_actual.nombres, ' ', colaborador_actual.apellidos) AS colaborador_actual,
+        unidad_actual.nombre AS unidad_empresarial_actual,
+        area_actual.nombre AS area_actual,
+
         cg.contrato_id,
 
         cm.nro_contrato,
@@ -302,6 +313,22 @@ const obtenerEquipoPorId = async (req, res) => {
 
       LEFT JOIN equipo principal
         ON principal.id = ep.equipo_principal_id
+
+      LEFT JOIN equipo equipo_asignado
+        ON equipo_asignado.id = COALESCE(ep.equipo_principal_id, e.id)
+
+      LEFT JOIN asignacion asignacion_actual
+        ON asignacion_actual.equipo_id = equipo_asignado.id
+       AND asignacion_actual.estado = 'ACTIVA'
+
+      LEFT JOIN colaborador colaborador_actual
+        ON colaborador_actual.id = asignacion_actual.colaborador_id
+
+      LEFT JOIN unidad_empresarial unidad_actual
+        ON unidad_actual.id = colaborador_actual.unidad_empresarial_id
+
+      LEFT JOIN area area_actual
+        ON area_actual.id = colaborador_actual.area_id
 
       LEFT JOIN contrato_gama cg
         ON cg.id = e.contrato_gama_id

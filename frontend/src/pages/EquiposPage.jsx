@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
     Camera,
+    Building2,
+    BriefcaseBusiness,
+    CalendarDays,
+    FileText,
+    MapPin,
+    UserRound,
     FileSpreadsheet,
     Download,
     Headphones,
@@ -268,6 +274,20 @@ function mostrarValorEspecificacion(campo, valor) {
 
 function fechaCalendario(valor) {
     return valor ? String(valor).slice(0, 10) : null;
+}
+
+function formatearFechaDetalle(valor) {
+    const fechaTexto = fechaCalendario(valor);
+    if (!fechaTexto) return '-';
+
+    const fecha = new Date(`${fechaTexto}T12:00:00`);
+    if (Number.isNaN(fecha.getTime())) return fechaTexto;
+
+    return fecha.toLocaleDateString('es-PE', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+    });
 }
 
 function estaDisponible(relacion) {
@@ -2132,86 +2152,239 @@ function EquiposPage({ soloLectura = false, registroInicialId = null, onRegistro
             )}
 
             {detalleAbierto && (
-                <DialogoAccesible className="modal-detalle" tituloId="equipo-detalle-titulo" descripcionId="equipo-detalle-descripcion" onCerrar={() => setDetalleAbierto(false)}>
-                    <div className="modal-encabezado">
-                        <div><h3 id="equipo-detalle-titulo">Detalle del equipo</h3><p id="equipo-detalle-descripcion">Información completa del registro</p></div>
-                        <button type="button" className="modal-cerrar" onClick={() => setDetalleAbierto(false)} aria-label="Cerrar detalle del equipo"><X size={20} aria-hidden="true" /></button>
+                <DialogoAccesible
+                    className="modal-detalle"
+                    tituloId="equipo-detalle-titulo"
+                    descripcionId="equipo-detalle-descripcion"
+                    onCerrar={() => setDetalleAbierto(false)}
+                >
+                    <div className="modal-encabezado modal-encabezado-detalle">
+                        <div>
+                            <span className="modal-detalle-eyebrow">FICHA DEL ACTIVO</span>
+                            <h3 id="equipo-detalle-titulo">Detalle del equipo</h3>
+                            <p id="equipo-detalle-descripcion">Información técnica, administrativa y trazabilidad del activo.</p>
+                        </div>
+                        <button
+                            type="button"
+                            className="modal-cerrar"
+                            onClick={() => setDetalleAbierto(false)}
+                            aria-label="Cerrar detalle del equipo"
+                        >
+                            <X size={20} aria-hidden="true" />
+                        </button>
                     </div>
-                    {cargandoDetalle ? (
-                        <div className="detalle-cargando">Cargando información...</div>
-                    ) : equipoSeleccionado ? (
-                        <div className="detalle-equipo">
-                            <div className="detalle-destacado">
-                                <div className="detalle-icono"><MonitorSmartphone size={28} aria-hidden="true" /></div>
-                                <div>
-                                    <h4>{equipoSeleccionado.marca} {equipoSeleccionado.modelo}</h4>
-                                    <EtiquetaEstado className="estado-equipo" estado={equipoSeleccionado.estado_actual} texto={formatearEstado(equipoSeleccionado.estado_actual)} />
-                                </div>
-                            </div>
-                            <div className="detalle-grid">
-                                <CampoDetalle etiqueta="ID" valor={equipoSeleccionado.id} />
-                                <CampoDetalle etiqueta="Tipo" valor={equipoSeleccionado.tipo} />
-                                <CampoDetalle etiqueta="Código patrimonial" valor={equipoSeleccionado.codigo_patrimonial} />
-                                {tipoDetalle?.acepta_imei && (
-                                    <CampoDetalle etiqueta="IMEI" valor={equipoSeleccionado.imei} />
-                                )}
-                                <CampoDetalle etiqueta="Serie" valor={equipoSeleccionado.serie} />
-                                <CampoDetalle etiqueta="Operador" valor={equipoSeleccionado.operador} />
-                                <CampoDetalle etiqueta="Gama" valor={equipoSeleccionado.gama || equipoSeleccionado.codigo_gama} />
-                                <CampoDetalle etiqueta="Contrato" valor={equipoSeleccionado.nro_contrato} completo claseCompleto="detalle-ancho-completo" />
-                                {tipoDetalle?.campos
-                                    .filter((campo) => Object.hasOwn(
-                                        leerEspecificaciones(equipoSeleccionado.especificaciones),
-                                        campo.clave
-                                    ))
-                                    .map((campo) => (
-                                        <CampoDetalle
-                                            key={campo.clave}
-                                            etiqueta={campo.etiqueta}
-                                            valor={mostrarValorEspecificacion(
-                                                campo,
-                                                leerEspecificaciones(equipoSeleccionado.especificaciones)[campo.clave]
-                                            )}
-                                        />
-                                    ))}
-                                <CampoDetalle etiqueta="Observaciones" valor={equipoSeleccionado.observaciones} completo claseCompleto="detalle-ancho-completo" />
-                            </div>
-                            {TIPOS_PRINCIPALES_PERIFERICOS.has(
-                                equipoSeleccionado.tipo
-                            ) && (
-                                    <section className="detalle-perifericos">
-                                        <h5>Periféricos vinculados</h5>
-                                        {equipoSeleccionado.perifericos.length > 0 ? (
-                                            <div className="detalle-perifericos-grid">
-                                                {equipoSeleccionado.perifericos.map(
-                                                    (periferico) => (
-                                                        <article key={periferico.id}>
-                                                            <strong>{periferico.tipo}</strong>
-                                                            <span>
-                                                                {periferico.marca} {periferico.modelo}
-                                                            </span>
-                                                            <small>
-                                                                {periferico.serie || `ID ${periferico.id}`}
-                                                            </small>
-                                                            <button
-                                                                type="button"
-                                                                className="boton-historial-periferico"
-                                                                onClick={() => setPerifericoHistorialActivo(periferico)}
-                                                            >
-                                                                <History size={14} aria-hidden="true" />
-                                                                Ver historial ({(historialPerifericos[periferico.id] || []).length})
-                                                            </button>
-                                                        </article>
-                                                    )
-                                                )}
-                                            </div>
-                                        ) : (
-                                            <p>Este equipo no tiene periféricos vinculados.</p>
-                                        )}
-                                    </section>
-                                )}
 
-                            <section className="historial-equipo" aria-labelledby="historial-equipo-titulo">
+                    {cargandoDetalle ? (
+                        <div className="detalle-cargando detalle-cargando-moderno">
+                            <RefreshCw size={22} className="detalle-cargando-icono" aria-hidden="true" />
+                            <strong>Cargando ficha del equipo...</strong>
+                            <span>Estamos organizando la información del activo.</span>
+                        </div>
+                    ) : equipoSeleccionado ? (
+                        <div className="detalle-equipo detalle-equipo-moderno">
+                            <div className="detalle-destacado detalle-destacado-moderno">
+                                <div className="detalle-destacado-informacion">
+                                    <div className="detalle-icono">
+                                        <MonitorSmartphone size={26} aria-hidden="true" />
+                                    </div>
+                                    <div className="detalle-identidad">
+                                        <span className="detalle-identidad-tipo">{equipoSeleccionado.tipo}</span>
+                                        <h4>{[equipoSeleccionado.marca, equipoSeleccionado.modelo].filter(Boolean).join(' ') || 'Equipo sin descripción'}</h4>
+                                        <div className="detalle-identidad-meta">
+                                            <span>ID #{equipoSeleccionado.id}</span>
+                                            {equipoSeleccionado.serie && <span>Serie: {equipoSeleccionado.serie}</span>}
+                                            {equipoSeleccionado.codigo_patrimonial && <span>Código: {equipoSeleccionado.codigo_patrimonial}</span>}
+                                        </div>
+                                    </div>
+                                </div>
+                                <EtiquetaEstado
+                                    className="estado-equipo"
+                                    estado={equipoSeleccionado.estado_actual}
+                                    texto={formatearEstado(equipoSeleccionado.estado_actual)}
+                                />
+                            </div>
+
+                            <div className="detalle-secciones">
+                                <section className="detalle-seccion detalle-seccion-general" aria-labelledby="detalle-general-titulo">
+                                    <div className="detalle-seccion-cabecera">
+                                        <span className="detalle-seccion-icono detalle-icono-general"><MonitorSmartphone size={18} aria-hidden="true" /></span>
+                                        <div>
+                                            <h5 id="detalle-general-titulo">Información general</h5>
+                                            <p>Identificación y características técnicas registradas.</p>
+                                        </div>
+                                    </div>
+                                    <div className="detalle-grid">
+                                        <CampoDetalle etiqueta="ID del equipo" valor={equipoSeleccionado.id} />
+                                        <CampoDetalle etiqueta="Tipo de equipo" valor={equipoSeleccionado.tipo} />
+                                        <CampoDetalle etiqueta="Código patrimonial" valor={equipoSeleccionado.codigo_patrimonial} />
+                                        {tipoDetalle?.acepta_imei && (
+                                            <CampoDetalle etiqueta="IMEI" valor={equipoSeleccionado.imei} />
+                                        )}
+                                        <CampoDetalle etiqueta="Serie" valor={equipoSeleccionado.serie} />
+                                        {tipoDetalle?.campos
+                                            ?.filter((campo) => Object.hasOwn(
+                                                leerEspecificaciones(equipoSeleccionado.especificaciones),
+                                                campo.clave
+                                            ))
+                                            .map((campo) => (
+                                                <CampoDetalle
+                                                    key={campo.clave}
+                                                    etiqueta={campo.etiqueta}
+                                                    valor={mostrarValorEspecificacion(
+                                                        campo,
+                                                        leerEspecificaciones(equipoSeleccionado.especificaciones)[campo.clave]
+                                                    )}
+                                                />
+                                            ))}
+                                    </div>
+                                </section>
+
+                                <section className="detalle-seccion detalle-seccion-asignacion" aria-labelledby="detalle-asignacion-titulo">
+                                    <div className="detalle-seccion-cabecera">
+                                        <span className="detalle-seccion-icono detalle-icono-asignacion"><UserRound size={18} aria-hidden="true" /></span>
+                                        <div>
+                                            <h5 id="detalle-asignacion-titulo">Asignación actual</h5>
+                                            <p>Responsable y ubicación vigentes del equipo.</p>
+                                        </div>
+                                    </div>
+                                    {equipoSeleccionado.equipo_principal_id && (
+                                        <div className="detalle-asignacion-referencia">
+                                            <MonitorSmartphone size={15} aria-hidden="true" />
+                                            <span>
+                                                Este periférico toma la asignación de su equipo principal
+                                                {equipoSeleccionado.marca_equipo_principal || equipoSeleccionado.modelo_equipo_principal
+                                                    ? `: ${[equipoSeleccionado.marca_equipo_principal, equipoSeleccionado.modelo_equipo_principal].filter(Boolean).join(' ')}`
+                                                    : ''}
+                                                .
+                                            </span>
+                                        </div>
+                                    )}
+                                    {equipoSeleccionado.asignacion_actual_id ? (
+                                        <>
+                                            <div className="detalle-persona-principal">
+                                                <span className="detalle-persona-avatar"><UserRound size={19} aria-hidden="true" /></span>
+                                                <div>
+                                                    <span>RESPONSABLE ACTUAL</span>
+                                                    <strong>{equipoSeleccionado.colaborador_actual || 'Colaborador no disponible'}</strong>
+                                                    {equipoSeleccionado.correo_colaborador_actual && <small>{equipoSeleccionado.correo_colaborador_actual}</small>}
+                                                </div>
+                                            </div>
+                                            <div className="detalle-grid">
+                                                <CampoDetalle etiqueta="Código de colaborador" valor={equipoSeleccionado.codigo_colaborador_actual} />
+                                                <CampoDetalle etiqueta="Unidad empresarial" valor={equipoSeleccionado.unidad_empresarial_actual} />
+                                                <CampoDetalle etiqueta="Área" valor={equipoSeleccionado.area_actual} />
+                                                <CampoDetalle etiqueta="Ubicación" valor={equipoSeleccionado.ubicacion_asignacion} />
+                                                <CampoDetalle etiqueta="Fecha de asignación" valor={formatearFechaDetalle(equipoSeleccionado.fecha_asignacion)} />
+                                                <CampoDetalle etiqueta="Modalidad" valor={equipoSeleccionado.modalidad_asignacion} />
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="detalle-sin-datos">
+                                            <span className="detalle-sin-datos-icono"><UserRound size={18} aria-hidden="true" /></span>
+                                            <div>
+                                                <strong>Sin asignación activa</strong>
+                                                <p>Este equipo no tiene actualmente un colaborador responsable registrado.</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </section>
+
+                                <section className="detalle-seccion detalle-seccion-contrato" aria-labelledby="detalle-contrato-titulo">
+                                    <div className="detalle-seccion-cabecera">
+                                        <span className="detalle-seccion-icono detalle-icono-contrato"><FileText size={18} aria-hidden="true" /></span>
+                                        <div>
+                                            <h5 id="detalle-contrato-titulo">Contrato y vigencia</h5>
+                                            <p>Información contractual asociada al activo.</p>
+                                        </div>
+                                    </div>
+                                    {equipoSeleccionado.contrato_id || equipoSeleccionado.nro_contrato ||
+                                        equipoSeleccionado.operador || equipoSeleccionado.gama ||
+                                        equipoSeleccionado.fecha_inicio_alquiler || equipoSeleccionado.fecha_fin_alquiler ? (
+                                        <div className="detalle-grid">
+                                            <CampoDetalle
+                                                etiqueta="N.º de contrato"
+                                                valor={equipoSeleccionado.nro_contrato || (equipoSeleccionado.contrato_id ? `Contrato #${equipoSeleccionado.contrato_id}` : null)}
+                                            />
+                                            <CampoDetalle etiqueta="Operador" valor={equipoSeleccionado.operador} />
+                                            <CampoDetalle etiqueta="Gama" valor={equipoSeleccionado.gama || equipoSeleccionado.codigo_gama} />
+                                            <CampoDetalle etiqueta="Inicio de vigencia" valor={formatearFechaDetalle(equipoSeleccionado.fecha_inicio_contrato)} />
+                                            <CampoDetalle etiqueta="Fin de vigencia" valor={formatearFechaDetalle(equipoSeleccionado.fecha_fin_contrato)} />
+                                            <CampoDetalle etiqueta="Inicio de alquiler" valor={formatearFechaDetalle(equipoSeleccionado.fecha_inicio_alquiler)} />
+                                            <CampoDetalle etiqueta="Fin de alquiler" valor={formatearFechaDetalle(equipoSeleccionado.fecha_fin_alquiler)} />
+                                            {equipoSeleccionado.descripcion_contrato && (
+                                                <CampoDetalle
+                                                    etiqueta="Descripción del contrato"
+                                                    valor={equipoSeleccionado.descripcion_contrato}
+                                                    completo
+                                                    claseCompleto="detalle-ancho-completo"
+                                                />
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="detalle-sin-datos">
+                                            <span className="detalle-sin-datos-icono"><FileText size={18} aria-hidden="true" /></span>
+                                            <div>
+                                                <strong>Sin contrato vinculado</strong>
+                                                <p>No se ha registrado un contrato o una gama asociados directamente a este equipo.</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </section>
+                            </div>
+
+                            {String(equipoSeleccionado.observaciones || '').trim() && (
+                                <section className="detalle-seccion detalle-seccion-observaciones" aria-labelledby="detalle-observaciones-titulo">
+                                    <div className="detalle-seccion-cabecera">
+                                        <span className="detalle-seccion-icono detalle-icono-observaciones"><FileText size={18} aria-hidden="true" /></span>
+                                        <div>
+                                            <h5 id="detalle-observaciones-titulo">Observaciones</h5>
+                                            <p>Notas adicionales guardadas en el registro.</p>
+                                        </div>
+                                    </div>
+                                    <p className="detalle-observaciones-texto">{equipoSeleccionado.observaciones}</p>
+                                </section>
+                            )}
+
+                            {TIPOS_PRINCIPALES_PERIFERICOS.has(equipoSeleccionado.tipo) && (
+                                <section className="detalle-perifericos detalle-seccion detalle-seccion-perifericos" aria-labelledby="detalle-perifericos-titulo">
+                                    <div className="detalle-seccion-cabecera">
+                                        <span className="detalle-seccion-icono detalle-icono-perifericos"><Monitor size={18} aria-hidden="true" /></span>
+                                        <div>
+                                            <h5 id="detalle-perifericos-titulo">Periféricos vinculados</h5>
+                                            <p>Componentes relacionados con este equipo principal.</p>
+                                        </div>
+                                    </div>
+                                    {equipoSeleccionado.perifericos.length > 0 ? (
+                                        <div className="detalle-perifericos-grid">
+                                            {equipoSeleccionado.perifericos.map((periferico) => (
+                                                <article key={periferico.id}>
+                                                    <strong>{periferico.tipo}</strong>
+                                                    <span>{periferico.marca} {periferico.modelo}</span>
+                                                    <small>{periferico.serie || `ID ${periferico.id}`}</small>
+                                                    <button
+                                                        type="button"
+                                                        className="boton-historial-periferico"
+                                                        onClick={() => setPerifericoHistorialActivo(periferico)}
+                                                    >
+                                                        <History size={14} aria-hidden="true" />
+                                                        Ver historial ({(historialPerifericos[periferico.id] || []).length})
+                                                    </button>
+                                                </article>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="detalle-sin-datos detalle-sin-datos-compacto">
+                                            <span className="detalle-sin-datos-icono"><Monitor size={18} aria-hidden="true" /></span>
+                                            <div>
+                                                <strong>Sin periféricos vinculados</strong>
+                                                <p>Este equipo todavía no tiene periféricos asociados.</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </section>
+                            )}
+
+                            <section className="historial-equipo detalle-seccion-historial" aria-labelledby="historial-equipo-titulo">
                                 <div className="historial-equipo-encabezado">
                                     <div>
                                         <h5 id="historial-equipo-titulo">Historial de vida del equipo</h5>
