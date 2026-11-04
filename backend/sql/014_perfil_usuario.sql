@@ -2,7 +2,7 @@
 -- Ejecutar una sola vez en la base de datos del sistema de inventario.
 
 CREATE TABLE IF NOT EXISTS usuario_perfil (
-    usuario_id INT NOT NULL,
+    usuario_id INT UNSIGNED NOT NULL,
     foto_perfil VARCHAR(255) NULL,
     actualizado_en TIMESTAMP NOT NULL
         DEFAULT CURRENT_TIMESTAMP
