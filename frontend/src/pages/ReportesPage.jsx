@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  Activity, BarChart3, Building2, Check, ChevronRight, CircleHelp,
+  Activity, ChartColumn, Building2, Check, ChevronRight, CircleHelp,
   FileSpreadsheet, FileText, Filter, Laptop, Monitor, Package,
   RefreshCw, RotateCcw, Search, Users, X
 } from 'lucide-react';
@@ -367,7 +367,7 @@ export default function ReportesPage() {
     <main className="pagina-reportes">
       <header className="reportes-hero">
         <div className="reportes-hero-contenido">
-          <div className="reportes-icono-principal"><BarChart3 size={22} /></div>
+          <div className="reportes-icono-principal"><ChartColumn size={22} /></div>
           <div>
             <div className="reportes-eyebrow">ANÁLISIS Y CONTROL</div>
             <h2>Reportes gerenciales</h2>
