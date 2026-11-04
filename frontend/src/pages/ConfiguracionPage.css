@@ -1621,3 +1621,31 @@
     opacity: 0.55;
     cursor: wait;
 }
+
+
+/* Límite de altura para los diálogos nativos de Configuración */
+dialog.config-modal,
+dialog.config-modal-gama {
+  box-sizing: border-box;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+@media (max-height: 680px) {
+  dialog.config-modal,
+  dialog.config-modal-gama {
+    max-height: calc(100vh - 16px);
+    max-height: calc(100dvh - 16px);
+  }
+}
+@media (max-width: 600px) {
+  dialog.config-modal,
+  dialog.config-modal-gama {
+    max-width: calc(100vw - 18px);
+    max-height: calc(100vh - 18px);
+    max-height: calc(100dvh - 18px);
+  }
+}

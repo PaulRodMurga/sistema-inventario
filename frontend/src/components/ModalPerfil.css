@@ -458,3 +458,47 @@
         width: 100%;
     }
 }
+
+
+/* Mantener el modal del perfil dentro de la pantalla */
+.perfil-modal-fondo {
+  box-sizing: border-box;
+  padding: clamp(9px, 2vh, 18px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.perfil-modal {
+  box-sizing: border-box;
+  width: min(560px, calc(100vw - 36px));
+  max-width: calc(100vw - 36px);
+  max-height: calc(100vh - 36px);
+  max-height: calc(100dvh - 36px);
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.perfil-modal > form {
+  min-height: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.perfil-modal-contenido {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.perfil-modal-pie { flex: 0 0 auto; }
+@media (max-height: 680px) {
+  .perfil-modal-fondo { padding-top: 8px; padding-bottom: 8px; }
+  .perfil-modal { max-height: calc(100dvh - 16px); }
+}
+@media (max-width: 520px) {
+  .perfil-modal { width: calc(100vw - 18px); max-width: calc(100vw - 18px); }
+  .perfil-modal-fondo { padding: 9px; }
+}

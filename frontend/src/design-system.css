@@ -692,3 +692,75 @@ textarea:focus-visible {
   .modal-ficha-estado { margin-left: 54px; }
   .modal-ficha-seccion { padding: 12px; }
 }
+
+
+/* Seguridad global: ningún diálogo debe exceder el área visible */
+.modal-fondo:has(> .modal-contenido) {
+  box-sizing: border-box;
+  padding: clamp(10px, 2vh, 18px) !important;
+  overflow-x: hidden;
+  overflow-y: auto;
+  place-items: center;
+  overscroll-behavior: contain;
+}
+.modal-fondo > .modal-contenido {
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  max-width: calc(100vw - 36px) !important;
+  max-height: calc(100vh - 36px) !important;
+  max-height: calc(100dvh - 36px) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+/* Diálogos nativos usados en Configuración */
+dialog.config-modal,
+dialog.config-modal-gama,
+.config-modal[role="dialog"],
+.config-modal-gama[role="dialog"] {
+  box-sizing: border-box;
+  max-width: calc(100vw - 32px) !important;
+  max-height: calc(100vh - 32px) !important;
+  max-height: calc(100dvh - 32px) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+}
+
+@media (max-height: 680px) {
+  .modal-fondo:has(> .modal-contenido) {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+  .modal-fondo > .modal-contenido {
+    max-height: calc(100vh - 16px) !important;
+    max-height: calc(100dvh - 16px) !important;
+  }
+  dialog.config-modal,
+  dialog.config-modal-gama,
+  .config-modal[role="dialog"],
+  .config-modal-gama[role="dialog"] {
+    max-height: calc(100vh - 16px) !important;
+    max-height: calc(100dvh - 16px) !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .modal-fondo:has(> .modal-contenido) { padding: 9px !important; }
+  .modal-fondo > .modal-contenido {
+    max-width: calc(100vw - 18px) !important;
+    max-height: calc(100vh - 18px) !important;
+    max-height: calc(100dvh - 18px) !important;
+  }
+  dialog.config-modal,
+  dialog.config-modal-gama,
+  .config-modal[role="dialog"],
+  .config-modal-gama[role="dialog"] {
+    max-width: calc(100vw - 18px) !important;
+    max-height: calc(100vh - 18px) !important;
+    max-height: calc(100dvh - 18px) !important;
+  }
+}
