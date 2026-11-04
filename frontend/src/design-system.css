@@ -586,3 +586,109 @@ textarea:focus-visible {
   padding: 15px 19px;
 }
 
+
+
+/* Lenguaje visual compartido para modales de detalle */
+.modal-ficha {
+  box-sizing: border-box; display: flex; flex-direction: column;
+  width: min(900px, calc(100vw - 36px)); max-width: calc(100vw - 36px);
+  height: min(790px, calc(100dvh - 36px)); max-height: calc(100dvh - 36px);
+  min-height: 0; overflow: hidden; border: 1px solid #dfe7f1;
+  border-radius: 18px; background: #f6f8fc;
+  box-shadow: 0 28px 80px rgba(15, 27, 46, .28);
+}
+.modal-ficha .modal-ficha-encabezado {
+  position: relative; flex: 0 0 auto; align-items: center; gap: 14px;
+  padding: 17px 22px; border-bottom: 1px solid #e5ebf3;
+  background: rgba(255, 255, 255, .97);
+}
+.modal-ficha .modal-ficha-encabezado > div:first-child { min-width: 0; }
+.modal-ficha-eyebrow {
+  display: inline-block; margin-bottom: 4px; color: #4777bd;
+  font-size: 9px; font-weight: 800; letter-spacing: .13em;
+}
+.modal-ficha .modal-ficha-encabezado h3 {
+  margin: 0; color: #1b2b43; font-size: 17px; font-weight: 760; letter-spacing: -.02em;
+}
+.modal-ficha .modal-ficha-encabezado p {
+  margin: 4px 0 0; color: #8290a3; font-size: 10px; line-height: 1.45;
+}
+.modal-ficha .modal-cerrar {
+  flex: 0 0 36px; border: 1px solid #e5ebf3; border-radius: 10px; background: #f8fafc;
+}
+.modal-ficha .modal-cerrar:hover {
+  border-color: #c8d8ed; background: #fff0f0; color: #c2414b;
+}
+.modal-ficha-cuerpo {
+  flex: 1 1 0; min-height: 0; max-height: 100%; overflow-x: hidden; overflow-y: auto;
+  overscroll-behavior: contain; scrollbar-gutter: stable;
+}
+.modal-ficha-cuerpo::-webkit-scrollbar { width: 9px; }
+.modal-ficha-cuerpo::-webkit-scrollbar-thumb {
+  border: 2px solid #f6f8fc; border-radius: 999px; background: #cbd5e1;
+}
+.modal-ficha-cuerpo::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+.modal-ficha-resumen {
+  min-width: 0; margin-bottom: 15px; padding: 15px 17px;
+  display: flex; align-items: center; gap: 12px;
+  border: 1px solid #d9e6f6; border-radius: 14px;
+  background: linear-gradient(110deg, #edf5ff, #fff 78%);
+}
+.modal-ficha-resumen-icono {
+  width: 42px; height: 42px; flex: 0 0 42px; display: grid; place-items: center;
+  border: 1px solid #d8e6f7; border-radius: 12px; background: #fff; color: #2e68c6;
+}
+.modal-ficha-resumen-texto {
+  min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 3px;
+}
+.modal-ficha-resumen-texto > span {
+  color: #6481a5; font-size: 8px; font-weight: 800; letter-spacing: .09em;
+}
+.modal-ficha-resumen-texto strong {
+  overflow-wrap: anywhere; color: #263b57; font-size: 13px;
+}
+.modal-ficha-resumen-texto small {
+  overflow-wrap: anywhere; color: #8290a3; font-size: 10px;
+}
+.modal-ficha-estado {
+  flex: 0 0 auto; padding: 6px 9px; border-radius: 999px;
+  background: #edf2f7; color: #526176; font-size: 9px; font-weight: 800; white-space: nowrap;
+}
+.modal-ficha-seccion {
+  min-width: 0; padding: 16px; border: 1px solid #e4eaf2;
+  border-radius: 14px; background: #fff; box-shadow: 0 3px 12px rgba(15, 23, 42, .03);
+}
+.modal-ficha-seccion h4 {
+  margin: 0 0 12px; color: #293b54; font-size: 12px; font-weight: 760;
+}
+.modal-ficha-seccion-encabezado {
+  margin-bottom: 12px; display: flex; flex-direction: column; gap: 3px;
+}
+.modal-ficha-seccion-encabezado strong { color: #293b54; font-size: 12px; font-weight: 760; }
+.modal-ficha-seccion-encabezado span { color: #8a97a8; font-size: 10px; line-height: 1.45; }
+.modal-ficha .detalle-campo {
+  min-width: 0; padding: 11px 12px; border: 1px solid #edf1f6;
+  border-radius: 10px; background: #f8fafc;
+}
+.modal-ficha .detalle-campo > span {
+  margin-bottom: 5px; color: #8390a2; font-size: 9px; font-weight: 700; letter-spacing: .035em;
+}
+.modal-ficha .detalle-campo > strong {
+  overflow-wrap: anywhere; color: #33445d; font-size: 11px; font-weight: 650; line-height: 1.45;
+}
+.modal-ficha-cargando {
+  flex: 1 1 auto; min-height: 180px; display: grid; place-items: center;
+  padding: 24px; color: #64748b; background: #fff;
+}
+@media (max-width: 600px) {
+  .modal-ficha {
+    width: calc(100vw - 18px); max-width: calc(100vw - 18px);
+    height: calc(100dvh - 18px); max-height: calc(100dvh - 18px); border-radius: 15px;
+  }
+  .modal-ficha .modal-ficha-encabezado { padding: 13px 15px; }
+  .modal-ficha .modal-ficha-encabezado h3 { font-size: 15px; }
+  .modal-ficha-resumen { align-items: flex-start; flex-wrap: wrap; padding: 12px; }
+  .modal-ficha-resumen-texto { flex-basis: calc(100% - 60px); }
+  .modal-ficha-estado { margin-left: 54px; }
+  .modal-ficha-seccion { padding: 12px; }
+}
