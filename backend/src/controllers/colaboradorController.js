@@ -126,6 +126,7 @@ const obtenerColaboradorPorId = async (req, res) => {
         c.apellidos,
         c.nombres,
         c.dni,
+        c.correo,
         c.estado,
 
         ca.id AS cargo_id,
