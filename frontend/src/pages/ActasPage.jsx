@@ -482,13 +482,14 @@ function ActasPage({ filtroInicial = 'TODOS', registroInicialId = null, onRegist
 
             {detalleAbierto && (
                 <DialogoAccesible
-                    className="modal-acta"
+                    className="modal-ficha modal-acta modal-acta-detalle"
                     tituloId="titulo-detalle-acta"
                     descripcionId="descripcion-detalle-acta"
                     onCerrar={cerrarDetalle}
                 >
-                    <div className="modal-encabezado">
+                    <div className="modal-encabezado modal-ficha-encabezado">
                         <div>
+                            <span className="modal-ficha-eyebrow">DOCUMENTO DE ENTREGA</span>
                             <h3 id="titulo-detalle-acta">Detalle del acta</h3>
 
                             <p id="descripcion-detalle-acta">
@@ -601,7 +602,7 @@ function DevolucionActa({ acta }) {
 
 function DetalleActa({ acta }) {
     return (
-        <div className="detalle-acta">
+        <div className="detalle-acta detalle-acta-moderno modal-ficha-cuerpo">
             <div className="detalle-acta-principal">
                 <FileText size={26} />
 
@@ -614,6 +615,10 @@ function DetalleActa({ acta }) {
                 </div>
 
                 <EstadoActa estado={acta.estado} />
+                <div className="detalle-acta-firmas">
+                    <span>Firma AMO <IndicadorSiNo valor={acta.firmo_amo} /></span>
+                    <span>Firma DMO <IndicadorSiNo valor={acta.firmo_dmo} /></span>
+                </div>
             </div>
 
             <div className="detalle-acta-grid">
