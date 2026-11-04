@@ -2374,3 +2374,66 @@
     .detalle-identidad-meta { flex-direction: column; gap: 3px; }
     .detalle-seccion-historial { padding: 13px; }
 }
+
+
+/* Ajustes de tamaño y desplazamiento interno del modal de detalle */
+.modal-fondo:has(.modal-detalle) {
+    padding: 16px;
+    overflow: hidden;
+    place-items: center;
+}
+
+.modal-detalle {
+    box-sizing: border-box;
+    width: min(900px, calc(100vw - 32px));
+    height: min(760px, calc(100dvh - 32px));
+    max-width: calc(100vw - 32px);
+    max-height: calc(100dvh - 32px);
+    min-height: 0;
+    overflow: hidden;
+}
+
+.modal-encabezado-detalle {
+    flex: 0 0 auto;
+}
+
+.modal-detalle .detalle-equipo {
+    flex: 1 1 0;
+    min-height: 0;
+    max-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+}
+
+.modal-detalle .detalle-equipo::-webkit-scrollbar {
+    width: 9px;
+}
+
+.modal-detalle .detalle-equipo::-webkit-scrollbar-thumb {
+    border: 2px solid #f6f8fc;
+    border-radius: 999px;
+    background: #cbd5e1;
+}
+
+.modal-detalle .detalle-equipo::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+@media (max-width: 600px) {
+    .modal-fondo:has(.modal-detalle) {
+        padding: 9px;
+    }
+
+    .modal-detalle {
+        width: calc(100vw - 18px);
+        max-width: calc(100vw - 18px);
+        height: calc(100dvh - 18px);
+        max-height: calc(100dvh - 18px);
+    }
+
+    .modal-encabezado-detalle {
+        flex-shrink: 0;
+    }
+}
