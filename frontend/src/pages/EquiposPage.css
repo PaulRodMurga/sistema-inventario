@@ -2437,3 +2437,31 @@
         flex-shrink: 0;
     }
 }
+
+
+/* Historial individual de periféricos: mismo acabado que las demás fichas */
+.modal-historial-periferico.modal-ficha {
+  width: min(720px, calc(100vw - 36px));
+  height: min(720px, calc(100dvh - 36px));
+}
+.modal-historial-periferico .contenido-historial-periferico {
+  flex: 1 1 0; min-height: 0; max-height: 100%;
+  padding: 17px 21px 22px; background: #f6f8fc;
+  overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
+}
+.modal-historial-periferico .historial-periferico-identificacion {
+  margin-bottom: 14px; padding: 14px; border-color: #d9e6f6;
+  border-radius: 12px; background: #fff;
+}
+.modal-historial-periferico .historial-periferico-identificacion span {
+  font-size: 9px; font-weight: 800; letter-spacing: .08em;
+}
+.modal-historial-periferico .historial-periferico-identificacion strong {
+  color: #293b54; font-size: 13px;
+}
+@media (max-width: 600px) {
+  .modal-historial-periferico.modal-ficha {
+    width: calc(100vw - 18px); height: calc(100dvh - 18px);
+  }
+  .modal-historial-periferico .contenido-historial-periferico { padding: 12px; }
+}
