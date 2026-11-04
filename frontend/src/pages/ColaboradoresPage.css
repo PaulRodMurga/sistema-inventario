@@ -206,3 +206,36 @@
     color: #94a3b8;
     font-size: 11px;
 }
+
+/* Modal de detalle del colaborador */
+.modal-detalle-colaborador.modal-ficha {
+  width: min(760px, calc(100vw - 36px));
+  height: auto;
+  max-height: min(740px, calc(100dvh - 36px));
+}
+.modal-detalle-colaborador .detalle-colaborador {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto;
+  padding: 19px 22px 22px; background: #f6f8fc;
+}
+.modal-detalle-colaborador .perfil-colaborador {
+  margin-bottom: 14px; padding: 16px; border: 1px solid #d9e6f6;
+  border-radius: 14px; background: linear-gradient(110deg, #edf5ff, #fff 78%);
+}
+.modal-detalle-colaborador .perfil-colaborador-avatar {
+  border: 1px solid #d3e4fb; background: #fff; color: #2e68c6;
+  box-shadow: 0 3px 9px rgb(37 99 235 / 8%);
+}
+.modal-detalle-colaborador .perfil-colaborador h4 {
+  color: #1e2e46; font-size: 16px;
+}
+.modal-ficha-secciones-colaborador { display: grid; gap: 12px; }
+.modal-ficha-secciones-colaborador .detalle-grid {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px;
+}
+@media (max-width: 600px) {
+  .modal-detalle-colaborador.modal-ficha {
+    height: auto; max-height: calc(100dvh - 18px);
+  }
+  .modal-detalle-colaborador .detalle-colaborador { padding: 12px; }
+  .modal-ficha-secciones-colaborador .detalle-grid { grid-template-columns: 1fr; }
+}
