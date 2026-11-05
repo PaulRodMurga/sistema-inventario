@@ -785,3 +785,286 @@ body:has(.modal-fondo, .perfil-modal-fondo, dialog[open]) .barra-superior {
 .perfil-modal-fondo {
   z-index: 5000 !important;
 }
+
+
+/* Rediseño compartido de tablas: inventario, operaciones y reportes. */
+/* Contenedores desplazables: conservan los anchos propios de cada tabla
+   y permiten consultar listas extensas sin perder los encabezados. */
+.contenido .contenedor-tabla > .tabla-scroll,
+.contenido :is(
+  .tabla-actas-contenedor,
+  .tabla-movimientos-contenedor,
+  .config-tabla-contenedor,
+  .if-tabla-contenedor,
+  .reportes-tabla-contenedor,
+  .equipos-acta-contenedor
+) {
+  box-sizing: border-box;
+  max-height: min(68vh, 660px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #c5d1e1 transparent;
+}
+
+.contenido .contenedor-tabla > .tabla-scroll::-webkit-scrollbar,
+.contenido :is(
+  .tabla-actas-contenedor,
+  .tabla-movimientos-contenedor,
+  .config-tabla-contenedor,
+  .if-tabla-contenedor,
+  .reportes-tabla-contenedor,
+  .equipos-acta-contenedor
+)::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+.contenido .contenedor-tabla > .tabla-scroll::-webkit-scrollbar-thumb,
+.contenido :is(
+  .tabla-actas-contenedor,
+  .tabla-movimientos-contenedor,
+  .config-tabla-contenedor,
+  .if-tabla-contenedor,
+  .reportes-tabla-contenedor,
+  .equipos-acta-contenedor
+)::-webkit-scrollbar-thumb {
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #c5d1e1;
+}
+
+/* Superficie y encabezados uniformes. */
+.contenido :is(
+  .tabla-equipos,
+  .tabla-actas,
+  .tabla-movimientos,
+  .config-tabla,
+  .if-tabla,
+  .reportes-tabla,
+  .equipos-acta-tabla
+) {
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+}
+
+.contenido :is(
+  .tabla-equipos,
+  .tabla-actas,
+  .tabla-movimientos,
+  .config-tabla,
+  .if-tabla,
+  .reportes-tabla,
+  .equipos-acta-tabla
+) thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  padding: 12px 14px;
+  border: 0;
+  border-bottom: 1px solid #dfe7f1;
+  background: #f1f5fa;
+  color: #53647b;
+  font-size: 10px;
+  font-weight: 760;
+  line-height: 1.35;
+  letter-spacing: .035em;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* Celdas y filas con altura visual homogénea. */
+.contenido :is(
+  .tabla-equipos,
+  .tabla-actas,
+  .tabla-movimientos,
+  .config-tabla,
+  .if-tabla,
+  .reportes-tabla,
+  .equipos-acta-tabla
+) tbody td {
+  padding: 12px 14px;
+  border: 0;
+  border-bottom: 1px solid #edf1f6;
+  background: #fff;
+  color: #526176;
+  font-size: 11px;
+  line-height: 1.45;
+  vertical-align: middle;
+}
+
+.contenido :is(
+  .tabla-equipos,
+  .tabla-actas,
+  .tabla-movimientos,
+  .config-tabla,
+  .if-tabla,
+  .reportes-tabla,
+  .equipos-acta-tabla
+) tbody tr:nth-child(even) td {
+  background: #fbfcfe;
+}
+
+.contenido :is(
+  .tabla-equipos,
+  .tabla-actas,
+  .tabla-movimientos,
+  .config-tabla,
+  .if-tabla,
+  .reportes-tabla,
+  .equipos-acta-tabla
+) tbody tr:hover td {
+  background: #f2f7fd;
+}
+
+.contenido :is(
+  .tabla-equipos,
+  .tabla-actas,
+  .tabla-movimientos,
+  .config-tabla,
+  .if-tabla,
+  .reportes-tabla,
+  .equipos-acta-tabla
+) tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.contenido :is(
+  .tabla-equipos,
+  .tabla-actas,
+  .tabla-movimientos,
+  .config-tabla,
+  .if-tabla,
+  .reportes-tabla,
+  .equipos-acta-tabla
+) tbody td strong {
+  color: #2b3c54;
+  font-weight: 680;
+}
+
+.contenido :is(
+  .tabla-equipos,
+  .tabla-actas,
+  .tabla-movimientos,
+  .config-tabla,
+  .if-tabla,
+  .reportes-tabla,
+  .equipos-acta-tabla
+) tbody td small {
+  display: block;
+  margin-top: 3px;
+  color: #8491a4;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+/* Etiquetas de estado y movimiento con una misma proporción. */
+.contenido :is(
+  .estado-equipo,
+  .estado-colaborador,
+  .estado-asignacion,
+  .estado-acta,
+  .estado-linea,
+  .config-estado,
+  .if-estado,
+  .if-estado-revision,
+  .reportes-etiqueta-estado,
+  .etiqueta-movimiento
+) {
+  box-sizing: border-box;
+  min-height: 24px;
+  padding: 4px 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 750;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* Alineación y tamaño consistentes para las acciones de cada registro. */
+.contenido :is(.acciones-tabla, .config-acciones-fila) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: 6px;
+}
+
+.contenido :is(.acciones-tabla, .config-acciones-fila) > button {
+  flex: 0 0 auto;
+  border-radius: 9px;
+  transition: background .16s ease, border-color .16s ease, color .16s ease, transform .16s ease;
+}
+
+.contenido :is(.tabla-actas, .tabla-movimientos) th:last-child,
+.contenido :is(.tabla-actas, .tabla-movimientos) td:last-child {
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* Barras de búsqueda y filtros más compactas y coherentes. */
+.contenido .barra-tabla {
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.contenido :is(
+  .filtros-actas,
+  .filtros-movimientos,
+  .filtros-colaboradores,
+  .config-filtros
+) {
+  padding: 12px 14px;
+  border-color: #e3eaf3;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.contenido .barra-tabla .buscador-tabla {
+  min-height: 40px;
+}
+
+@media (max-width: 760px) {
+  .contenido .contenedor-tabla > .tabla-scroll,
+  .contenido :is(
+    .tabla-actas-contenedor,
+    .tabla-movimientos-contenedor,
+    .config-tabla-contenedor,
+    .if-tabla-contenedor,
+    .reportes-tabla-contenedor,
+    .equipos-acta-contenedor
+  ) {
+    max-height: 62vh;
+  }
+
+  .contenido :is(
+    .tabla-equipos,
+    .tabla-actas,
+    .tabla-movimientos,
+    .config-tabla,
+    .if-tabla,
+    .reportes-tabla,
+    .equipos-acta-tabla
+  ) thead th {
+    padding: 11px 12px;
+    font-size: 9px;
+  }
+
+  .contenido :is(
+    .tabla-equipos,
+    .tabla-actas,
+    .tabla-movimientos,
+    .config-tabla,
+    .if-tabla,
+    .reportes-tabla,
+    .equipos-acta-tabla
+  ) tbody td {
+    padding: 10px 12px;
+  }
+}
