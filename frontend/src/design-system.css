@@ -767,10 +767,21 @@ dialog.config-modal-gama,
 
 
 /* Desenfocar la barra superior mientras un diálogo está abierto. */
+/* El encabezado sticky debe quedar por debajo de cualquier diálogo abierto. */
 body:has(.modal-fondo, .perfil-modal-fondo, dialog[open]) .barra-superior {
+  z-index: 0 !important;
   filter: blur(4px);
   opacity: .62;
   pointer-events: none;
   user-select: none;
-  transition: filter .18s ease, opacity .18s ease;
+  transition: filter .18s ease, opacity .18s ease, z-index .18s ease;
+}
+
+/* Llevar las capas de diálogo por encima de elementos sticky del diseño. */
+.modal-fondo {
+  z-index: 5000 !important;
+}
+
+.perfil-modal-fondo {
+  z-index: 5000 !important;
 }
