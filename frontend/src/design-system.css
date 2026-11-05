@@ -764,3 +764,13 @@ dialog.config-modal-gama,
     max-height: calc(100dvh - 18px) !important;
   }
 }
+
+
+/* Desenfocar la barra superior mientras un diálogo está abierto. */
+body:has(.modal-fondo, .perfil-modal-fondo, dialog[open]) .barra-superior {
+  filter: blur(4px);
+  opacity: .62;
+  pointer-events: none;
+  user-select: none;
+  transition: filter .18s ease, opacity .18s ease;
+}
