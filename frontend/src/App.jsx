@@ -748,13 +748,151 @@ function AplicacionInventario({ usuario, onCerrarSesion, onActualizarUsuario }) 
               <button type="button" onClick={() => setSeccionActiva('Movimientos')}><ArrowLeftRight size={17} /> Movimientos <ArrowUpRight size={15} /></button>
             </div>
 
-            <div className="tarjetas dashboard-kpis">
-              <article className="tarjeta dashboard-kpi dashboard-kpi-total"><div className="dashboard-kpi-icono"><Package size={19} /></div><span>Total de equipos</span><strong>{formatearCantidad(resumen.total_equipos)}</strong><small>Inventario registrado</small></article>
-              <article className="tarjeta tarjeta-verde dashboard-kpi"><div className="dashboard-kpi-icono"><PackageCheck size={19} /></div><span>Asignados</span><strong>{formatearCantidad(resumen.asignados)}</strong><small>{porcentajeAsignados}% del inventario</small><div className="dashboard-progreso"><span style={{ width: porcentajeAsignados + '%' }} /></div></article>
-              <article className="tarjeta tarjeta-celeste dashboard-kpi"><div className="dashboard-kpi-icono"><Package size={19} /></div><span>Libres</span><strong>{formatearCantidad(resumen.libres)}</strong><small>{porcentajeLibres}% disponibles</small><div className="dashboard-progreso dashboard-progreso-celeste"><span style={{ width: porcentajeLibres + '%' }} /></div></article>
-              <article className="tarjeta tarjeta-roja dashboard-kpi"><div className="dashboard-kpi-icono"><AlertTriangle size={19} /></div><span>Incidencias</span><strong>{formatearCantidad(incidencias)}</strong><small>{formatearCantidad(resumen.perdidos)} perdidos · {formatearCantidad(resumen.robados)} robados</small></article>
-              <article className="tarjeta dashboard-kpi dashboard-kpi-secundario"><div className="dashboard-kpi-icono"><UsersRound size={19} /></div><span>Colaboradores</span><strong>{formatearCantidad(resumen.total_colaboradores)}</strong><small>Registrados en el sistema</small></article>
-              <article className="tarjeta dashboard-kpi dashboard-kpi-secundario"><div className="dashboard-kpi-icono"><Smartphone size={19} /></div><span>Líneas móviles</span><strong>{formatearCantidad(resumen.total_lineas)}</strong><small>En el inventario móvil</small></article>
+            <div className="tarjetas dashboard-kpis" aria-label="Indicadores principales del inventario">
+              <article className="tarjeta dashboard-kpi dashboard-kpi-total">
+                <div className="dashboard-kpi-top">
+                  <div className="dashboard-kpi-identidad">
+                    <div className="dashboard-kpi-icono"><Package size={19} aria-hidden="true" /></div>
+                    <div className="dashboard-kpi-titulo">
+                      <span>Total de equipos</span>
+                      <small>Inventario TI</small>
+                    </div>
+                  </div>
+                  <span className="dashboard-kpi-chip">General</span>
+                </div>
+                <strong className="dashboard-kpi-valor">{formatearCantidad(resumen.total_equipos)}</strong>
+                <p className="dashboard-kpi-detalle">Equipos registrados en el inventario.</p>
+                <div className="dashboard-kpi-pie">
+                  <span>Consulta el inventario</span>
+                  <button type="button" className="dashboard-kpi-accion" onClick={() => setSeccionActiva('Equipos')} aria-label="Ver equipos">
+                    Ver equipos <ArrowUpRight size={15} aria-hidden="true" />
+                  </button>
+                </div>
+              </article>
+
+              <article className="tarjeta tarjeta-verde dashboard-kpi dashboard-kpi-asignados">
+                <div className="dashboard-kpi-top">
+                  <div className="dashboard-kpi-identidad">
+                    <div className="dashboard-kpi-icono"><PackageCheck size={19} aria-hidden="true" /></div>
+                    <div className="dashboard-kpi-titulo">
+                      <span>Asignados</span>
+                      <small>En uso por colaboradores</small>
+                    </div>
+                  </div>
+                  <span className="dashboard-kpi-chip">Asignación</span>
+                </div>
+                <strong className="dashboard-kpi-valor">{formatearCantidad(resumen.asignados)}</strong>
+                <div className="dashboard-kpi-progreso">
+                  <div className="dashboard-kpi-progreso-info">
+                    <span>Del inventario total</span>
+                    <strong>{porcentajeAsignados}%</strong>
+                  </div>
+                  <div className="dashboard-kpi-barra" role="progressbar" aria-label="Porcentaje de equipos asignados" aria-valuemin={0} aria-valuemax={100} aria-valuenow={porcentajeAsignados}>
+                    <span style={{ width: porcentajeAsignados + '%' }} />
+                  </div>
+                </div>
+                <div className="dashboard-kpi-pie">
+                  <span>Equipos entregados</span>
+                  <button type="button" className="dashboard-kpi-accion" onClick={() => setSeccionActiva('Asignaciones')} aria-label="Ver asignaciones">
+                    Ver asignaciones <ArrowUpRight size={15} aria-hidden="true" />
+                  </button>
+                </div>
+              </article>
+
+              <article className="tarjeta tarjeta-celeste dashboard-kpi dashboard-kpi-libres">
+                <div className="dashboard-kpi-top">
+                  <div className="dashboard-kpi-identidad">
+                    <div className="dashboard-kpi-icono"><Package size={19} aria-hidden="true" /></div>
+                    <div className="dashboard-kpi-titulo">
+                      <span>Libres</span>
+                      <small>Disponibles para asignar</small>
+                    </div>
+                  </div>
+                  <span className="dashboard-kpi-chip">Disponibilidad</span>
+                </div>
+                <strong className="dashboard-kpi-valor">{formatearCantidad(resumen.libres)}</strong>
+                <div className="dashboard-kpi-progreso dashboard-kpi-progreso-celeste">
+                  <div className="dashboard-kpi-progreso-info">
+                    <span>Del inventario total</span>
+                    <strong>{porcentajeLibres}%</strong>
+                  </div>
+                  <div className="dashboard-kpi-barra" role="progressbar" aria-label="Porcentaje de equipos libres" aria-valuemin={0} aria-valuemax={100} aria-valuenow={porcentajeLibres}>
+                    <span style={{ width: porcentajeLibres + '%' }} />
+                  </div>
+                </div>
+                <div className="dashboard-kpi-pie">
+                  <span>Listos para entregar</span>
+                  <button type="button" className="dashboard-kpi-accion" onClick={() => setSeccionActiva('Equipos')} aria-label="Ver equipos disponibles">
+                    Ver equipos <ArrowUpRight size={15} aria-hidden="true" />
+                  </button>
+                </div>
+              </article>
+
+              <article className="tarjeta tarjeta-roja dashboard-kpi dashboard-kpi-incidencias">
+                <div className="dashboard-kpi-top">
+                  <div className="dashboard-kpi-identidad">
+                    <div className="dashboard-kpi-icono"><AlertTriangle size={19} aria-hidden="true" /></div>
+                    <div className="dashboard-kpi-titulo">
+                      <span>Incidencias</span>
+                      <small>Requieren seguimiento</small>
+                    </div>
+                  </div>
+                  <span className="dashboard-kpi-chip">Atención</span>
+                </div>
+                <strong className="dashboard-kpi-valor">{formatearCantidad(incidencias)}</strong>
+                <div className="dashboard-kpi-desglose">
+                  <div><span className="dashboard-kpi-punto dashboard-kpi-punto-perdido" /><span>Perdidos</span><strong>{formatearCantidad(resumen.perdidos)}</strong></div>
+                  <div><span className="dashboard-kpi-punto dashboard-kpi-punto-robado" /><span>Robados</span><strong>{formatearCantidad(resumen.robados)}</strong></div>
+                </div>
+                <div className="dashboard-kpi-pie">
+                  <span>Equipos reportados</span>
+                  <button type="button" className="dashboard-kpi-accion" onClick={() => setSeccionActiva('Equipos')} aria-label="Revisar equipos con incidencias">
+                    Revisar equipos <ArrowUpRight size={15} aria-hidden="true" />
+                  </button>
+                </div>
+              </article>
+
+              <article className="tarjeta dashboard-kpi dashboard-kpi-secundario dashboard-kpi-colaboradores">
+                <div className="dashboard-kpi-top">
+                  <div className="dashboard-kpi-identidad">
+                    <div className="dashboard-kpi-icono"><UsersRound size={19} aria-hidden="true" /></div>
+                    <div className="dashboard-kpi-titulo">
+                      <span>Colaboradores</span>
+                      <small>Personas registradas</small>
+                    </div>
+                  </div>
+                  <span className="dashboard-kpi-chip">Personal</span>
+                </div>
+                <strong className="dashboard-kpi-valor">{formatearCantidad(resumen.total_colaboradores)}</strong>
+                <p className="dashboard-kpi-detalle">Colaboradores registrados en el sistema.</p>
+                <div className="dashboard-kpi-pie">
+                  <span>Directorio de personal</span>
+                  <button type="button" className="dashboard-kpi-accion" onClick={() => setSeccionActiva('Colaboradores')} aria-label="Ver colaboradores">
+                    Ver colaboradores <ArrowUpRight size={15} aria-hidden="true" />
+                  </button>
+                </div>
+              </article>
+
+              <article className="tarjeta dashboard-kpi dashboard-kpi-secundario dashboard-kpi-lineas">
+                <div className="dashboard-kpi-top">
+                  <div className="dashboard-kpi-identidad">
+                    <div className="dashboard-kpi-icono"><Smartphone size={19} aria-hidden="true" /></div>
+                    <div className="dashboard-kpi-titulo">
+                      <span>Líneas móviles</span>
+                      <small>Inventario de telefonía</small>
+                    </div>
+                  </div>
+                  <span className="dashboard-kpi-chip">Móviles</span>
+                </div>
+                <strong className="dashboard-kpi-valor">{formatearCantidad(resumen.total_lineas)}</strong>
+                <p className="dashboard-kpi-detalle">Líneas móviles registradas en el sistema.</p>
+                <div className="dashboard-kpi-pie">
+                  <span>Administración móvil</span>
+                  <button type="button" className="dashboard-kpi-accion" onClick={() => setSeccionActiva('Líneas móviles')} aria-label="Ver líneas móviles">
+                    Ver líneas <ArrowUpRight size={15} aria-hidden="true" />
+                  </button>
+                </div>
+              </article>
             </div>
 
             <div className="paneles">
