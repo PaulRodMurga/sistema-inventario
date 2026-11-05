@@ -1568,6 +1568,7 @@ function EquiposPage({ soloLectura = false, registroInicialId = null, onRegistro
                     </div>
 
                     <form onSubmit={guardarEquipo}>
+                        <div className="modal-equipo-registro-cuerpo">
                         {errorFormulario && <div className="error-formulario" role="alert">{errorFormulario}</div>}
 
                         {!equipoEditandoId && (
@@ -1787,6 +1788,8 @@ function EquiposPage({ soloLectura = false, registroInicialId = null, onRegistro
                                     </div>
                                 </div>
                             )}
+
+                        </div>
 
                         <div className="modal-acciones">
                             <button type="button" className="boton-cancelar" onClick={cerrarModal} disabled={guardando}>Cancelar</button>

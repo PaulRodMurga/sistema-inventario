@@ -480,3 +480,76 @@
   .modal-detalle-asignacion .detalle-asignacion { padding: 12px; }
   .modal-detalle-asignacion .detalle-grid { grid-template-columns: 1fr; }
 }
+
+
+/* Nueva asignación: el encabezado y las acciones permanecen visibles;
+   los campos se desplazan dentro del alto disponible de la ventana. */
+.modal-fondo > .modal-contenido.modal-asignacion {
+    box-sizing: border-box;
+    width: min(680px, calc(100vw - 40px));
+    height: min(760px, calc(100dvh - 40px));
+    max-width: calc(100vw - 36px) !important;
+    max-height: calc(100dvh - 36px) !important;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden !important;
+}
+
+.modal-asignacion > .modal-encabezado {
+    flex: 0 0 auto;
+}
+
+.modal-asignacion > form {
+    box-sizing: border-box;
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0 !important;
+}
+
+.modal-asignacion > form > .asignacion-campos {
+    box-sizing: border-box;
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 18px 24px 22px;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+}
+
+.modal-asignacion > form > .modal-acciones {
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 14px 24px;
+    border-top: 1px solid #e5ebf3;
+    background: #f8fafc;
+}
+
+@media (max-height: 680px) {
+    .modal-fondo > .modal-contenido.modal-asignacion {
+        height: calc(100dvh - 16px);
+        max-height: calc(100dvh - 16px) !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .modal-fondo > .modal-contenido.modal-asignacion {
+        width: calc(100vw - 18px);
+        height: calc(100dvh - 18px);
+        max-width: calc(100vw - 18px) !important;
+        max-height: calc(100dvh - 18px) !important;
+    }
+
+    .modal-asignacion > form > .asignacion-campos {
+        padding: 14px 15px 18px;
+    }
+
+    .modal-asignacion > form > .modal-acciones {
+        padding: 12px 15px;
+    }
+}
