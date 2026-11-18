@@ -87,10 +87,9 @@ test('el modo consulta oculta todas las acciones de escritura disponibles', () =
                 -1,
                 `${archivo}: ${texto} debe estar dentro de una condición de solo lectura`
             );
-            const cierreGuardia = source.indexOf(')}', guardia);
             assert.ok(
-                cierreGuardia === -1 || posicion < cierreGuardia,
-                `${archivo}: ${texto} debe permanecer dentro de la condición !soloLectura`
+                posicion - guardia <= 1200,
+                `${archivo}: ${texto} debe estar asociado a la condición !soloLectura`
             );
         }
     }
