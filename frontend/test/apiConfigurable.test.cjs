@@ -105,7 +105,7 @@ test('rechaza una configuración ambigua sin protocolo ni barra inicial', () => 
     );
 });
 
-test('todos los servicios usan el constructor común de URLs', () => {
+test('todos los servicios usan el cliente HTTP común', () => {
     const serviciosDir = path.join(frontendDir, 'src/services');
     const archivos = fs.readdirSync(serviciosDir)
         .filter((archivo) => archivo.endsWith('Service.js'));
@@ -118,8 +118,8 @@ test('todos los servicios usan el constructor común de URLs', () => {
 
         assert.match(
             source,
-            /obtenerApiUrl/,
-            `${archivo} debe construir sus rutas desde apiClient`
+            /solicitarApi/,
+            `${archivo} debe enviar sus solicitudes mediante apiClient`
         );
         assert.doesNotMatch(
             source,
