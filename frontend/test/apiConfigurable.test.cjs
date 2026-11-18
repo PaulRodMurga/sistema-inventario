@@ -41,7 +41,7 @@ const cargarConfiguracion = (
         .replace(/^export /gm, '');
 
     return vm.runInNewContext(
-        `${ejecutable}\\n({ API_BASE, normalizarApiBase, obtenerApiUrl, obtenerTokenSesion });`,
+        `${ejecutable}\n({ API_BASE, normalizarApiBase, obtenerApiUrl, obtenerTokenSesion });`,
         {
             URL,
             Headers: class HeadersPrueba {},
