@@ -100,8 +100,9 @@ async function montar(config) {
         return slots[posicion];
     }
 
-    function useEffect(callback, dependencias) {
-        assert.equal(dependencias.length, 0, 'Este simulador cubre efectos de montaje');
+    function useEffect(callback) {
+        // El simulador ejecuta una vez cada efecto durante el montaje.
+        // No simula cambios de dependencias entre renderizados.
         const posicion = indice++;
         if (!(posicion in slots)) {
             slots[posicion] = {};
