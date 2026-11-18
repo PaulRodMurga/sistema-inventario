@@ -177,8 +177,7 @@ export const obtenerTokenSesion = () => {
     const tokenAnterior = sessionStorage.getItem(CLAVE_TOKEN);
     if (tokenAnterior) {
         localStorage.setItem(CLAVE_TOKEN, tokenAnterior);
-        localStorage.removeItem(CLAVE_TOKEN);
-    sessionStorage.removeItem(CLAVE_TOKEN);
+        sessionStorage.removeItem(CLAVE_TOKEN);
         return tokenAnterior;
     }
 
