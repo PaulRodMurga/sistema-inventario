@@ -61,7 +61,7 @@ test('Equipos, colaboradores, líneas y asignaciones reciben soloLectura', () =>
     ]) {
         assert.match(
             app,
-            new RegExp(`<${componente} soloLectura=\\{esConsulta\\}`)
+            new RegExp(`<${componente}\\b[\\s\\S]{0,300}?soloLectura=\\{esConsulta\\}`)
         );
     }
 });
@@ -81,8 +81,17 @@ test('el modo consulta oculta todas las acciones de escritura disponibles', () =
         for (const texto of [alta, cambio]) {
             const posicion = source.indexOf(texto);
             assert.notEqual(posicion, -1, `${archivo}: existe ${texto}`);
-            const contexto = source.slice(Math.max(0, posicion - 900), posicion);
-            assert.match(contexto, /!soloLectura/);
+            const guardia = source.lastIndexOf('!soloLectura && (', posicion);
+            assert.notEqual(
+                guardia,
+                -1,
+                `${archivo}: ${texto} debe estar dentro de una condición de solo lectura`
+            );
+            const cierreGuardia = source.indexOf(')}', guardia);
+            assert.ok(
+                cierreGuardia === -1 || posicion < cierreGuardia,
+                `${archivo}: ${texto} debe permanecer dentro de la condición !soloLectura`
+            );
         }
     }
 });
@@ -92,30 +101,24 @@ test('usuarioService conserva los cuatro contratos HTTP administrativos', async 
         path.join(frontendDir, 'src/services/usuarioService.js'),
         'utf8'
     );
-    const peticiones = [];
-    const servicioEjecutable = source.replace(
-        /^import \{ obtenerApiUrl \} from '\.\/apiClient';\r?\n/m,
-        ''
-    );
+    const solicitudes = [];
+    const servicioEjecutable = source
+        .replace(/^import \{ extraerListaApi, solicitarApi \} from '\.\/apiClient';\r?\n/m, '')
+        .replace(/^export /gm, '');
+
     const api = vm.runInNewContext(
-        `${servicioEjecutable.replace(/^export /gm, '')}\n({ listarUsuarios, registrarUsuario, actualizarUsuario, restablecerClaveUsuario });`,
+        `${servicioEjecutable}\n({ listarUsuarios, registrarUsuario, actualizarUsuario, restablecerClaveUsuario });`,
         {
-            obtenerApiUrl: (ruta = '') =>
-                `http://localhost:3000/api/${String(ruta).replace(/^\/+/, '')}`,
-            async fetch(url, opciones = {}) {
-                peticiones.push({ url, opciones });
-                return {
-                    ok: true,
-                    headers: { get: () => 'application/json' },
-                    async json() {
-                        return {
-                            success: true,
-                            data: opciones.method ? { id: 1 } : []
-                        };
-                    }
-                };
+            solicitarApi(ruta, opciones = {}) {
+                solicitudes.push([String(ruta), opciones.method || 'GET']);
+                return Promise.resolve({
+                    success: true,
+                    data: opciones.method ? { id: 1 } : []
+                });
             },
-            Set
+            extraerListaApi(resultado) {
+                return resultado.data;
+            }
         }
     );
 
@@ -124,13 +127,10 @@ test('usuarioService conserva los cuatro contratos HTTP administrativos', async 
     await api.actualizarUsuario(4, { rol: 'CONSULTA' });
     await api.restablecerClaveUsuario(4, 'NuevaClave2026');
 
-    assert.deepEqual(
-        peticiones.map((peticion) => [peticion.url, peticion.opciones.method || 'GET']),
-        [
-            ['http://localhost:3000/api/usuarios', 'GET'],
-            ['http://localhost:3000/api/usuarios', 'POST'],
-            ['http://localhost:3000/api/usuarios/4', 'PUT'],
-            ['http://localhost:3000/api/usuarios/4/clave', 'PUT']
-        ]
-    );
+    assert.deepEqual(solicitudes, [
+        ['/usuarios', 'GET'],
+        ['/usuarios', 'POST'],
+        ['/usuarios/4', 'PUT'],
+        ['/usuarios/4/clave', 'PUT']
+    ]);
 });
