@@ -10,7 +10,29 @@ const apiClientSource = fs.readFileSync(
     'utf8'
 );
 
-const cargarConfiguracion = (valor) => {
+const crearAlmacenPrueba = () => {
+    const valores = new Map();
+
+    return {
+        getItem(clave) {
+            return valores.has(clave) ? valores.get(clave) : null;
+        },
+        setItem(clave, valor) {
+            valores.set(clave, String(valor));
+        },
+        removeItem(clave) {
+            valores.delete(clave);
+        }
+    };
+};
+
+const cargarConfiguracion = (
+    valor,
+    {
+        localStorage = crearAlmacenPrueba(),
+        sessionStorage = crearAlmacenPrueba()
+    } = {}
+) => {
     const valorJs = valor === undefined
         ? 'undefined'
         : JSON.stringify(valor);
@@ -19,18 +41,15 @@ const cargarConfiguracion = (valor) => {
         .replace(/^export /gm, '');
 
     return vm.runInNewContext(
-        `${ejecutable}\n({ API_BASE, normalizarApiBase, obtenerApiUrl });`,
+        `${ejecutable}\\n({ API_BASE, normalizarApiBase, obtenerApiUrl, obtenerTokenSesion });`,
         {
             URL,
             Headers: class HeadersPrueba {},
             Request: class RequestPrueba {},
             CustomEvent: class CustomEventPrueba {},
             Symbol,
-            sessionStorage: {
-                getItem() { return null; },
-                setItem() {},
-                removeItem() {}
-            },
+            localStorage,
+            sessionStorage,
             window: {
                 location: { href: 'http://localhost:5173/' },
                 fetch() {},
@@ -108,4 +127,25 @@ test('todos los servicios usan el constructor común de URLs', () => {
             `${archivo} no debe fijar el servidor local`
         );
     }
+});
+
+test('migra el token de sessionStorage a localStorage sin borrarlo', () => {
+    const localStorage = crearAlmacenPrueba();
+    const sessionStorage = crearAlmacenPrueba();
+    sessionStorage.setItem('inventario_token_sesion', 'token-anterior');
+
+    const api = cargarConfiguracion(undefined, {
+        localStorage,
+        sessionStorage
+    });
+
+    assert.equal(api.obtenerTokenSesion(), 'token-anterior');
+    assert.equal(
+        localStorage.getItem('inventario_token_sesion'),
+        'token-anterior'
+    );
+    assert.equal(
+        sessionStorage.getItem('inventario_token_sesion'),
+        null
+    );
 });
