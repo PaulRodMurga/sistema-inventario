@@ -564,6 +564,13 @@ const devolverAsignacion = async (req, res) => {
         }
 
         // Sincronizar el detalle del acta con la devolución confirmada.
+        // La respuesta informa si existía un vínculo y si el detalle pudo actualizarse.
+        let sincronizacionActa = {
+            estado: 'SIN_ACTA',
+            acta_id: null,
+            detalle_id: null
+        };
+
         if (asignacion.acta_id) {
             const [detallesActa] = await conexion.query(`
                 SELECT id, estado, devolvio_equipo
@@ -576,17 +583,26 @@ const devolverAsignacion = async (req, res) => {
                 throw new Error('No se encontró un único detalle del acta para esta devolución');
             }
 
-            if (!['PERDIDO', 'ROBADO'].includes(detallesActa[0].estado)) {
+            const detalle = detallesActa[0];
+            sincronizacionActa = {
+                estado: 'NO_APLICA',
+                acta_id: asignacion.acta_id,
+                detalle_id: detalle.id
+            };
+
+            if (!['PERDIDO', 'ROBADO'].includes(detalle.estado)) {
                 const [detalleActualizado] = await conexion.query(`
                     UPDATE detalle_acta
                     SET fecha_devolucion = ?, devolvio_equipo = 'SI',
                         estado = 'DEVUELTO'
                     WHERE id = ?
-                `, [fechaFinal, detallesActa[0].id]);
+                `, [fechaFinal, detalle.id]);
 
                 if (detalleActualizado.affectedRows !== 1) {
                     throw new Error('No se pudo actualizar el detalle del acta');
                 }
+
+                sincronizacionActa.estado = 'ACTUALIZADA';
             }
         }
 
@@ -650,7 +666,8 @@ const devolverAsignacion = async (req, res) => {
         return res.json({
             success: true,
             mensaje: 'Equipo devuelto correctamente',
-            movimiento_id: movimiento.id
+            movimiento_id: movimiento.id,
+            sincronizacion_acta: sincronizacionActa
         });
     } catch (error) {
         if (transaccionActiva) {
