@@ -37,12 +37,17 @@ function porId(id) {
     return elementos[0];
 }
 
-test('Tipo ofrece exactamente vacío, CELULAR y MODEM', () => {
+test('Tipo de equipo se alimenta del catálogo dinámico del backend', () => {
     const tipo = porId('tipo');
     assert.equal(tipo.openingElement.name.name, 'select');
-    const valores = buscar(tipo, (n) => n.type === 'JSXElement' && n.openingElement.name.name === 'option')
-        .map((opcion) => atributo(opcion, 'value')?.value);
-    assert.deepEqual(valores, ['', 'CELULAR', 'MODEM']);
+    const opciones = buscar(tipo, (n) =>
+        n.type === 'JSXElement' && n.openingElement.name.name === 'option'
+    );
+    assert.equal(opciones.length, 2);
+    assert.equal(atributo(opciones[0], 'value')?.value, '');
+    assert.match(source, /listarTiposEquipo\(\)/);
+    assert.match(source, /tiposEquipo\.map\(\(tipo\) =>/);
+    assert.match(source, /value=\{tipo\.codigo\}/);
 });
 
 test('No presenta un editor de estado ni tipos ajenos al esquema', () => {
@@ -53,46 +58,118 @@ test('No presenta un editor de estado ni tipos ajenos al esquema', () => {
     assert.match(source, /cambia desde asignaciones, devoluciones o movimientos/);
 });
 
-test('Tipo, marca y contrato son campos directos de la cuadrícula, sin formularios anidados', () => {
+test('Los campos base son directos de la cuadrícula y los datos técnicos van en su sección', () => {
     const grids = buscar(retorno, (n) => n.type === 'JSXElement' && atributo(n, 'className')?.value === 'formulario-grid');
     assert.equal(grids.length, 1);
     const campos = grids[0].children.filter((n) => n.type === 'JSXElement');
-    assert.equal(campos.length, 6);
+    assert.equal(campos.length, 5);
     for (const campo of campos) {
         assert.equal(atributo(campo, 'className')?.value?.includes('campo-formulario'), true);
         const anidados = campo.children.filter((n) => n.type === 'JSXElement' &&
             atributo(n, 'className')?.value?.includes('campo-formulario'));
         assert.equal(anidados.length, 0);
     }
-    for (const id of ['tipo', 'marca', 'modelo', 'imei', 'serie', 'contrato_gama_id']) porId(id);
+    for (const id of ['tipo', 'marca', 'modelo', 'contrato_id', 'contrato_gama_id']) porId(id);
+    assert.match(source, /Identificación y especificaciones de/);
+    assert.match(source, /id="codigo_patrimonial"/);
+    assert.match(source, /id="serie"/);
+    assert.match(source, /tipoSeleccionado\.acepta_imei/);
 });
 
 function montar() {
     const slots = [];
     const envios = [];
     let indice = 0;
+    const efectosEjecutados = new Set();
+
+    const tiposMock = [
+        { codigo: 'CELULAR', acepta_imei: true, campos: [] },
+        { codigo: 'MODEM', acepta_imei: true, campos: [] },
+        { codigo: 'COMPUTADOR', acepta_imei: false, campos: [] },
+        { codigo: 'LAPTOP', acepta_imei: false, campos: [] }
+    ];
+    const relacionesMock = [{
+        id: 3,
+        contrato_id: 1,
+        nro_contrato: 'CON-001',
+        operador: 'OPERADOR',
+        codigo_gama: 'G1',
+        gama: 'GAMA 1',
+        estado_contrato: 'VIGENTE'
+    }];
+
     function useState(inicial) {
         const posicion = indice++;
-        if (!(posicion in slots)) slots[posicion] = { valor: inicial };
+        if (!(posicion in slots)) {
+            slots[posicion] = {
+                valor: typeof inicial === 'function' ? inicial() : inicial
+            };
+        }
         return [slots[posicion].valor, (valor) => {
-            slots[posicion].valor = typeof valor === 'function' ? valor(slots[posicion].valor) : valor;
+            slots[posicion].valor =
+                typeof valor === 'function' ? valor(slots[posicion].valor) : valor;
         }];
     }
+
+    function useRef(inicial) {
+        const posicion = indice++;
+        if (!(posicion in slots)) slots[posicion] = { current: inicial };
+        return slots[posicion];
+    }
+
+    function useMemo(callback) {
+        indice++;
+        return callback();
+    }
+
+    function useEffect(callback) {
+        const posicion = indice++;
+        if (efectosEjecutados.has(posicion)) return;
+        efectosEjecutados.add(posicion);
+        callback();
+    }
+
     const render = vm.runInNewContext(`${source.slice(componente.range[0], retorno.range[0])}
         return { abrirRegistro, abrirEdicion, actualizarFormulario, guardarEquipo,
             estado: { formulario, equipoEditandoId, modalAbierto, error } };
     }
     EquiposPage;`, {
-        useState, useEffect() { }, console: { error() { } }, setTimeout() { },
-        listarEquipos: async () => [], listarContratoGamas: async () => [],
+        useState,
+        useRef,
+        useMemo,
+        useEffect,
+        console: { error() { } },
+        setTimeout() { },
+        window: { setTimeout() { } },
+        listarEquipos: async () => [],
+        listarContratoGamas: async () => relacionesMock,
+        listarTiposEquipo: async () => tiposMock,
         obtenerEquipoPorId: async () => ({
-            id: 5, tipo: 'MODEM', marca: 'Marca', modelo: 'Modelo',
-            imei: null, serie: 'SER-5', contrato_gama_id: 2, estado_actual: 'BAJA'
+            id: 5,
+            tipo: 'MODEM',
+            marca: 'Marca',
+            modelo: 'Modelo',
+            codigo_patrimonial: null,
+            contrato_id: 1,
+            imei: null,
+            serie: 'SER-5',
+            contrato_gama_id: 3,
+            observaciones: null,
+            especificaciones: {},
+            estado_actual: 'BAJA'
         }),
-        registrarEquipo: async (datos) => { envios.push({ metodo: 'POST', datos: JSON.parse(JSON.stringify(datos)) }); },
-        actualizarEquipo: async (id, datos) => { envios.push({ metodo: 'PUT', id, datos: JSON.parse(JSON.stringify(datos)) }); }
+        registrarEquipo: async (datos) => {
+            envios.push({ metodo: 'POST', datos: JSON.parse(JSON.stringify(datos)) });
+        },
+        actualizarEquipo: async (id, datos) => {
+            envios.push({ metodo: 'PUT', id, datos: JSON.parse(JSON.stringify(datos)) });
+        }
     });
-    const vista = () => { indice = 0; return render(); };
+
+    const vista = () => {
+        indice = 0;
+        return render();
+    };
     return { vista, envios, estado: () => JSON.parse(JSON.stringify(vista().estado)) };
 }
 const cambiar = (fn, name, value) => fn({ target: { name, value } });
@@ -100,8 +177,14 @@ const submit = () => ({ preventDefault() { } });
 async function completar(app, tipo = 'CELULAR') {
     app.vista().abrirRegistro();
     for (const [name, value] of Object.entries({
-        tipo, marca: ' Samsung ', modelo: ' A55 ', imei: ' 123 ',
-        serie: ' SER ', contrato_gama_id: '3'
+        tipo,
+        marca: ' Samsung ',
+        modelo: ' A55 ',
+        contrato_id: '1',
+        contrato_gama_id: '3',
+        codigo_patrimonial: ' PAT-001 ',
+        imei: ' 123 ',
+        serie: ' SER '
     })) cambiar(app.vista().actualizarFormulario, name, value);
 }
 
@@ -112,8 +195,15 @@ for (const tipo of ['CELULAR', 'MODEM']) {
         assert.equal(app.envios.length, 1);
         assert.equal(app.envios[0].datos.tipo, tipo);
         assert.equal(app.envios[0].datos.estado_actual, undefined);
-        assert.deepEqual(Object.keys(app.envios[0].datos).sort(),
-            ['contrato_gama_id', 'imei', 'marca', 'modelo', 'serie', 'tipo'].sort());
+        assert.equal(app.envios[0].datos.contrato_id, 1);
+        assert.equal(app.envios[0].datos.contrato_gama_id, 3);
+        assert.equal(app.envios[0].datos.marca, 'Samsung');
+        assert.equal(app.envios[0].datos.modelo, 'A55');
+        assert.equal(app.envios[0].datos.codigo_patrimonial, 'PAT-001');
+        assert.equal(app.envios[0].datos.imei, '123');
+        assert.equal(app.envios[0].datos.serie, 'SER');
+        assert.deepEqual(app.envios[0].datos.especificaciones, {});
+        assert.ok(Array.isArray(app.envios[0].datos.perifericos));
     });
 }
 
