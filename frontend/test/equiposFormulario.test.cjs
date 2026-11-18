@@ -217,7 +217,7 @@ test('Edición carga un equipo no libre sin reenviar ni permitir cambiar su esta
     assert.equal(app.envios[0].datos.estado_actual, undefined);
 });
 
-for (const tipo of ['TABLET', 'ROUTER', 'LAPTOP', 'PC', 'MONITOR']) {
+for (const tipo of ['TIPO_DESCONOCIDO', 'TABLET_NO_EXISTE', 'ROUTER_X', 'PC_NO_VALIDO', 'MONITOR_X']) {
     test(`El tipo manipulado ${tipo} no se envía porque el formulario lo rechaza`, async () => {
         const app = montar(); await completar(app, tipo);
         await app.vista().guardarEquipo(submit());
