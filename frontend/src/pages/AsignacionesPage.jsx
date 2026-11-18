@@ -171,6 +171,7 @@ function AsignacionesPage({ soloLectura = false, registroInicialId = null, onReg
         modalidad: '',
         ubicacion: '',
         unidad_empresarial: '',
+        descripcion_equipo_anterior: '',
         observaciones: ''
     });
 
@@ -407,6 +408,7 @@ function AsignacionesPage({ soloLectura = false, registroInicialId = null, onReg
             modalidad: '',
             ubicacion: '',
             unidad_empresarial: '',
+            descripcion_equipo_anterior: '',
             observaciones: ''
         });
     };
@@ -491,18 +493,27 @@ function AsignacionesPage({ soloLectura = false, registroInicialId = null, onReg
                 }
             );
 
+            const estadoSincronizacionActa =
+                resultado?.sincronizacion_acta?.estado;
+
+            if (estadoSincronizacionActa === 'ACTUALIZADA') {
+                setMensaje('Devolución registrada y detalle del acta actualizado');
+            } else if (estadoSincronizacionActa === 'SIN_ACTA') {
+                setMensaje('Devolución registrada. Esta asignación no tiene un acta vinculada');
+            } else {
+                setMensaje('Devolución registrada correctamente');
+            }
+
             setDevolucionAbierta(false);
             setAsignacionDevolucion(null);
 
             if (ventanaActaDevolucion) {
-                setMensaje('Devolución registrada correctamente. Se generó el cargo de devolución.');
                 await generarActaDevolucionPDF(
                     asignacionDevolucion,
                     formularioDevolucion,
                     ventanaActaDevolucion
                 );
             } else {
-                setMensaje('Devolución registrada correctamente.');
                 setError('El navegador bloqueó la ventana del cargo de devolución. Permite las ventanas emergentes y vuelve a generar el documento desde la asignación.');
             }
 
@@ -579,6 +590,35 @@ function AsignacionesPage({ soloLectura = false, registroInicialId = null, onReg
             return;
         }
 
+        if (
+            formulario.colaborador_id &&
+            formulario.equipo_id &&
+            contextoActas.current.estado === 'CARGANDO'
+        ) {
+            setError('Espera a que termine la consulta de actas antes de guardar');
+            return;
+        }
+
+        if (
+            formulario.colaborador_id &&
+            formulario.equipo_id &&
+            contextoActas.current.estado === 'ERROR'
+        ) {
+            setError('No se pudo validar el acta. Actualiza las actas antes de guardar');
+            return;
+        }
+
+        let actaSeleccionadaId = null;
+        if (formulario.acta_id) {
+            const actaSeleccionada = contextoActas.current.datos.find(
+                (acta) => String(acta.id) === String(formulario.acta_id)
+            );
+            if (!actaSeleccionada) {
+                setError('El acta seleccionada no corresponde a la selección actual');
+                return;
+            }
+            actaSeleccionadaId = Number(actaSeleccionada.id);
+        }
 
         registroEnCurso.current = true;
         try {
@@ -591,10 +631,12 @@ function AsignacionesPage({ soloLectura = false, registroInicialId = null, onReg
                     formulario.colaborador_id
                 ),
                 equipo_id: Number(formulario.equipo_id),
-                acta_id: null,
+                acta_id: actaSeleccionadaId,
                 fecha_asignacion: formulario.fecha_asignacion,
                 modalidad: formulario.modalidad || null,
                 ubicacion: formulario.ubicacion.trim() || null,
+                descripcion_equipo_anterior:
+                    formulario.descripcion_equipo_anterior.trim() || null,
                 observaciones: formulario.observaciones.trim() || null
             });
 
@@ -1244,11 +1286,76 @@ function AsignacionesPage({ soloLectura = false, registroInicialId = null, onReg
                                     </small>
                                 </div>
 
+                                <div className="campo-formulario campo-completo">
+                                    <label htmlFor="acta_id_asignacion">
+                                        Acta de entrega vinculada (opcional)
+                                    </label>
+                                    <select
+                                        id="acta_id_asignacion"
+                                        name="acta_id"
+                                        value={formulario.acta_id}
+                                        onChange={actualizarFormulario}
+                                        disabled={
+                                            guardando ||
+                                            cargandoActas ||
+                                            !formulario.colaborador_id ||
+                                            !formulario.equipo_id ||
+                                            Boolean(errorActas)
+                                        }
+                                    >
+                                        <option value="">Sin vincular un acta existente</option>
+                                        {actasDisponibles.map((acta) => (
+                                            <option key={acta.id} value={acta.id}>
+                                                {acta.nro_acta || `Acta #${acta.id}`}
+                                                {acta.fecha_entrega ? ` — ${acta.fecha_entrega}` : ''}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <div className="acciones-selector-actas">
+                                        <small className="ayuda-campo">
+                                            {cargandoActas
+                                                ? 'Consultando actas del colaborador y equipo seleccionados...'
+                                                : errorActas
+                                                    ? errorActas
+                                                    : !formulario.colaborador_id || !formulario.equipo_id
+                                                        ? 'Selecciona primero un colaborador y un equipo para consultar las actas compatibles.'
+                                                        : actasDisponibles.length
+                                                            ? 'Puedes vincular un acta pendiente o dejar esta opción vacía para generar una nueva.'
+                                                            : 'No hay actas compatibles. Al guardar se generará una nueva.'}
+                                        </small>
+                                        <button
+                                            type="button"
+                                            className="boton-actualizar-actas"
+                                            onClick={cargarActasRegistro}
+                                            disabled={
+                                                guardando ||
+                                                cargandoActas ||
+                                                !formulario.colaborador_id ||
+                                                !formulario.equipo_id
+                                            }
+                                        >
+                                            Actualizar actas
+                                        </button>
+                                    </div>
+                                    {errorActas && (
+                                        <div className="error-actas-disponibles" role="alert">
+                                            <button
+                                                type="button"
+                                                className="boton-reintentar-actas"
+                                                onClick={cargarActasRegistro}
+                                                disabled={guardando || cargandoActas}
+                                            >
+                                                Reintentar consulta de actas
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+
                                 <div className="campo-formulario campo-completo bloque-acta-info">
                                     <div className="bloque-acta-icono"><FileText size={22} aria-hidden="true" /></div>
                                     <div>
                                         <strong>Acta de entrega</strong>
-                                        <p>Registra la asignación y luego podrás generar el acta en PDF desde las acciones de la tabla. El documento se prepara con los datos de esta asignación.</p>
+                                        <p>Si vinculas un acta existente, se asociará a esta asignación. Si dejas la selección vacía, el sistema generará un acta nueva al registrar la asignación.</p>
                                     </div>
                                 </div>
 
@@ -1316,6 +1423,22 @@ function AsignacionesPage({ soloLectura = false, registroInicialId = null, onReg
                                         placeholder="Se completa con la unidad empresarial del colaborador"
                                         value={formulario.unidad_empresarial}
                                         readOnly
+                                        disabled={guardando}
+                                    />
+                                </div>
+
+                                <div className="campo-formulario campo-completo">
+                                    <label htmlFor="descripcion_equipo_anterior">
+                                        Equipo anterior (opcional)
+                                    </label>
+                                    <textarea
+                                        id="descripcion_equipo_anterior"
+                                        name="descripcion_equipo_anterior"
+                                        rows="2"
+                                        maxLength={200}
+                                        placeholder="Identificación del equipo que se reemplaza"
+                                        value={formulario.descripcion_equipo_anterior}
+                                        onChange={actualizarFormulario}
                                         disabled={guardando}
                                     />
                                 </div>
@@ -1641,6 +1764,16 @@ function AsignacionesPage({ soloLectura = false, registroInicialId = null, onReg
                                         '-'}
                                 </strong>
                             </div>
+
+                            <div>
+                                <span>Acta vinculada</span>
+                                <strong>
+                                    {asignacionDevolucion.acta_id
+                                        ? (asignacionDevolucion.nro_acta ||
+                                            `ID ${asignacionDevolucion.acta_id}`)
+                                        : 'Sin acta vinculada'}
+                                </strong>
+                            </div>
                         </div>
 
                         <div className="formulario-grid">
@@ -1710,7 +1843,14 @@ function AsignacionesPage({ soloLectura = false, registroInicialId = null, onReg
                         </div>
 
                         <div className="advertencia-devolucion">
-                            El equipo cambiará de ASIGNADO a LIBRE y volverá a estar disponible para otra asignación. Al confirmar, se generará el cargo de devolución para imprimirlo o guardarlo como PDF.
+                            <p>
+                                El equipo cambiará de ASIGNADO a LIBRE y volverá a estar disponible para otra asignación. Al confirmar, se generará el cargo de devolución para imprimirlo o guardarlo como PDF.
+                            </p>
+                            <p>
+                                {asignacionDevolucion.acta_id
+                                    ? 'La devolución actualizará el detalle del acta vinculada. No cambiarán las firmas ni el estado general del acta.'
+                                    : 'No se actualizará ningún acta porque esta asignación no tiene un acta vinculada.'}
+                            </p>
                         </div>
 
                         <div className="modal-acciones">
