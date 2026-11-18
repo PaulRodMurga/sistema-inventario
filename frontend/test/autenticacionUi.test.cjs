@@ -60,6 +60,8 @@ test('el cliente HTTP adjunta Bearer solo a la API y borra sesiones vencidas', (
     assert.match(source, /Authorization/);
     assert.match(source, /Bearer/);
     assert.match(source, /respuesta\.status === 401/);
+    assert.match(source, /localStorage/);
     assert.match(source, /sessionStorage/);
-    assert.doesNotMatch(source, /localStorage/);
+    assert.match(source, /localStorage\.setItem\(CLAVE_TOKEN, tokenAnterior\)/);
+    assert.match(source, /sessionStorage\.removeItem\(CLAVE_TOKEN\)/);
 });
