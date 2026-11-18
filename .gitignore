@@ -32,3 +32,6 @@ Thumbs.db
 
 # Fotos de perfil cargadas por los usuarios (no subir archivos personales a Git)
 backend/uploads/perfiles/
+
+# Documentos PDF de actas cargados por usuarios
+backend/uploads/actas/
