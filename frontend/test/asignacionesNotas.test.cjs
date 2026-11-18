@@ -52,26 +52,66 @@ function montar(opciones = {}) {
     }
     const servicioSource = fs.readFileSync(path.join(__dirname, '../src/services/asignacionService.js'), 'utf8');
     const servicioEjecutable = servicioSource.replace(
-        /^import \{ obtenerApiUrl \} from '\.\/apiClient';\r?\n/m,
+        /^import\s*\{[\s\S]*?\}\s*from '\.\/apiClient';\r?\n/m,
         ''
     );
-    const servicios = vm.runInNewContext(`${servicioEjecutable.replace(/^export /gm, '')}
-        ({ listarAsignaciones, listarActasDisponibles, obtenerAsignacionPorId, registrarAsignacion, devolverAsignacion });`, {
-        obtenerApiUrl: (ruta = '') =>
-            `http://localhost:3000/api/${String(ruta).replace(/^\/+/, '')}`,
-        async fetch(url, opciones = {}) {
-            if (url.includes('/actas-disponibles?')) {
-                const consulta = { url, ...diferida() };
-                consultasActas.push(consulta);
-                return consulta.promise;
-            }
-            if (!opciones.method) return {
-                ok: true, headers: { get: () => 'application/json' }, json: async () => ({ data: [] })
-            };
-            const peticion = { url, metodo: opciones.method, datos: JSON.parse(opciones.body), ...diferida() };
-            peticiones.push(peticion);
-            return peticion.promise;
+
+    const fetchSimulado = async (url, opciones = {}) => {
+        if (url.includes('/actas-disponibles?')) {
+            const consulta = { url, ...diferida() };
+            consultasActas.push(consulta);
+            return consulta.promise;
         }
+        if (!opciones.method) return {
+            ok: true,
+            status: 200,
+            headers: { get: () => 'application/json' },
+            json: async () => ({ success: true, data: [] })
+        };
+        const peticion = {
+            url,
+            metodo: opciones.method,
+            datos: JSON.parse(opciones.body),
+            ...diferida()
+        };
+        peticiones.push(peticion);
+        return peticion.promise;
+    };
+
+    const solicitarApi = async (ruta, opciones = {}) => {
+        const { mensajeError = 'No se pudo completar la solicitud', ...opcionesFetch } = opciones;
+        const respuesta = await fetchSimulado(
+            `http://localhost:3000/api/${String(ruta).replace(/^\/+/, '')}`,
+            opcionesFetch
+        );
+        const tipoContenido = respuesta?.headers?.get?.('content-type') || '';
+        if (!tipoContenido.includes('application/json')) {
+            throw new Error('El backend no devolvió una respuesta JSON válida');
+        }
+        const resultado = await respuesta.json();
+        if (!respuesta.ok || resultado?.success === false) {
+            throw new Error(resultado?.mensaje || mensajeError);
+        }
+        return resultado;
+    };
+
+    const extraerListaApi = (resultado, mensaje = 'La API no devolvió un listado válido') => {
+        if (!Array.isArray(resultado?.data)) throw new Error(mensaje);
+        return resultado.data;
+    };
+    const extraerObjetoApi = (resultado, mensaje = 'La API no devolvió un detalle válido') => {
+        if (!resultado?.data || typeof resultado.data !== 'object' || Array.isArray(resultado.data)) {
+            throw new Error(mensaje);
+        }
+        return resultado.data;
+    };
+
+    const servicios = vm.runInNewContext(`${servicioEjecutable.replace(/^export /gm, '')}
+        ({ listarAsignaciones, listarActasDisponibles, obtenerAsignacionPorId,
+           registrarAsignacion, devolverAsignacion, enviarActaPorCorreo });`, {
+        solicitarApi,
+        extraerListaApi,
+        extraerObjetoApi
     });
     const render = vm.runInNewContext(`${source.slice(componente.range[0], retorno.range[0])}
         return {
@@ -87,7 +127,10 @@ function montar(opciones = {}) {
         };
     }
     AsignacionesPage;`, {
-        useState, useRef, useEffect(fn) { efecto = fn; }, console: { error() { } }, setTimeout() { },
+        useState, useRef, useEffect(fn) { efecto = fn; },
+        console: { error() { } },
+        setTimeout() { },
+        window: { open() { return null; } },
         ...servicios,
         listarColaboradores: async () => {
             if (opciones.diferirCatalogos) {
