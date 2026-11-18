@@ -240,6 +240,7 @@ function montar() {
 const cambiar = (fn, name, value) => fn({ target: { name, value } });
 const submit = () => ({ preventDefault() { } });
 async function completar(app, tipo = 'CELULAR') {
+    await new Promise(setImmediate);
     app.vista().abrirRegistro();
     for (const [name, value] of Object.entries({
         tipo,
@@ -273,7 +274,9 @@ for (const tipo of ['CELULAR', 'MODEM']) {
 }
 
 test('Edición carga un equipo no libre sin reenviar ni permitir cambiar su estado', async () => {
-    const app = montar(); await app.vista().abrirEdicion(5);
+    const app = montar();
+    await new Promise(setImmediate);
+    await app.vista().abrirEdicion(5);
     assert.equal(app.estado().formulario.tipo, 'MODEM');
     assert.equal(app.estado().formulario.estado_actual, undefined);
     await app.vista().guardarEquipo(submit());
