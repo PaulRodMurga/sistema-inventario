@@ -500,6 +500,8 @@ function AsignacionesPage({ soloLectura = false, registroInicialId = null, onReg
                 setMensaje('Devolución registrada y detalle del acta actualizado');
             } else if (estadoSincronizacionActa === 'SIN_ACTA') {
                 setMensaje('Devolución registrada. Esta asignación no tiene un acta vinculada');
+            } else if (estadoSincronizacionActa === 'NO_APLICA') {
+                setMensaje('Devolución registrada. Se conserva el detalle del acta porque el equipo figura como perdido o robado');
             } else {
                 setMensaje('Devolución registrada correctamente');
             }
