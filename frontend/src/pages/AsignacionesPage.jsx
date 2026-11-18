@@ -1850,7 +1850,7 @@ function AsignacionesPage({ soloLectura = false, registroInicialId = null, onReg
                             </p>
                             <p>
                                 {asignacionDevolucion.acta_id
-                                    ? 'La devolución actualizará el detalle del acta vinculada. No cambiarán las firmas ni el estado general del acta.'
+                                    ? 'El detalle del acta vinculada se actualizará, salvo que el equipo figure como perdido o robado. No cambiarán las firmas ni el estado del acta.'
                                     : 'No se actualizará ningún acta porque esta asignación no tiene un acta vinculada.'}
                             </p>
                         </div>
