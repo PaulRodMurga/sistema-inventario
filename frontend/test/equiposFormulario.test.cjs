@@ -18,6 +18,65 @@ const ast = linter.getSourceCode().ast;
 const componente = ast.body.find((n) => n.type === 'FunctionDeclaration' && n.id.name === 'EquiposPage');
 const retorno = componente.body.body.find((n) => n.type === 'ReturnStatement');
 
+const helpersSource = fs.readFileSync(
+    path.join(__dirname, '../src/utils/equipos.helpers.js'),
+    'utf8'
+);
+const helpers = vm.runInNewContext(`${helpersSource.replace(/^export /gm, '')}
+    ({
+        TIPOS_PERIFERICO,
+        TIPOS_PERIFERICO_OBLIGATORIOS_COMPUTADOR,
+        prepararEspecificaciones,
+        prepararPerifericos,
+        estaDisponible
+    });`);
+
+const FORMULARIO_INICIAL = {
+    tipo: '',
+    marca: '',
+    modelo: '',
+    codigo_patrimonial: '',
+    imei: '',
+    serie: '',
+    contrato_id: '',
+    contrato_gama_id: '',
+    observaciones: '',
+    especificaciones: {}
+};
+const TIPOS_PRINCIPALES_PERIFERICOS = new Set(['COMPUTADOR', 'LAPTOP']);
+const crearPerifericoVacio = (tipo, habilitado = false) => ({
+    tipo,
+    habilitado,
+    marca: '',
+    modelo: '',
+    codigo_patrimonial: '',
+    serie: '',
+    observaciones: '',
+    especificaciones: {}
+});
+const crearPerifericosFormulario = (tipoPrincipal = '') => {
+    const obligatorios = new Set(
+        String(tipoPrincipal).toUpperCase() === 'COMPUTADOR'
+            ? helpers.TIPOS_PERIFERICO_OBLIGATORIOS_COMPUTADOR
+            : []
+    );
+    return Object.fromEntries(
+        helpers.TIPOS_PERIFERICO.map((tipo) => [
+            tipo,
+            [crearPerifericoVacio(tipo, obligatorios.has(tipo))]
+        ])
+    );
+};
+let siguienteFilaId = 1;
+const crearFilaLote = () => ({
+    idLocal: siguienteFilaId++,
+    codigo_patrimonial: '',
+    imei: '',
+    serie: '',
+    especificaciones: {},
+    perifericos: crearPerifericosFormulario()
+});
+
 function buscar(nodo, predicado, encontrados = []) {
     if (!nodo || typeof nodo !== 'object') return encontrados;
     if (predicado(nodo)) encontrados.push(nodo);
@@ -131,7 +190,7 @@ function montar() {
 
     const render = vm.runInNewContext(`${source.slice(componente.range[0], retorno.range[0])}
         return { abrirRegistro, abrirEdicion, actualizarFormulario, guardarEquipo,
-            estado: { formulario, equipoEditandoId, modalAbierto, error } };
+            estado: { formulario, equipoEditandoId, modalAbierto, error: errorFormulario } };
     }
     EquiposPage;`, {
         useState,
@@ -140,7 +199,13 @@ function montar() {
         useEffect,
         console: { error() { } },
         setTimeout() { },
-        window: { setTimeout() { } },
+        window: { setTimeout() { }, confirm: () => true },
+        FORMULARIO_INICIAL,
+        TIPOS_PRINCIPALES_PERIFERICOS,
+        crearPerifericoVacio,
+        crearPerifericosFormulario,
+        crearFilaLote,
+        ...helpers,
         listarEquipos: async () => [],
         listarContratoGamas: async () => relacionesMock,
         listarTiposEquipo: async () => tiposMock,
