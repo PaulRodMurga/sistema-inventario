@@ -39,7 +39,7 @@ const crearControladorAutenticacion = ({
         }
 
         try {
-            const [filas] = await baseDatos.query(
+            const [usuariosExistentes] = await baseDatos.query(
                 `
                 SELECT
                     id,
@@ -56,17 +56,17 @@ const crearControladorAutenticacion = ({
                 [usuarioIngresado]
             );
 
-            const cuenta = filas[0] || null;
+            const usuarioExistente = usuariosExistentes[0] || null;
 
-            if (!cuenta || cuenta.estado !== 'ACTIVO') {
-                return res.status(401).json({
+            if (usuarioExistente?.estado === 'INACTIVO') {
+                return res.status(403).json({
                     success: false,
-                    mensaje: 'Usuario o contraseña incorrectos'
+                    mensaje: 'Tu acceso al sistema está deshabilitado. Contacta al administrador'
                 });
             }
 
-            const bloqueadoHasta = cuenta.bloqueado_hasta
-                ? new Date(cuenta.bloqueado_hasta)
+            const bloqueadoHasta = usuarioExistente?.bloqueado_hasta
+                ? new Date(usuarioExistente.bloqueado_hasta)
                 : null;
 
             if (
@@ -80,9 +80,9 @@ const crearControladorAutenticacion = ({
                 });
             }
 
-            let credencialesValidas;
+            let cuentaAD;
             try {
-                credencialesValidas = await validarCredencialesAD(
+                cuentaAD = await validarCredencialesAD(
                     usuarioIngresado,
                     clave,
                     configuracionAD
@@ -101,32 +101,34 @@ const crearControladorAutenticacion = ({
                 });
             }
 
-            if (!credencialesValidas) {
-                const intentos = Number(cuenta.intentos_fallidos || 0) + 1;
+            if (!cuentaAD) {
+                if (usuarioExistente) {
+                    const intentos = Number(usuarioExistente.intentos_fallidos || 0) + 1;
 
-                await baseDatos.query(
-                    `
-                    UPDATE usuario
-                    SET
-                        intentos_fallidos = ?,
-                        bloqueado_hasta = CASE
-                            WHEN ? >= ?
-                                THEN DATE_ADD(
-                                    CURRENT_TIMESTAMP,
-                                    INTERVAL ? MINUTE
-                                )
-                            ELSE NULL
-                        END
-                    WHERE id = ?
-                    `,
-                    [
-                        intentos,
-                        intentos,
-                        configuracion.maxIntentos,
-                        configuracion.minutosBloqueo,
-                        cuenta.id
-                    ]
-                );
+                    await baseDatos.query(
+                        `
+                        UPDATE usuario
+                        SET
+                            intentos_fallidos = ?,
+                            bloqueado_hasta = CASE
+                                WHEN ? >= ?
+                                    THEN DATE_ADD(
+                                        CURRENT_TIMESTAMP,
+                                        INTERVAL ? MINUTE
+                                    )
+                                ELSE NULL
+                            END
+                        WHERE id = ?
+                        `,
+                        [
+                            intentos,
+                            intentos,
+                            configuracion.maxIntentos,
+                            configuracion.minutosBloqueo,
+                            usuarioExistente.id
+                        ]
+                    );
+                }
 
                 return res.status(401).json({
                     success: false,
@@ -134,12 +136,63 @@ const crearControladorAutenticacion = ({
                 });
             }
 
+            const nombreCompleto = (
+                typeof cuentaAD.nombreCompleto === 'string' &&
+                cuentaAD.nombreCompleto.trim()
+                    ? cuentaAD.nombreCompleto.trim()
+                    : usuarioIngresado
+            ).slice(0, 120);
+
             const token = criptografia.crearTokenSesion();
             const tokenHash = criptografia.hashearToken(token);
             const conexion = await baseDatos.getConnection();
 
+            let cuenta;
             try {
                 await conexion.beginTransaction();
+
+                // Si es el primer ingreso, crea la cuenta con rol CONSULTA.
+                // En cuentas existentes solo sincroniza el nombre: nunca cambia
+                // el rol ni reactiva cuentas que un administrador deshabilitó.
+                await conexion.query(
+                    `
+                    INSERT INTO usuario (
+                        nombre,
+                        usuario,
+                        clave_hash,
+                        rol,
+                        estado,
+                        intentos_fallidos,
+                        bloqueado_hasta,
+                        ultimo_acceso
+                    )
+                    VALUES (?, ?, NULL, 'CONSULTA', 'ACTIVO', 0, NULL, CURRENT_TIMESTAMP)
+                    ON DUPLICATE KEY UPDATE
+                        nombre = IF(estado = 'ACTIVO', VALUES(nombre), nombre)
+                    `,
+                    [nombreCompleto, usuarioIngresado]
+                );
+
+                const [usuarios] = await conexion.query(
+                    `
+                    SELECT id, nombre, usuario, rol, estado
+                    FROM usuario
+                    WHERE usuario = ?
+                    LIMIT 1
+                    FOR UPDATE
+                    `,
+                    [usuarioIngresado]
+                );
+
+                cuenta = usuarios[0] || null;
+
+                if (!cuenta || cuenta.estado !== 'ACTIVO') {
+                    await conexion.rollback();
+                    return res.status(403).json({
+                        success: false,
+                        mensaje: 'Tu acceso al sistema está deshabilitado. Contacta al administrador'
+                    });
+                }
 
                 await conexion.query(
                     `
