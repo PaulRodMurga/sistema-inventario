@@ -2,11 +2,12 @@ const pool = require('../config/database');
 const { obtenerConfiguracion } = require('../config/entorno');
 const {
     crearTokenSesion,
-    hashearToken,
-    obtenerHashFicticio,
-    verificarClave
+    hashearToken
 } = require('../utils/criptografia');
 const { extraerToken } = require('../middleware/autenticacion');
+const {
+    validarCuentaDirectorioActivo
+} = require('../services/directorioActivoService');
 
 const normalizarUsuario = (valor) =>
     typeof valor === 'string' ? valor.trim().toLowerCase() : '';
@@ -14,11 +15,11 @@ const normalizarUsuario = (valor) =>
 const crearControladorAutenticacion = ({
     baseDatos = pool,
     configuracion = obtenerConfiguracion().autenticacion,
+    configuracionAD = obtenerConfiguracion().directorioActivo,
+    validarCredencialesAD = validarCuentaDirectorioActivo,
     criptografia = {
         crearTokenSesion,
-        hashearToken,
-        obtenerHashFicticio,
-        verificarClave
+        hashearToken
     }
 } = {}) => {
     const iniciarSesion = async (req, res) => {
@@ -44,7 +45,6 @@ const crearControladorAutenticacion = ({
                     id,
                     nombre,
                     usuario,
-                    clave_hash,
                     rol,
                     estado,
                     intentos_fallidos,
@@ -57,12 +57,6 @@ const crearControladorAutenticacion = ({
             );
 
             const cuenta = filas[0] || null;
-            const hash = cuenta?.clave_hash ||
-                await criptografia.obtenerHashFicticio();
-            const claveCorrecta = await criptografia.verificarClave(
-                clave,
-                hash
-            );
 
             if (!cuenta || cuenta.estado !== 'ACTIVO') {
                 return res.status(401).json({
@@ -86,7 +80,28 @@ const crearControladorAutenticacion = ({
                 });
             }
 
-            if (!claveCorrecta) {
+            let credencialesValidas;
+            try {
+                credencialesValidas = await validarCredencialesAD(
+                    usuarioIngresado,
+                    clave,
+                    configuracionAD
+                );
+            } catch (errorAD) {
+                console.error(
+                    'No se pudo consultar Active Directory:',
+                    errorAD?.message || 'Error desconocido'
+                );
+
+                return res.status(errorAD?.estadoHttp || 502).json({
+                    success: false,
+                    mensaje: errorAD?.estadoHttp === 503
+                        ? 'La autenticación corporativa no está configurada. Contacta al administrador'
+                        : 'No se pudo validar la cuenta corporativa. Intenta nuevamente más tarde'
+                });
+            }
+
+            if (!credencialesValidas) {
                 const intentos = Number(cuenta.intentos_fallidos || 0) + 1;
 
                 await baseDatos.query(
@@ -121,7 +136,6 @@ const crearControladorAutenticacion = ({
 
             const token = criptografia.crearTokenSesion();
             const tokenHash = criptografia.hashearToken(token);
-
             const conexion = await baseDatos.getConnection();
 
             try {
@@ -139,7 +153,6 @@ const crearControladorAutenticacion = ({
                     [cuenta.id]
                 );
 
-                // Una sola sesión activa por usuario simplifica la revocación.
                 await conexion.query(
                     'DELETE FROM sesion_usuario WHERE usuario_id = ?',
                     [cuenta.id]
