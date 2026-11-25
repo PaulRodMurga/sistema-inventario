@@ -4,6 +4,8 @@ const ENTORNOS_PERMITIDOS = new Set([
     'production'
 ]);
 
+const URL_AD_POR_DEFECTO = 'https://sap30003.distriluz.com.pe:60000/ActiveDirectory/Api/ActiveDirectory/ValidarDato';
+
 const leerTextoRequerido = (entorno, nombre) => {
     const valor = entorno[nombre];
 
@@ -120,6 +122,27 @@ const obtenerConfiguracion = (entorno = process.env) => {
         );
     }
 
+    const urlDirectorioActivo = (
+        typeof entorno.AD_API_URL === 'string' && entorno.AD_API_URL.trim()
+            ? entorno.AD_API_URL.trim()
+            : URL_AD_POR_DEFECTO
+    );
+
+    let urlAD;
+    try {
+        urlAD = new URL(urlDirectorioActivo);
+    } catch {
+        throw new Error('AD_API_URL debe ser una URL válida');
+    }
+
+    if (
+        urlAD.protocol !== 'https:' ||
+        urlAD.username ||
+        urlAD.password
+    ) {
+        throw new Error('AD_API_URL debe utilizar HTTPS y no incluir credenciales');
+    }
+
     return Object.freeze({
         servidor: Object.freeze({
             modo,
@@ -134,7 +157,6 @@ const obtenerConfiguracion = (entorno = process.env) => {
             origenesCors: Object.freeze(
                 leerOrigenesCors(entorno)
             ),
-            // Admite las cargas masivas validadas de equipos y colaboradores.
             limiteJson: '10mb'
         }),
         baseDatos: Object.freeze({
@@ -181,6 +203,20 @@ const obtenerConfiguracion = (entorno = process.env) => {
                 15,
                 1,
                 1440
+            )
+        }),
+        directorioActivo: Object.freeze({
+            url: urlAD.toString(),
+            key: typeof entorno.AD_KEY === 'string' ? entorno.AD_KEY : '',
+            sistema: typeof entorno.AD_SISTEMA === 'string' && entorno.AD_SISTEMA.trim()
+                ? entorno.AD_SISTEMA.trim()
+                : '1',
+            timeoutMs: leerEntero(
+                entorno,
+                'AD_TIMEOUT_MS',
+                10000,
+                1000,
+                30000
             )
         }),
         advertencias: Object.freeze(advertencias)
