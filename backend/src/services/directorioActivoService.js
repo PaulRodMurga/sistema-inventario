@@ -88,12 +88,30 @@ const validarCuentaDirectorioActivo = async (
         ? cuentaAD.codigo.trim().toLowerCase()
         : '';
 
-    return Boolean(
-        autenticacion?.resultAuth === true &&
-        autenticacion?.codResult === 'A000' &&
-        cuentaAD?.activo === true &&
-        codigoAD === String(usuario).trim().toLowerCase()
-    );
+    if (
+        autenticacion?.resultAuth !== true ||
+        autenticacion?.codResult !== 'A000' ||
+        cuentaAD?.activo !== true ||
+        codigoAD !== String(usuario).trim().toLowerCase()
+    ) {
+        return null;
+    }
+
+    const nombres = typeof cuentaAD.nombres === 'string'
+        ? cuentaAD.nombres.trim()
+        : '';
+    const apellidos = typeof cuentaAD.apellidos === 'string'
+        ? cuentaAD.apellidos.trim()
+        : '';
+
+    return Object.freeze({
+        codigo: cuentaAD.codigo.trim(),
+        nombres,
+        apellidos,
+        nombreCompleto: [nombres, apellidos].filter(Boolean).join(' ').slice(0, 120),
+        idAD: typeof cuentaAD.idAD === 'string' ? cuentaAD.idAD : null,
+        activo: true
+    });
 };
 
 module.exports = {
