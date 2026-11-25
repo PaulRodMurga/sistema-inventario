@@ -23,7 +23,10 @@ const respuestaAD = (sobreEscritura = {}) => ({
         },
         getUser: {
             CargaUsuario: {
+                nombres: 'Usuario',
+                apellidos: 'De Prueba',
                 codigo: 'usuario.prueba',
+                idAD: '0ba87sd2-00ea-47cd-aaab-878a9deb4f4d',
                 activo: true
             }
         },
@@ -31,7 +34,7 @@ const respuestaAD = (sobreEscritura = {}) => ({
     })
 });
 
-test('envía las credenciales y los parámetros requeridos al servicio AD', async (t) => {
+test('envía credenciales a AD y devuelve el perfil para crear el usuario local', async (t) => {
     const fetchOriginal = global.fetch;
     t.after(() => {
         global.fetch = fetchOriginal;
@@ -49,7 +52,6 @@ test('envía las credenciales y los parámetros requeridos al servicio AD', asyn
         configuracion
     );
 
-    assert.equal(resultado, true);
     assert.equal(solicitud.url, configuracion.url);
     assert.equal(solicitud.opciones.method, 'POST');
     assert.deepEqual(JSON.parse(solicitud.opciones.body), {
@@ -57,6 +59,14 @@ test('envía las credenciales y los parámetros requeridos al servicio AD', asyn
         ADPassword: 'clave-prueba',
         Sistema: '1',
         Key: 'key-de-prueba'
+    });
+    assert.deepEqual(resultado, {
+        codigo: 'usuario.prueba',
+        nombres: 'Usuario',
+        apellidos: 'De Prueba',
+        nombreCompleto: 'Usuario De Prueba',
+        idAD: '0ba87sd2-00ea-47cd-aaab-878a9deb4f4d',
+        activo: true
     });
 });
 
@@ -89,7 +99,7 @@ test('rechaza credenciales cuando AD informa autenticación fallida', async (t) 
         configuracion
     );
 
-    assert.equal(resultado, false);
+    assert.equal(resultado, null);
 });
 
 test('rechaza una cuenta AD inactiva o cuyo código no coincide', async (t) => {
@@ -113,7 +123,7 @@ test('rechaza una cuenta AD inactiva o cuyo código no coincide', async (t) => {
         configuracion
     );
 
-    assert.equal(resultado, false);
+    assert.equal(resultado, null);
 });
 
 test('no realiza la solicitud si falta la Key institucional', async () => {
