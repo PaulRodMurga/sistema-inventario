@@ -62,7 +62,7 @@ function LoginPage({ onAutenticado }) {
 
                 <div className="login-encabezado">
                     <h1 id="login-titulo">Iniciar sesión</h1>
-                    <p>Ingresa con tu cuenta asignada por el administrador.</p>
+                    <p>Ingresa con tu cuenta corporativa de Active Directory.</p>
                 </div>
 
                 <form onSubmit={enviar}>
